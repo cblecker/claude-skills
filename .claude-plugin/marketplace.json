@@ -1,0 +1,6 @@
+{
+  "name": "cblecker's Claude Code Plugins",
+  "description": "Personal collection of Claude Code plugins, subagents, slash commands, hooks, and MCP servers",
+  "version": "1.0.0",
+  "plugins": []
+}
