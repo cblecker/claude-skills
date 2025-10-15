@@ -1,5 +1,7 @@
 # Claude Code Plugins
 
+[![Validate Plugins](https://github.com/cblecker/claude-plugins/actions/workflows/validate-plugins.yml/badge.svg)](https://github.com/cblecker/claude-plugins/actions/workflows/validate-plugins.yml)
+
 A personal collection of Claude Code plugins, providing custom subagents, slash commands, hooks, and MCP servers to enhance my development workflow.
 
 ## What are Claude Code Plugins?
@@ -54,6 +56,14 @@ plugins/
     ├── hooks/               # Hook configurations
     └── mcp/                 # MCP server configurations
 ```
+
+## Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
+- Plugin structure and validation requirements
+- Development workflow
+- Testing your changes locally
+- Naming conventions and best practices
 
 ## License
 
