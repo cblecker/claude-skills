@@ -114,6 +114,21 @@ ELSE:
 
 **Objective**: Fetch and merge changes from remote.
 
+**Validation Gate: Plan Mode Check**
+```
+IF in plan mode:
+  STOP: "Cannot sync branch in plan mode"
+  EXPLAIN: This workflow would sync [target branch]:
+    - Execute: [sync command from Phase 3]
+    - Fetch from remote
+    - Merge or rebase changes
+    - Potentially push to remote
+  INFORM: "Exit plan mode to execute sync workflow"
+  EXIT workflow
+ELSE:
+  PROCEED to sync
+```
+
 **Steps:**
 1. **Execute appropriate sync command using bash** (no MCP equivalent):
    - **IF upstream exists**:

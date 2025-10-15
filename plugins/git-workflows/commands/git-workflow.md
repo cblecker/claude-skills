@@ -78,6 +78,22 @@ ELSE:
 }
 ```
 
+**Validation Gate: Plan Mode Check**
+```
+IF in plan mode:
+  STOP: "Cannot execute comprehensive workflow in plan mode"
+  EXPLAIN: This workflow would perform multiple write operations:
+    - Code review and testing
+    - Create commit via /commit workflow
+    - Potentially create feature branch via /branch workflow
+    - Push to remote and create PR via /pr workflow
+  INFORM: "Exit plan mode to execute git-workflow"
+  NOTE: "Consider running individual workflows (/commit, /pr) after exiting plan mode"
+  EXIT workflow
+ELSE:
+  PROCEED to Phase 2
+```
+
 ## Phase 2: Code Review (Configurable)
 
 **Objective**: Analyze code quality, security, and best practices.

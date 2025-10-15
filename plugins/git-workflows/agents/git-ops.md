@@ -130,6 +130,33 @@ Check exit code: 0 = upstream exists (fork), non-zero = no upstream (origin only
 **Bash (write operations, require approval):**
 - `git push`, `git fetch && git merge/pull`, `git rebase`
 
+### § Plan Mode Awareness
+
+All workflows MUST check for plan mode before executing write operations. Plan mode is a special state where users want to review proposed actions without executing them.
+
+**Detection**: Plan mode is active when the system indicates read-only operations should be preferred
+
+**Write Operations Requiring Plan Mode Check**:
+- git commit (via MCP or bash)
+- git add (via MCP)
+- git push (bash)
+- git create branch (via MCP)
+- git checkout (via MCP - state change)
+- git rebase (bash)
+- GitHub PR creation (via MCP)
+- Sync operations (bash)
+
+**Standard Response Pattern**:
+```
+STOP: "Cannot execute in plan mode"
+EXPLAIN: This workflow would perform the following write operations:
+  - [List specific actions]
+INFORM: "Exit plan mode to execute these operations"
+EXIT workflow
+```
+
+**Where to Check**: Immediately before validation gate that precedes write operation
+
 ## Available Workflows (Slash Commands)
 
 You have access to these deterministic workflows:

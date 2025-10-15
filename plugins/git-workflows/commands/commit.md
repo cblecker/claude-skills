@@ -292,6 +292,19 @@ ELSE:
 }
 ```
 
+**Validation Gate: Plan Mode Check**
+```
+IF in plan mode:
+  STOP: "Cannot create commit in plan mode"
+  EXPLAIN: This workflow would perform write operations:
+    - Stage files using git add
+    - Create commit with message: [show message from Phase 5]
+  INFORM: "Exit plan mode to execute commit workflow"
+  EXIT workflow
+ELSE:
+  PROCEED to execution
+```
+
 ## Phase 7: Execution
 
 **Objective**: Stage files and create commit using MCP tools exclusively.

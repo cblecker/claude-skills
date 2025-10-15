@@ -279,6 +279,19 @@ THINKING CHECKPOINT: Use `mcp__sequential-thinking` to:
 
 **Objective**: Push current branch to remote repository.
 
+**Validation Gate: Plan Mode Check**
+```
+IF in plan mode:
+  STOP: "Cannot push to remote in plan mode"
+  EXPLAIN: This workflow would push branch to remote:
+    - Push branch [branch name] to origin
+    - Create remote tracking relationship
+  INFORM: "Exit plan mode to execute pull request workflow"
+  EXIT workflow
+ELSE:
+  PROCEED to push
+```
+
 **Steps:**
 1. **Determine push target**:
    - Always push to `origin` (your fork or your repository)
@@ -329,6 +342,22 @@ ELSE:
 ## Phase 7: Create Pull Request
 
 **Objective**: Create PR on GitHub using MCP tools.
+
+**Validation Gate: Plan Mode Check**
+```
+IF in plan mode:
+  STOP: "Cannot create pull request in plan mode"
+  EXPLAIN: This workflow would create GitHub pull request:
+    - Title: [pr_title from Phase 5]
+    - Target: [target_owner]/[target_repo]
+    - Head: [pr_head]
+    - Base: [pr_base]
+    - Draft: [is_draft]
+  INFORM: "Exit plan mode to execute pull request creation"
+  EXIT workflow
+ELSE:
+  PROCEED to PR creation
+```
 
 **Steps:**
 1. **Prepare PR parameters** from previous phases:

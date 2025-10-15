@@ -98,6 +98,20 @@ ELSE:
 - IF `--no-sync` flag present: Skip to Phase 4
 - ELSE: Execute sync
 
+**Validation Gate: Plan Mode Check** (before sync)
+```
+IF in plan mode:
+  STOP: "Cannot sync branch in plan mode"
+  EXPLAIN: This workflow would sync mainline branch:
+    - Checkout base branch [base branch name]
+    - Execute sync command (git sync or git sync-upstream)
+    - Push changes to remote
+  INFORM: "Exit plan mode to execute branch creation workflow"
+  EXIT workflow
+ELSE:
+  PROCEED to sync
+```
+
 **Steps:**
 1. **Checkout base branch using MCP for IAM control**:
    - Use `mcp__git__git_checkout`
@@ -219,6 +233,19 @@ ELSE:
 ## Phase 5: Branch Creation
 
 **Objective**: Create and checkout new feature branch using MCP tools.
+
+**Validation Gate: Plan Mode Check**
+```
+IF in plan mode:
+  STOP: "Cannot create branch in plan mode"
+  EXPLAIN: This workflow would perform write operations:
+    - Create new branch: [branch name from Phase 4]
+    - Checkout new branch
+  INFORM: "Exit plan mode to execute branch creation"
+  EXIT workflow
+ELSE:
+  PROCEED to branch creation
+```
 
 **Steps:**
 1. **Create branch using MCP for IAM control**:

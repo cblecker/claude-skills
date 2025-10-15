@@ -152,6 +152,20 @@ ELSE:
 
 **Objective**: Ensure base branch is up-to-date with remote.
 
+**Validation Gate: Plan Mode Check**
+```
+IF in plan mode:
+  STOP: "Cannot sync base branch in plan mode"
+  EXPLAIN: This workflow would sync base branch:
+    - Execute sync command on [base branch]
+    - Fetch and merge remote changes
+    - Potentially push to remote
+  INFORM: "Exit plan mode to execute rebase workflow"
+  EXIT workflow
+ELSE:
+  PROCEED to sync
+```
+
 **Steps:**
 1. **Detect upstream remote using bash**:
    - `git remote get-url upstream >/dev/null 2>&1`
@@ -238,6 +252,20 @@ ELSE:
 
 **Objective**: Perform the actual rebase operation.
 
+**Validation Gate: Plan Mode Check**
+```
+IF in plan mode:
+  STOP: "Cannot execute rebase in plan mode"
+  EXPLAIN: This workflow would rebase current branch:
+    - Rebase [saved branch] onto [rebase base]
+    - Rewrite commit history
+    - May require conflict resolution
+  INFORM: "Exit plan mode to execute rebase operation"
+  EXIT workflow
+ELSE:
+  PROCEED to rebase
+```
+
 **Steps:**
 1. **Execute rebase using bash** (no MCP equivalent for interactive rebase):
    - `git rebase <rebase-base>`
@@ -303,6 +331,19 @@ IF rebase failed for other reason:
 **Skip Condition:**
 - IF `--skip-author-date-reset` flag present: Skip to Phase 9
 - ELSE: Execute reset
+
+**Validation Gate: Plan Mode Check** (if not skipped)
+```
+IF in plan mode AND NOT --skip-author-date-reset:
+  STOP: "Cannot reset author dates in plan mode"
+  EXPLAIN: This workflow would reset commit author dates:
+    - Rebase commits from fork point
+    - Update timestamps to current time
+  INFORM: "Exit plan mode to execute author date reset"
+  EXIT workflow
+ELSE:
+  PROCEED to reset
+```
 
 **Steps:**
 1. **Find fork point** (§ git-ops.md Fork Point Detection):
