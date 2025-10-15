@@ -24,12 +24,13 @@ jobs:
           python-version: '3.11'
       
       - name: Run validation script
+        id: validate
         run: python .github/scripts/validate-plugins.py
       
       - name: Summary
         if: always()
         run: |
-          if [ $? -eq 0 ]; then
+          if [ "${{ steps.validate.outcome }}" = "success" ]; then
             echo "✅ All plugin validations passed!" >> $GITHUB_STEP_SUMMARY
           else
             echo "❌ Plugin validation failed. Check the logs above for details." >> $GITHUB_STEP_SUMMARY
