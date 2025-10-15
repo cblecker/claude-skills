@@ -98,7 +98,7 @@ Use MCP tools for all git/GitHub operations to enable user-controlled IAM permis
 
 ### § Mainline Detection
 ```bash
-git ls-remote --symref $(git remote get-url origin) HEAD | awk '/^ref:/ {sub(/refs\/heads\//, "", $2); print $2}'
+git ls-remote --symref origin HEAD | awk '/^ref:/ {sub(/refs\/heads\//, "", $2); print $2}'
 ```
 Queries remote repository's default branch (main/master/etc).
 
@@ -298,7 +298,7 @@ Use MCP tools for all git and GitHub operations (see "Tool Selection" section ab
 
 **Standard Git Commands**:
 - `git branch --show-current` - Get current branch
-- `git ls-remote --symref $(git remote get-url origin) HEAD | awk '...'` - Get mainline branch (see § Mainline Detection)
+- `git ls-remote --symref origin HEAD | awk '...'` - Get mainline branch (see § Mainline Detection)
 - `git merge-base --fork-point <branch>` - Find fork point (see § Fork Point Detection)
 
 **Remote Operations** (no MCP equivalent yet):
