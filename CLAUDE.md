@@ -101,6 +101,22 @@ Plugins are loaded from the local filesystem during development:
 /plugin install ./plugins/<plugin-name>
 ```
 
+### Validating Plugin Configuration
+
+Validate plugin configuration files before installing or publishing:
+```bash
+claude plugin validate /path/to/repository
+```
+
+This command checks:
+- Plugin metadata and structure
+- Agent definitions and frontmatter
+- Slash command syntax
+- MCP server configurations
+- Marketplace registration
+
+Run validation from the repository root directory to check all plugins at once.
+
 ### Plugin Versioning
 
 Follow semantic versioning in plugin.json.

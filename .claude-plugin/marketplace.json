@@ -5,7 +5,9 @@
     "email": "admin@toph.ca",
     "url": "https://github.com/cblecker"
   },
-  "description": "Personal collection of Claude Code plugins, subagents, slash commands, hooks, and MCP servers",
+  "metadata": {
+    "description": "Personal collection of Claude Code plugins, subagents, slash commands, hooks, and MCP servers"
+  },
   "version": "1.0.0",
   "plugins": [
     {
