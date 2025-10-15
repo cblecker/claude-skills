@@ -1,0 +1,47 @@
+{
+  "name": "git-workflows",
+  "displayName": "Git Workflows",
+  "description": "Git and GitHub operations expert. Handles all local git operations and remote GitHub integration following user workflows and conventions.",
+  "version": "2.0.0",
+  "author": {
+    "name": "Christoph Blecker",
+    "email": "admin@toph.ca",
+    "url": "https://github.com/cblecker"
+  },
+  "license": "Apache-2.0",
+  "repository": "https://github.com/cblecker/claude-plugins",
+  "homepage": "https://github.com/cblecker/claude-plugins",
+  "keywords": [
+    "git",
+    "github",
+    "version-control",
+    "automation",
+    "devops",
+    "branch-management",
+    "pull-requests"
+  ],
+  "agents": "./agents/",
+  "commands": "./commands/",
+  "mcpServers": {
+    "git": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-git"
+      ]
+    },
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${GITHUB_TOKEN}"
+      }
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    }
+  }
+}

@@ -55,46 +55,6 @@ plugins/
     └── mcp/                 # MCP server configurations
 ```
 
-### Subagents
-
-Subagents are defined as markdown files with YAML frontmatter:
-
-```markdown
----
-name: example-agent
-description: Description of what this agent does
-tools: Read, Grep, Glob, Bash
-model: inherit
----
-
-System prompt defining the agent's role and capabilities.
-```
-
-### Slash Commands
-
-Slash commands are markdown files that can include YAML frontmatter for configuration:
-
-```markdown
----
-description: Command description
-allowed-tools: [Tool names and permissions]
----
-
-Command prompt text with $ARGUMENTS support.
-```
-
-### Hooks
-
-Hooks are configured to execute at specific events during Claude Code's workflow, providing workflow customization capabilities.
-
-### MCP Servers
-
-MCP servers provide connections to external tools and data sources, extending Claude Code's capabilities.
-
-## Available Plugins
-
-Currently, this collection is in bootstrap mode. Plugins will be added as needed for my development workflow.
-
 ## License
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.

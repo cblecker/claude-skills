@@ -1,6 +1,16 @@
 {
-  "name": "cblecker's Claude Code Plugins",
+  "name": "claude-plugins",
+  "owner": {
+    "name": "Christoph Blecker",
+    "email": "admin@toph.ca",
+    "url": "https://github.com/cblecker"
+  },
   "description": "Personal collection of Claude Code plugins, subagents, slash commands, hooks, and MCP servers",
   "version": "1.0.0",
-  "plugins": []
+  "plugins": [
+    {
+      "name": "git-workflows",
+      "source": "./plugins/git-workflows"
+    }
+  ]
 }
