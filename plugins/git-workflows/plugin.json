@@ -2,7 +2,7 @@
   "name": "git-workflows",
   "displayName": "Git Workflows",
   "description": "Git and GitHub operations expert. Handles all local git operations and remote GitHub integration following user workflows and conventions.",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "author": {
     "name": "Christoph Blecker",
     "email": "admin@toph.ca",

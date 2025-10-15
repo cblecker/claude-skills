@@ -163,33 +163,33 @@ You have access to these deterministic workflows:
 
 ### Atomic Operations
 
-**`/commit`** - Create commit with code review
+**`/git-workflows:commit`** - Create commit with code review
 - Review code quality and security
 - Generate commit message
 - Stage and commit changes
 - Handles Conventional Commits detection
 - **Use when**: User wants to commit changes
 
-**`/branch`** - Create feature branch
+**`/git-workflows:branch`** - Create feature branch
 - Sync mainline first
 - Generate branch name
 - Create and checkout branch
 - **Use when**: User wants to create a new branch
 
-**`/rebase`** - Rebase current branch
+**`/git-workflows:rebase`** - Rebase current branch
 - Sync mainline
 - Rebase onto base branch
 - Reset author dates
 - Handle conflicts
 - **Use when**: User wants to rebase/update branch
 
-**`/sync`** - Sync branch with remote
+**`/git-workflows:sync`** - Sync branch with remote
 - Detect fork vs origin
 - Execute appropriate sync command
 - **Use when**: User wants to pull/sync/update branch
 
-**`/pr`** - Create pull request
-- Ensure changes committed (invoke /commit if needed)
+**`/git-workflows:pr`** - Create pull request
+- Ensure changes committed (invoke /git-workflows:commit if needed)
 - Detect repository structure (fork vs origin)
 - Generate PR content
 - Push and create PR via GitHub MCP
@@ -197,7 +197,7 @@ You have access to these deterministic workflows:
 
 ### Composite Operations
 
-**`/git-workflow`** - End-to-end development cycle
+**`/git-workflows:git-workflow`** - End-to-end development cycle
 - Code review - Testing - Commit - Branch strategy - PR
 - Orchestrates multiple sub-workflows
 - Highly configurable with flags
@@ -210,46 +210,46 @@ You have access to these deterministic workflows:
 - "create a commit"
 - "save my work"
 - "make a commit with message X"
-Invoke: `/commit`
+Invoke: `/git-workflows:commit`
 
 **Branch Intent**:
 - "create a feature branch"
 - "make a new branch for X"
 - "start a branch"
 - "create branch called X"
-Invoke: `/branch`
+Invoke: `/git-workflows:branch`
 
 **Rebase Intent**:
 - "rebase my branch"
 - "update with main"
 - "rebase on main/master"
 - "sync my branch with latest"
-Invoke: `/rebase` or `/sync` (ask user which)
+Invoke: `/git-workflows:rebase` or `/git-workflows:sync` (ask user which)
 
 **Sync Intent**:
 - "pull latest changes"
 - "sync with remote"
 - "update my branch"
 - "get latest from origin/upstream"
-Invoke: `/sync`
+Invoke: `/git-workflows:sync`
 
 **Pull Request Intent**:
 - "create a PR"
 - "make a pull request"
 - "open a PR for this"
 - "submit for review"
-Invoke: `/pr`
+Invoke: `/git-workflows:pr`
 
 **Complete Workflow Intent**:
 - "finish this work and create PR"
 - "full workflow"
 - "review, commit, and create PR"
 - "take this through to PR"
-Invoke: `/git-workflow`
+Invoke: `/git-workflows:git-workflow`
 
 **Ambiguous Intent**:
-- "update my branch" - Could be /sync or /rebase
-- "create a commit and PR" - Could be /pr (includes commit) or /commit then /pr
+- "update my branch" - Could be /git-workflows:sync or /git-workflows:rebase
+- "create a commit and PR" - Could be /git-workflows:pr (includes commit) or /git-workflows:commit then /git-workflows:pr
   Ask user for clarification** OR use sequential-thinking to determine best fit
 
 ## Workflow Invocation Protocol
@@ -421,12 +421,12 @@ Please resolve authentication and retry.
 
 **Your Response**:
 ```
-I'll create a commit for your changes using the /commit workflow.
+I'll create a commit for your changes using the /git-workflows:commit workflow.
 
-[Invoke SlashCommand with "/commit"]
+[Invoke SlashCommand with "/git-workflows:commit"]
 ```
 
-The /commit workflow will:
+The /git-workflows:commit workflow will:
 - Review code (optional, can skip with --skip-review)
 - Verify/set git profile
 - Generate commit message
@@ -439,13 +439,13 @@ The /commit workflow will:
 
 **Your Response**:
 ```
-I'll create a pull request using the /pr workflow.
+I'll create a pull request using the /git-workflows:pr workflow.
 
-[Invoke SlashCommand with "/pr"]
+[Invoke SlashCommand with "/git-workflows:pr"]
 ```
 
-The /pr workflow will:
-- Check if changes are committed (invoke /commit if needed)
+The /git-workflows:pr workflow will:
+- Check if changes are committed (invoke /git-workflows:commit if needed)
 - Detect repository structure (fork vs origin)
 - Generate PR title and description
 - Push branch to remote
@@ -459,10 +459,10 @@ The /pr workflow will:
 ```
 I'll run the complete git workflow which includes code review, testing, commit, and PR creation.
 
-[Invoke SlashCommand with "/git-workflow"]
+[Invoke SlashCommand with "/git-workflows:git-workflow"]
 ```
 
-The /git-workflow will:
+The /git-workflows:git-workflow will:
 - Review code for quality and security
 - Run tests if detected
 - Create commit
@@ -490,8 +490,8 @@ You're currently on branch: feat/add-metrics
 ```
 I can help update your branch. Would you like to:
 
-1. **/sync** - Pull latest changes from remote (git sync)
-2. **/rebase** - Rebase your branch onto main (rewrites history)
+1. **/git-workflows:sync** - Pull latest changes from remote (git sync)
+2. **/git-workflows:rebase** - Rebase your branch onto main (rewrites history)
 
 Which would you prefer?
 ```
@@ -501,8 +501,8 @@ Which would you prefer?
 ## Workflow Composition
 
 **Workflows can invoke other workflows**:
-- `/pr` may invoke `/commit` if uncommitted changes exist
-- `/git-workflow` invokes `/commit`, optionally `/branch`, and `/pr`
+- `/git-workflows:pr` may invoke `/git-workflows:commit` if uncommitted changes exist
+- `/git-workflows:git-workflow` invokes `/git-workflows:commit`, optionally `/git-workflows:branch`, and `/git-workflows:pr`
 
 **When composing**:
 - Track the complete flow
