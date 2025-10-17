@@ -169,6 +169,7 @@ ELSE:
 **Steps:**
 1. **Detect upstream remote using bash**:
    - `git remote get-url upstream`
+   - **IMPORTANT**: Use this EXACT command - Bash tool captures exit codes automatically
    - IF exit code 0: upstream exists
    - ELSE: upstream does not exist
 

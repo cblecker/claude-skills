@@ -89,6 +89,7 @@ ELSE:
 **Steps:**
 1. **Check for upstream remote using bash**:
    - `git remote get-url upstream`
+   - **IMPORTANT**: Use this EXACT command - Bash tool captures exit codes automatically
    - Exit code 0: upstream exists (fork)
    - Exit code 1: no upstream (origin only)
 
