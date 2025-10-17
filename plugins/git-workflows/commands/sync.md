@@ -88,13 +88,9 @@ ELSE:
 
 **Steps:**
 1. **Check for upstream remote using bash**:
-   - `git remote get-url upstream >/dev/null 2>&1`
+   - `git remote get-url upstream`
    - Exit code 0: upstream exists (fork)
    - Exit code 1: no upstream (origin only)
-
-2. **Determine sync strategy**:
-   - IF upstream exists: Will use `git sync-upstream`
-   - ELSE: Will use `git sync`
 
 **Required Output (JSON):**
 ```json
@@ -103,8 +99,7 @@ ELSE:
   "status": "success",
   "data": {
     "upstream_exists": false,
-    "is_fork": false,
-    "sync_command": "git sync"
+    "is_fork": false
   },
   "next_phase": "sync-execution"
 }
@@ -166,10 +161,8 @@ ELSE:
   "phase": "sync-execution",
   "status": "success",
   "data": {
-    "sync_command": "git sync",
-    "sync_successful": true,
-    "bash_command_used": true,
-    "bash_reason": "git sync and git sync-upstream are custom aliases with no MCP equivalent"
+    "sync_command": "git sync-upstream",
+    "sync_successful": true
   },
   "next_phase": "verification"
 }

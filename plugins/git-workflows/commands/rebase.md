@@ -168,7 +168,7 @@ ELSE:
 
 **Steps:**
 1. **Detect upstream remote using bash**:
-   - `git remote get-url upstream >/dev/null 2>&1`
+   - `git remote get-url upstream`
    - IF exit code 0: upstream exists
    - ELSE: upstream does not exist
 
@@ -201,8 +201,8 @@ ELSE:
   "phase": "sync-base",
   "status": "success",
   "data": {
-    "upstream_exists": false,
-    "sync_command": "git sync",
+    "upstream_exists": true,
+    "sync_command": "git sync-upstream",
     "sync_successful": true
   },
   "next_phase": "return-to-feature"

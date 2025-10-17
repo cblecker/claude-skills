@@ -98,7 +98,7 @@ Use MCP tools for all git/GitHub operations to enable user-controlled IAM permis
 
 ### § Mainline Detection
 ```bash
-git ls-remote --symref origin HEAD | sed -n 's/^ref: refs\/heads\/\(.*\)\tHEAD/\1/p'
+git ls-remote --exit-code --symref origin HEAD | sed -n 's/^ref: refs\/heads\/\(.*\)\tHEAD/\1/p'
 ```
 Queries remote repository's default branch (main/master/etc). Uses sed for stream processing to avoid Read permission prompts.
 
@@ -110,7 +110,7 @@ Computes where feature branch diverged from mainline.
 
 ### § Upstream Detection
 ```bash
-git remote get-url upstream >/dev/null 2>&1
+git remote get-url upstream
 ```
 Check exit code: 0 = upstream exists (fork), non-zero = no upstream (origin only).
 
@@ -314,7 +314,7 @@ Use MCP tools for all git and GitHub operations (see "Tool Selection" section ab
 **Shell Scripting** (when needed):
 - Variable assignments and conditionals
 - Piping between commands
-- Complex parsing (sed, awk, cut, grep)
+- Complex parsing (sed, cut, grep)
 
 ### Sequential Thinking (Use Liberally)
 
@@ -490,7 +490,7 @@ You're currently on branch: feat/add-metrics
 ```
 I can help update your branch. Would you like to:
 
-1. **/git-workflows:sync** - Pull latest changes from remote (git sync)
+1. **/git-workflows:sync** - Pull latest changes from remote
 2. **/git-workflows:rebase** - Rebase your branch onto main (rewrites history)
 
 Which would you prefer?

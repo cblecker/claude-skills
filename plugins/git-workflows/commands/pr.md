@@ -80,7 +80,7 @@ THINKING CHECKPOINT: Use `mcp__sequential-thinking` to:
    - `git branch --show-current`
 
 2. **Check for upstream remote using bash**:
-   - `git remote get-url upstream >/dev/null 2>&1`
+   - `git remote get-url upstream`
    - Exit code 0: upstream exists (FORK scenario)
    - Exit code 1: no upstream (ORIGIN scenario)
 
