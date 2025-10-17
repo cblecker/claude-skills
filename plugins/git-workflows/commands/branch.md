@@ -120,7 +120,7 @@ ELSE:
    - Rationale: Requires user approval for state changes; maintains explicit control over branch switching
 
 2. **Detect upstream remote using bash**:
-   - `git remote get-url upstream >/dev/null 2>&1`
+   - `git remote get-url upstream`
    - IF exit code 0: upstream exists
    - ELSE: upstream does not exist
 
