@@ -4,7 +4,7 @@ description: Feature branch creation workflow with mainline sync and validation
 
 # Branch Creation Workflow
 
-[Extended thinking: This workflow creates feature branches from a synchronized mainline. The philosophy is to always start from latest mainline state unless explicitly overridden. Syncing mainline first (Phase 3) prevents creating branches from stale base, reducing future merge conflicts. Branch naming uses sequential-thinking to transform natural descriptions into conventional names (feat/, fix/, refactor/, etc.). Working tree must be clean to avoid confusion about which changes belong on which branch. The workflow enforces best practices while remaining flexible via flags.]
+[Extended thinking: This workflow creates feature branches from a synchronized mainline. The philosophy is to always start from latest mainline state unless explicitly overridden. Syncing mainline first (Phase 3) prevents creating branches from stale base, reducing future merge conflicts. Branch naming uses a fast heuristic algorithm to transform natural descriptions into conventional names (feat/, fix/, refactor/, etc.), with Conventional Commits detection and user approval. Working tree must be clean (or changes can be stashed) to avoid confusion about which changes belong on which branch. The workflow enforces best practices while remaining flexible via flags.]
 
 You are executing the **branch creation workflow**. Follow this deterministic, phase-based procedure exactly. Do not deviate from the specified steps or validation gates.
 
@@ -33,10 +33,54 @@ You are executing the **branch creation workflow**. Follow this deterministic, p
 **Validation Gate: Clean Working Tree**
 ```
 IF working tree has uncommitted changes:
-  STOP: "Cannot create branch with uncommitted changes"
-  PROPOSE: "Commit or stash changes first using /commit"
-  WAIT for user to resolve
+  WARN: "Working tree has uncommitted changes"
+  EXPLAIN: "Branch creation requires a clean working tree"
+  PROPOSE: "Options:"
+  SHOW:
+    1. Commit changes using /commit workflow
+    2. Temporarily stash changes (will be restored after branch creation)
+    3. Cancel workflow
+  ASK: "How would you like to proceed?"
+  WAIT for user decision
+
+  CASE user selects "commit":
+    INVOKE: SlashCommand tool with "/git-workflows:commit"
+    WAIT for workflow completion
+    VERIFY: Working tree now clean
+    PROCEED to Phase 2
+
+  CASE user selects "stash":
+    **Validation Gate: Plan Mode Check** (before stashing)
+    ```
+    IF in plan mode:
+      STOP: "Cannot stash changes in plan mode"
+      EXPLAIN: This workflow would perform write operations:
+        - Stash uncommitted changes
+        - Create new branch
+        - Optionally restore stash
+      INFORM: "Exit plan mode to execute branch creation with stash"
+      EXIT workflow
+    ELSE:
+      PROCEED to stash operation
+    ```
+
+    STASH changes using bash (no MCP equivalent):
+      - `git stash push -u -m "Auto-stash for branch creation at $(date +%Y-%m-%d_%H-%M-%S)"`
+      - Captures all changes including untracked files
+    VERIFY: Stash created successfully (check exit code)
+    IF stash failed:
+      STOP: "Failed to stash changes"
+      EXPLAIN error
+      EXIT workflow
+    ELSE:
+      STORE: stash_created = true, stash_message = output reference
+      PROCEED to Phase 2
+
+  CASE user selects "cancel":
+    STOP: "User cancelled workflow"
+    EXIT workflow
 ELSE:
+  STORE: stash_created = false
   PROCEED to Phase 2
 ```
 
@@ -48,7 +92,9 @@ ELSE:
   "data": {
     "working_tree_clean": true,
     "current_branch": "<branch-name>",
-    "has_uncommitted_changes": false
+    "has_uncommitted_changes": false,
+    "stash_created": false,
+    "stash_message": null
   },
   "next_phase": "mainline-detection"
 }
@@ -168,13 +214,48 @@ ELSE:
 
 **Objective**: Generate or validate branch name following conventions.
 
-**Thinking Checkpoint (RECOMMENDED):**
-THINKING CHECKPOINT: Use `mcp__sequential-thinking` to:
-1. Understand the purpose/description of the work
-2. Extract key concepts and scope
-3. Transform into descriptive kebab-case name
-4. Ensure name is clear and follows project conventions
-5. Verify 95%+ confidence in name appropriateness
+**Branch Naming Algorithm:**
+
+1. **Detect Conventional Commits usage** (fast check):
+   - Use `mcp__git__git_log` to get last 10 commits
+   - Check commit message format
+   - IF 60%+ match pattern `^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?!?:`
+   - THEN: conventional_commits_detected = true
+   - ELSE: conventional_commits_detected = false
+
+2. **Extract description** from user request:
+   - Direct name: "create branch called fix-auth-bug" → "fix-auth-bug"
+   - Description: "create branch for fixing authentication bug" → "fix authentication bug"
+
+3. **Transform to kebab-case**:
+   - Convert to lowercase
+   - Replace spaces with hyphens
+   - Remove special characters except hyphens
+   - Trim leading/trailing hyphens
+   - Example: "Fix Authentication Bug" → "fix-authentication-bug"
+
+4. **Add type prefix if applicable**:
+   - IF Conventional Commits detected in project:
+     - Detect type from description keywords:
+       - "fix", "bug", "issue" → `fix/`
+       - "add", "feature", "implement" → `feat/`
+       - "refactor", "cleanup", "restructure" → `refactor/`
+       - "document", "docs" → `docs/`
+       - "test", "testing" → `test/`
+       - Default: `feat/`
+   - ELSE: No prefix
+
+5. **Truncate if needed**:
+   - IF length > 50 characters: Truncate to 47 chars + "..."
+   - Ensure truncation doesn't end mid-word
+
+6. **Show to user for approval**:
+   - SHOW: "Generated branch name: `<generated-name>`"
+   - SHOW: "Based on: \"<original-description>\""
+   - ASK: "Accept this name? (y/n or provide alternative)"
+   - IF user provides alternative: Use alternative
+   - ELSE IF user says no: Ask for new description
+   - ELSE: Use generated name
 
 **Branch Naming Rules:**
 - Use kebab-case (lowercase with hyphens)
@@ -325,11 +406,65 @@ ELSE:
 ```json
 {
   "phase": "verification",
-  "status": "complete",
+  "status": "success",
   "data": {
     "current_branch": "feat/add-metrics-export",
     "verified": true,
     "ready_for_work": true
+  },
+  "next_phase": "stash-restoration"
+}
+```
+
+## Phase 6.5: Stash Restoration (Conditional)
+
+**Objective**: Restore stashed changes if auto-stash was used.
+
+**Skip Condition:**
+- IF stash_created == false (from Phase 1): Skip to workflow completion
+- ELSE: Execute restoration
+
+**Steps:**
+1. **Inform user**:
+   ```
+   Branch created successfully. You had uncommitted changes that were stashed.
+   ```
+
+2. **Offer restoration**:
+   - ASK: "Restore stashed changes to new branch?"
+   - WAIT for user decision
+
+3. **IF user accepts restoration**:
+   - Use bash (no MCP equivalent): `git stash pop`
+   - Check for conflicts
+
+4. **Handle restoration outcome**:
+   ```
+   IF stash pop successful (exit code 0):
+     INFORM: "Changes restored successfully"
+     VERIFY: Working tree shows expected changes
+
+   IF stash pop has conflicts (exit code != 0):
+     WARN: "Stash restoration has conflicts"
+     EXPLAIN: "Your changes conflicted with the base branch state"
+     INFORM: "Changes are partially restored - please resolve conflicts manually"
+     SHOW: "Use 'git status' to see conflicts"
+     SHOW: "Stash is still available as 'stash@{0}' if you need to abort"
+   ```
+
+5. **IF user declines restoration**:
+   - INFORM: "Stash preserved as 'stash@{0}'"
+   - SHOW: "Run 'git stash pop' manually when ready to restore changes"
+
+**Required Output (JSON):**
+```json
+{
+  "phase": "stash-restoration",
+  "status": "complete",
+  "data": {
+    "stash_restored": true,
+    "had_conflicts": false,
+    "stash_preserved": false
   },
   "workflow_complete": true
 }
@@ -352,6 +487,8 @@ ELSE:
    - `git sync-upstream` - Sync with upstream (custom alias, fallback: `git fetch --prune --all && git pull --stat --rebase upstream $(git branch --show-current) && git push ...`)
    - `git fetch --prune && git merge --ff-only @{u}` - Simple sync with tracking remote
    - `git remote get-url` - Check for upstream (§ git-ops.md Upstream Detection)
+   - `git stash push -u -m "<message>"` - Stash changes including untracked files
+   - `git stash pop` - Restore stashed changes
 
 3. **Validation Gates are MANDATORY**:
    - DO NOT proceed if gate condition fails
@@ -366,9 +503,9 @@ ELSE:
 
 5. **Thinking Checkpoints**:
    - Use `mcp__sequential-thinking` for:
-     - Branch name generation (Phase 4)
-     - Error analysis (Phase 5)
-   - Aim for 95%+ confidence in all decisions
+     - Error analysis (if errors occur)
+   - Note: Branch naming uses fast heuristic algorithm (low-stakes operation)
+   - Aim for 95%+ confidence in critical decisions (error recovery, not naming)
 
 6. **Error Transparency**:
    - Explain WHY any error occurred

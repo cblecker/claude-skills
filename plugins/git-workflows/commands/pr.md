@@ -4,7 +4,7 @@ description: Pull request creation workflow with commit check, push, and GitHub 
 
 # Pull Request Creation Workflow
 
-[Extended thinking: This workflow creates GitHub pull requests. Uses MCP tools for git/GitHub operations, bash only for operations without MCP equivalents (git remote get-url, git push). Fork vs origin detection determines PR head format. May invoke /commit if uncommitted changes exist.]
+[Extended thinking: This workflow creates GitHub pull requests. Uses MCP tools for git/GitHub operations, bash only for operations without MCP equivalents (git remote get-url, git push). Checks that changes are committed (may invoke /commit) and that we're on a feature branch (may invoke /branch to create one). Fork vs origin detection determines PR head format.]
 
 You are executing the **pull request creation workflow**. Follow this deterministic, phase-based procedure exactly. Do not deviate from the specified steps or validation gates.
 
@@ -59,11 +59,68 @@ ELSE:
     "commit_invoked": false,
     "all_committed": true
   },
+  "next_phase": "feature-branch-validation"
+}
+```
+
+## Phase 1.5: Feature Branch Validation
+
+**Objective**: Ensure we're on a feature branch, not mainline.
+
+**Steps:**
+1. **Get current branch using bash**:
+   - `git branch --show-current`
+
+2. **Detect mainline branch** (§ git-ops.md Mainline Detection):
+   - Use mainline detection command to get default branch name
+
+3. **Compare current branch to mainline**:
+   - IF current_branch == mainline_branch: on_mainline = true
+   - ELSE: on_mainline = false
+
+**Validation Gate: Not on Mainline**
+```
+IF on_mainline AND user did not explicitly approve:
+  WARN: "Currently on mainline branch [branch-name]"
+  EXPLAIN: "Pull requests should be created from feature branches"
+  PROPOSE: "Create a feature branch for this PR?"
+  ASK: "Would you like to create a feature branch now?"
+  WAIT for user decision
+
+  IF user approves:
+    INVOKE: SlashCommand tool with "/git-workflows:branch"
+    WAIT for /branch workflow to complete
+    VERIFY: Now on feature branch (not mainline)
+    PROCEED to Phase 3
+  ELSE:
+    ASK: "Continue with PR from mainline anyway? (not recommended)"
+    WAIT for explicit confirmation
+    IF confirmed:
+      PROCEED to Phase 3
+    ELSE:
+      STOP: "Cannot create PR without feature branch"
+      EXIT workflow
+ELSE:
+  PROCEED to Phase 3
+```
+
+**Required Output (JSON):**
+```json
+{
+  "phase": "feature-branch-validation",
+  "status": "success",
+  "data": {
+    "current_branch": "feat/add-metrics",
+    "mainline_branch": "main",
+    "on_mainline": false,
+    "branch_created": false,
+    "user_override": false
+  },
   "next_phase": "detect-repository-type"
 }
 ```
 
-## Phase 2: Detect Repository Type (Fork vs Origin)
+## Phase 3: Detect Repository Type (Fork vs Origin)
 
 **Objective**: Determine if working in fork or origin repository.
 
@@ -105,7 +162,7 @@ THINKING CHECKPOINT: Use `mcp__sequential-thinking` to:
 
 [Extended thinking: Fork vs origin detection determines PR creation pattern. A fork scenario means: user forked upstream repo to their namespace, works in their fork, creates PR back to upstream. This requires PR head format "fork-owner:branch" and PR target is upstream repo. An origin scenario means: user has direct access to repo, works on branch in that repo, creates PR within same repo. This requires PR head format "branch" and PR target is origin repo. The presence of 'upstream' remote is the definitive signal - it only exists in fork workflows. Getting this wrong causes PR creation to fail with confusing errors about invalid head references.]
 
-## Phase 3: Parse Remote URLs
+## Phase 4: Parse Remote URLs
 
 **Objective**: Extract owner and repository names from remote URLs.
 
@@ -182,7 +239,7 @@ ELSE:
 
 [Extended thinking: URL parsing extracts owner and repo names from git remote URLs, handling both SSH (git@github.com:owner/repo.git) and HTTPS (https://github.com/owner/repo.git) formats. This parsing is critical because mcp__github__create_pull_request requires owner and repo as separate parameters. For forks, we parse BOTH upstream and origin URLs because we need upstream owner/repo for PR target and origin owner for PR head format. The parsing logic must handle .git suffix removal and different URL prefixes correctly - parsing errors here cause workflow to fail at PR creation with no clear recovery path.]
 
-## Phase 4: Determine PR Base Branch
+## Phase 5: Determine PR Base Branch
 
 **Objective**: Identify target branch for pull request.
 
@@ -210,7 +267,7 @@ ELSE:
 }
 ```
 
-## Phase 5: Generate PR Content
+## Phase 6: Generate PR Content
 
 **Objective**: Create compelling PR title and description.
 
@@ -277,7 +334,7 @@ THINKING CHECKPOINT: Use `mcp__sequential-thinking` to:
 
 [Extended thinking: PR content generation requires reviewing ALL commits that will be included, not just the latest commit. Use git log and git diff to see complete changes since base branch. The thinking checkpoint here is critical for quality - poorly generated PR titles/descriptions waste reviewer time and slow down merge velocity. Title should be concise (<50 chars) and follow project conventions (detect Conventional Commits if used). Description should provide context for reviewers: what changed, why it changed, how to test. Sequential-thinking helps achieve 95%+ confidence that generated content accurately represents the PR scope.]
 
-## Phase 6: Push to Remote
+## Phase 7: Push to Remote
 
 **Objective**: Push current branch to remote repository.
 
@@ -341,7 +398,7 @@ ELSE:
 }
 ```
 
-## Phase 7: Create Pull Request
+## Phase 8: Create Pull Request
 
 **Objective**: Create PR on GitHub using MCP tools.
 
@@ -426,12 +483,12 @@ ELSE:
 
 [Extended thinking: PR creation via mcp__github__create_pull_request is the culmination of all previous phases. All parameters (owner, repo, head, base, title, body) must be exactly correct or PR creation fails. The head parameter format differs between fork and origin: "owner:branch" for forks, "branch" for origin. Using bash gh CLI or attempting to construct GitHub API calls manually is a FAILURE - the workflow must use MCP tool. If MCP tool fails due to authentication or permissions, that's a legitimate error requiring user intervention, not a cue to fall back to bash. Only consider gh CLI fallback if MCP tool itself is broken, and only with explicit user approval.]
 
-## Phase 8: Return PR URL
+## Phase 9: Return PR URL
 
 **Objective**: Provide PR URL to user and confirm success.
 
 **Steps:**
-1. **Extract PR URL** from Phase 7 response
+1. **Extract PR URL** from Phase 8 response
 
 2. **Report success to user**:
    ```
