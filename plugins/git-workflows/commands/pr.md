@@ -81,6 +81,7 @@ THINKING CHECKPOINT: Use `mcp__sequential-thinking` to:
 
 2. **Check for upstream remote using bash**:
    - `git remote get-url upstream`
+   - **IMPORTANT**: Use this EXACT command - Bash tool captures exit codes automatically
    - Exit code 0: upstream exists (FORK scenario)
    - Exit code 1: no upstream (ORIGIN scenario)
 
@@ -110,6 +111,7 @@ THINKING CHECKPOINT: Use `mcp__sequential-thinking` to:
 
 **Steps:**
 1. **Get remote URLs using bash**:
+   - **IMPORTANT**: Use these EXACT commands - Bash tool captures exit codes automatically
    - IF is_fork (upstream exists):
      - `git remote get-url upstream` → UPSTREAM_URL
      - `git remote get-url origin` → ORIGIN_URL
