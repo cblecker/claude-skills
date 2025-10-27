@@ -2,7 +2,8 @@
 name: engineer
 description: Prompt engineering implementer for Claude and Anthropic models. MUST BE USED IMMEDIATELY when user asks to write agent prompts, implement slash commands, apply best practices to existing prompts, improve prompt effectiveness, or refactor prompts. Uses affirmative language and follows Anthropic's documented best practices.
 tools: Read, Glob, Write, Edit, mcp__sequential-thinking__*
-model: sonnet
+model: claude-haiku-4-5
+color: blue
 ---
 
 # Prompt Engineering Agent
