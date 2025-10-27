@@ -30,57 +30,91 @@ git clone https://github.com/cblecker/claude-plugins.git
 /plugin install ./claude-plugins/plugins/git-workflows
 ```
 
-## Available Workflows
+## Available Skills
 
-### `/commit`
+The plugin provides five core skills that are invoked directly by Claude based on your requests:
+
+### `creating-commit`
 Creates atomic commits with optional code review, intelligent message generation, and validation gates. Automatically detects Conventional Commits usage and generates appropriate messages.
 
-### `/branch`
-Creates feature branches from synchronized mainline with smart naming. Syncs mainline first to ensure you're branching from the latest state.
-
-### `/rebase`
-Rebases current branch onto updated mainline with conflict handling and optional author date reset. Handles fork and origin scenarios automatically.
-
-### `/sync`
-Syncs branch with remote, auto-detecting fork vs origin scenarios. Uses appropriate sync strategy based on repository structure.
-
-### `/pr`
-Creates GitHub pull requests with AI-generated title and description. Automatically pushes branch and handles fork vs origin PR creation.
-
-### `/git-workflow`
-Comprehensive end-to-end workflow from code review through PR creation. Orchestrates multiple sub-workflows with configurable steps.
+**Triggered by:** "commit these changes", "create a commit", "make a commit"
 
 **Flags:**
 - `--skip-review` - Skip code review phase
-- `--skip-tests` - Skip testing phase
-- `--draft-pr` - Create draft pull request
+- `--conventional` - Force Conventional Commits format
+
+### `syncing-branch`
+Syncs branch with remote, auto-detecting fork vs origin scenarios. Uses appropriate sync strategy based on repository structure.
+
+**Triggered by:** "sync my branch", "pull latest changes", "sync with remote"
+
+**Flags:**
+- `--branch <name>` - Sync specific branch instead of current
+
+### `creating-pull-request`
+Creates GitHub pull requests with AI-generated title and description. Automatically handles uncommitted changes (invokes creating-commit), pushes branch, and handles fork vs origin PR creation.
+
+**Triggered by:** "create a PR", "make a pull request", "open a PR"
+
+**Flags:**
+- `--draft` - Create as draft pull request
+- `--title <text>` - Override PR title
+- `--body <text>` - Override PR description
+- `--base <branch>` - Target branch (default: mainline)
+
+### `creating-branch`
+Creates feature branches from synchronized mainline with smart naming. Syncs mainline first (invokes syncing-branch) to ensure you're branching from the latest state. Handles uncommitted changes via stashing or committing.
+
+**Triggered by:** "create a branch", "make a new branch", "create a feature branch"
+
+**Flags:**
+- `--from <branch>` - Create from specific branch instead of mainline
+- `--no-sync` - Skip syncing mainline before creation
+
+### `rebasing-branch`
+Rebases current branch onto updated mainline with conflict handling and optional author date reset. Syncs base branch first (invokes syncing-branch) and handles fork and origin scenarios automatically.
+
+**Triggered by:** "rebase my branch", "rebase on main", "update my branch with main"
+
+**Flags:**
+- `--onto <branch>` - Rebase onto specific branch instead of mainline
+- `--skip-author-date-reset` - Skip resetting author dates after rebase
 
 ## Usage
 
-Basic examples:
+The skills are invoked automatically by Claude based on your natural language requests. Simply describe what you want to do:
 
 ```bash
 # Create a commit with review
-/commit
+"commit these changes"
 
 # Create a feature branch
-/branch
+"create a new branch for adding metrics"
 
 # Rebase your branch onto main
-/rebase
+"rebase my branch on main"
 
 # Sync your branch with remote
-/sync
+"sync my branch with latest from main"
 
 # Create a pull request
-/pr
+"create a PR for this"
 
-# Complete workflow: review, test, commit, and PR
-/git-workflow
-
-# Quick commit and PR without review/tests
-/git-workflow --skip-review --skip-tests --draft-pr
+# Flags are supported in natural language:
+"commit without review"  # --skip-review
+"create a draft PR"      # --draft
+"rebase onto develop"    # --onto develop
 ```
+
+### Skill Composition
+
+Skills can invoke other skills automatically:
+
+- **creating-pull-request** → **creating-commit** (if uncommitted changes exist)
+- **creating-branch** → **syncing-branch** (to sync mainline before branching)
+- **rebasing-branch** → **syncing-branch** (to sync base before rebasing)
+
+This ensures workflows are complete and atomic without requiring multiple user commands.
 
 ## Read-only Command Approval (Optional)
 

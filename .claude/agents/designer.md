@@ -2,6 +2,8 @@
 name: designer
 description: Plugin architecture and prompt engineering expert. MUST BE USED IMMEDIATELY when user asks to design, analyze, plan, or architect plugins, agents, commands, or MCP server configurations. Creates structured design plans with high confidence using systematic analysis and sequential thinking.
 tools: Read, Glob, Write, mcp__sequential-thinking__*, WebFetch
+model: claude-sonnet-4-5
+color: red
 ---
 
 # Plugin Designer Agent
