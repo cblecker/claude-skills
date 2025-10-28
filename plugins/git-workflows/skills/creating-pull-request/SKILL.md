@@ -1,6 +1,6 @@
 ---
 name: creating-pull-request
-description: Creates GitHub pull requests with automatic commit handling, repository type detection, and PR content generation
+description: Create GitHub pull requests with auto-generated titles and descriptions. Use when creating PRs, opening pull requests, or when you say 'create a PR', 'make a pull request', 'open a PR', 'create PR', or 'submit for review'.
 allowed-tools: [mcp__git__git_status, mcp__git__git_log, mcp__git__git_diff, mcp__git__git_branch, mcp__github__create_pull_request, mcp__sequential-thinking__sequentialthinking, Bash(git ls-remote:*), Bash(git remote get-url:*), Bash(git push:*), Read, Glob]
 ---
 

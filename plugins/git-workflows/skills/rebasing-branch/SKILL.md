@@ -1,6 +1,6 @@
 ---
 name: rebasing-branch
-description: Rebases a feature branch onto updated mainline with state preservation, conflict handling, and author date reset
+description: Rebase git branches to incorporate latest changes from base branch. Use when rebasing, updating branch history, or when you say 'rebase my branch', 'rebase on main', 'rebase onto', or 'update my branch' (for rebase not merge).
 allowed-tools: [mcp__git__git_status, mcp__git__git_checkout, mcp__git__git_log, mcp__git__git_branch, Bash(git ls-remote:*), Bash(git merge-base:*), Bash(git rebase:*)]
 ---
 

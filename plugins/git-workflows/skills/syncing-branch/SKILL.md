@@ -1,6 +1,6 @@
 ---
 name: syncing-branch
-description: Updates a branch with remote changes, automatically detecting fork vs origin scenarios
+description: Sync git branches with remote changes using fetch and merge. Use when pulling latest changes, syncing with remote/upstream, or when you say 'sync my branch', 'pull latest', 'update from origin', or 'get latest changes'.
 allowed-tools: [mcp__git__git_status, mcp__git__git_checkout, mcp__git__git_log, mcp__git__git_branch, Bash(git remote get-url:*), Bash(git fetch:*), Bash(git merge:*), Bash(git pull:*), Bash(git push:*)]
 ---
 

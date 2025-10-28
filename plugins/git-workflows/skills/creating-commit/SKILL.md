@@ -1,6 +1,6 @@
 ---
 name: creating-commit
-description: Atomic commit workflow with analysis and validation gates
+description: Create git commits with smart message generation and code review. Use when committing changes, saving work, or when you say 'commit', 'make a commit', 'create a commit', or 'save my changes'.
 allowed-tools: [mcp__git__git_status, mcp__git__git_diff_unstaged, mcp__git__git_diff_staged, mcp__git__git_add, mcp__git__git_commit, mcp__git__git_log, mcp__git__git_branch, mcp__sequential-thinking__sequentialthinking, Bash(git ls-remote:*), Read, Glob]
 ---
 
