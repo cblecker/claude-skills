@@ -19,15 +19,15 @@ The git-workflows plugin automates your entire Git and GitHub workflow, from cod
 ### From Marketplace
 
 ```bash
-/plugin marketplace add cblecker/claude-plugins
+/plugin marketplace add cblecker/claude-skills
 /plugin install git-workflows
 ```
 
 ### Local Development
 
 ```bash
-git clone https://github.com/cblecker/claude-plugins.git
-/plugin install ./claude-plugins/plugins/git-workflows
+git clone https://github.com/cblecker/claude-skills.git
+/plugin install ./claude-skills/git-workflows
 ```
 
 ## Available Skills
