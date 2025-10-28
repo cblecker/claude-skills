@@ -231,6 +231,17 @@ allowed-tools: Tool1, Tool2, mcp__server__*
 - ✓ Is the purpose clearly stated?
 - ✓ Are success criteria defined?
 
+**Description Quality Check** (Evidence-Based Standards):
+- ✓ Collaborative framing ("Automates..." not "MUST use for...")
+- ✓ Integrates system terminology (protocols, safety features)
+- ✓ Optimal length (45-52 words - scannable yet detailed)
+- ✓ Value proposition first (WHY better than manual)
+- ✓ Technical specificity (concrete capabilities, not vague claims)
+- ✓ Safety emphasis (protection, validation, error prevention)
+- ✓ Natural language triggers included
+
+Reference: See designer agent YAML Frontmatter section for detailed description best practices.
+
 **Structure Check**:
 - ✓ YAML frontmatter valid and complete
 - ✓ Purpose statement present

@@ -1,6 +1,6 @@
 ---
 name: creating-branch
-description: Create git feature branches with automatic naming and base sync. Use when starting new work, creating branches, or when you say 'create a branch', 'make a new branch', 'start a branch for', or 'create feature branch'.
+description: Automates feature branch creation with safety checks: syncs base branch first, generates convention-based names (detects Conventional Commits for type prefixes), handles dirty working trees with stash/commit options. Use when creating branches or when you say 'create branch', 'new branch', 'start branch for', 'make feature branch'.
 allowed-tools: [mcp__git__git_status, mcp__git__git_checkout, mcp__git__git_create_branch, mcp__git__git_branch, mcp__git__git_log, Bash(git ls-remote:*), Bash(git stash:*)]
 ---
 
@@ -93,7 +93,7 @@ IF base branch successfully determined:
 IF cannot determine mainline (command failed):
   STOP immediately
   EXPLAIN: "Cannot determine mainline branch from remote"
-  ASK: "Please specify base branch with --from <branch> flag"
+  ASK: "Please specify which branch to create from (e.g., 'from develop' or 'based on staging')"
   WAIT for user input
 
 Phase 2 complete. Continue to Phase 3.

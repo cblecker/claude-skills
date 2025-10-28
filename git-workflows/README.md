@@ -39,46 +39,46 @@ Creates atomic commits with optional code review, intelligent message generation
 
 **Triggered by:** "commit these changes", "create a commit", "make a commit"
 
-**Flags:**
-- `--skip-review` - Skip code review phase
-- `--conventional` - Force Conventional Commits format
+**Natural Language Options:**
+- Skip review - Say "without review" or "skip review" in your request
+- Force Conventional Commits - Say "use conventional commits" in your request
 
 ### `syncing-branch`
 Syncs branch with remote, auto-detecting fork vs origin scenarios. Uses appropriate sync strategy based on repository structure.
 
 **Triggered by:** "sync my branch", "pull latest changes", "sync with remote"
 
-**Flags:**
-- `--branch <name>` - Sync specific branch instead of current
+**Natural Language Options:**
+- Sync specific branch - Say "sync [branch-name]" or "sync the [branch-name] branch"
 
 ### `creating-pull-request`
 Creates GitHub pull requests with AI-generated title and description. Automatically handles uncommitted changes (invokes creating-commit), pushes branch, and handles fork vs origin PR creation.
 
 **Triggered by:** "create a PR", "make a pull request", "open a PR"
 
-**Flags:**
-- `--draft` - Create as draft pull request
-- `--title <text>` - Override PR title
-- `--body <text>` - Override PR description
-- `--base <branch>` - Target branch (default: mainline)
+**Natural Language Options:**
+- Draft PR - Say "draft PR" or mention "WIP" in your request
+- Custom title - Say "create PR titled '[your title]'" or "with title '[your title]'"
+- Custom description - Say "with description '[your description]'"
+- Target branch - Say "create PR to [branch]" or "base on [branch]" (defaults to mainline)
 
 ### `creating-branch`
 Creates feature branches from synchronized mainline with smart naming. Syncs mainline first (invokes syncing-branch) to ensure you're branching from the latest state. Handles uncommitted changes via stashing or committing.
 
 **Triggered by:** "create a branch", "make a new branch", "create a feature branch"
 
-**Flags:**
-- `--from <branch>` - Create from specific branch instead of mainline
-- `--no-sync` - Skip syncing mainline before creation
+**Natural Language Options:**
+- Create from specific branch - Say "from [branch]" or "based on [branch]" (defaults to mainline)
+- Skip sync - Say "without syncing" or "skip sync"
 
 ### `rebasing-branch`
 Rebases current branch onto updated mainline with conflict handling and optional author date reset. Syncs base branch first (invokes syncing-branch) and handles fork and origin scenarios automatically.
 
 **Triggered by:** "rebase my branch", "rebase on main", "update my branch with main"
 
-**Flags:**
-- `--onto <branch>` - Rebase onto specific branch instead of mainline
-- `--skip-author-date-reset` - Skip resetting author dates after rebase
+**Natural Language Options:**
+- Rebase onto specific branch - Say "rebase onto [branch]" (defaults to mainline)
+- Skip author date reset - Say "skip author date reset" or "keep author dates"
 
 ## Usage
 
@@ -100,10 +100,10 @@ The skills are invoked automatically by Claude based on your natural language re
 # Create a pull request
 "create a PR for this"
 
-# Flags are supported in natural language:
-"commit without review"  # --skip-review
-"create a draft PR"      # --draft
-"rebase onto develop"    # --onto develop
+# Natural language variations work seamlessly:
+"commit without review"
+"create a draft PR"
+"rebase onto develop"
 ```
 
 ### Skill Composition
