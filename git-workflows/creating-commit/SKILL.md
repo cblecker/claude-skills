@@ -101,8 +101,8 @@ Continue to Phase 4.
 - **Body** (optional): Add only if it provides meaningful context; wrap at 72 chars, explain why not how
 
 **Co-Authored-By**:
-- `Read` `.git/config` for `includeCoAuthoredBy` in [commit] section
-- IF true: Append trailer with Claude attribution
+- Respect the `includeCoAuthoredBy` setting in Claude Code configuration
+- IF enabled: Append trailer with Claude attribution
 - Finalize: Subject + body (if any) + co-authored-by (if configured)
 
 Continue to Phase 5.
