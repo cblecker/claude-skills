@@ -9,8 +9,8 @@
     "url": "https://github.com/cblecker"
   },
   "license": "Apache-2.0",
-  "repository": "https://github.com/cblecker/claude-plugins",
-  "homepage": "https://github.com/cblecker/claude-plugins",
+  "repository": "https://github.com/cblecker/claude-skills",
+  "homepage": "https://github.com/cblecker/claude-skills",
   "keywords": [
     "git",
     "github",
@@ -22,7 +22,13 @@
     "skills",
     "workflows"
   ],
-  "skills": "./skills/",
+  "skills": [
+    "./creating-commit",
+    "./syncing-branch",
+    "./creating-pull-request",
+    "./creating-branch",
+    "./rebasing-branch"
+  ],
   "mcpServers": {
     "git": {
       "command": "uvx",

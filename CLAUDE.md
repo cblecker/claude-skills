@@ -4,58 +4,74 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Purpose
 
-This is a personal collection of Claude Code plugins that extend Claude Code's capabilities through custom subagents, slash commands, hooks, and MCP servers. The repository serves as a plugin marketplace that can be added to Claude Code via `/plugin marketplace add cblecker/claude-plugins`.
+This is a personal collection of Claude Code skills that extend Claude Code's capabilities through custom skill definitions. Skills are autonomous, contextually-invoked workflows that help Claude perform complex tasks. The repository serves as a skills collection that can be added to Claude Code via `/plugin marketplace add cblecker/claude-skills`.
+
+## Skills Overview
+
+Skills are specialized capabilities that Claude automatically invokes based on task context. Each skill defines:
+- **Name and description**: How Claude identifies when to use the skill
+- **Instructions**: Step-by-step workflow with phases and validation gates
+- **Tool restrictions**: Optional allowed-tools list to limit tool access
+- **Supporting files**: Reference documentation, scripts, templates
+
+Skills are invoked automatically by Claude when user requests match the skill's description. No explicit invocation is needed.
 
 ## Repository Structure
 
 ```
-plugins/
-└── <plugin-name>/
-    ├── plugin.json          # Plugin metadata and configuration
-    ├── skills/              # Skill definitions (directories with SKILL.md)
-    │   └── <skill-name>/
-    │       ├── SKILL.md     # Main skill instructions (required)
-    │       ├── reference.md # Additional context (optional)
-    │       └── scripts/     # Utility scripts (optional)
-    ├── agents/              # Subagent definitions (markdown with YAML frontmatter)
-    ├── commands/            # Slash command definitions (markdown files)
-    ├── hooks/               # Hook configurations
-    └── mcp/                 # MCP server configurations
+<plugin-name>/
+├── plugin.json              # Plugin metadata and configuration
+└── <skill-name>/
+    ├── SKILL.md             # Main skill instructions (required)
+    ├── reference.md         # Additional context (optional)
+    └── scripts/             # Utility scripts (optional)
 ```
 
-### Plugin Components
+### Skill Format
 
-**Skills** are directories containing SKILL.md files with YAML frontmatter:
-- Directory structure: `skills/<skill-name>/SKILL.md`
-- Required frontmatter: name, description
-- Optional frontmatter: allowed-tools (restricts tool access)
-- Body contains the skill instructions and workflow phases
-- Invoked automatically by Claude based on task context
-- Can include additional reference files, scripts, and templates
+Skills are directories containing a SKILL.md file with YAML frontmatter:
+- **Required frontmatter**: `name`, `description`
+- **Optional frontmatter**: `allowed-tools` (restricts tool access)
+- **Body**: Skill instructions including workflow phases, validation gates, and examples
+- **Supporting files**: Additional markdown files, scripts, templates in the skill directory
 
-**Subagents** are defined as markdown files with YAML frontmatter:
-- Frontmatter includes: name, description, tools, model
-- Body contains the system prompt defining the agent's role and capabilities
+Example structure:
+```markdown
+---
+name: example-skill
+description: Brief description of when to invoke this skill
+allowed-tools:
+  - tool_name_1
+  - tool_name_2
+---
 
-**Slash Commands** are markdown files with optional YAML frontmatter:
-- Frontmatter includes: description, allowed-tools
-- Body contains the command prompt with $ARGUMENTS support
+# Skill Instructions
 
-**MCP Servers** provide connections to external tools and data sources, configured in plugin.json
+[Phase-based workflow with validation gates]
+```
 
-## Available Plugins
+### Optional Components
+
+While this repository focuses primarily on skills, plugins can optionally include:
+- **Subagents**: Markdown files with YAML frontmatter defining specialized agents
+- **Slash Commands**: Markdown files for user-invokable commands
+- **Hooks**: Configuration for lifecycle event handlers
+- **MCP Servers**: Connections to external tools and data sources (configured in plugin.json)
+
+These components may be added in future iterations as needed.
+
+## Available Skills
 
 ### git-workflows Plugin
 
-The primary plugin in this collection. Provides comprehensive git and GitHub automation.
+The primary plugin in this collection. Provides comprehensive git and GitHub automation through skills-based workflows.
 
-**Key Components:**
-- **Skills**: Main context invokes these directly based on user intent
-  - `creating-commit` - Atomic commit with code review, analysis, and validation
-  - `syncing-branch` - Branch sync with remote (fork vs origin aware)
-  - `creating-pull-request` - Pull request creation (can invoke creating-commit if needed)
-  - `creating-branch` - Feature branch creation (invokes syncing-branch for mainline sync)
-  - `rebasing-branch` - Rebase workflow with conflict handling (invokes syncing-branch for base sync)
+**Skills:**
+- `creating-commit` - Atomic commit with code review, analysis, and validation
+- `syncing-branch` - Branch sync with remote (fork vs origin aware)
+- `creating-pull-request` - Pull request creation (can invoke creating-commit if needed)
+- `creating-branch` - Feature branch creation (invokes syncing-branch for mainline sync)
+- `rebasing-branch` - Rebase workflow with conflict handling (invokes syncing-branch for base sync)
 
 **MCP Servers Used:**
 - `git` (mcp-server-git): Git operations via MCP
@@ -102,26 +118,28 @@ When STOP triggered: halt immediately, explain why, propose solution, wait for u
 
 ## Working with This Repository
 
-### Adding New Plugins
+### Adding New Skills
 
-1. Create directory under `plugins/<plugin-name>/`
-2. Add `plugin.json` with metadata
-3. Create skills in `skills/<skill-name>/SKILL.md` (subdirectory containing SKILL.md with YAML frontmatter)
-4. Create subagents in `agents/` (markdown with YAML frontmatter) - optional
-5. Create slash commands in `commands/` (markdown files) - optional
-6. Configure MCP servers in plugin.json if needed
+1. Create plugin directory: `<plugin-name>/`
+2. Add `plugin.json` with metadata (name, version, description)
+3. Create skill directory: `<plugin-name>/<skill-name>/`
+4. Add `SKILL.md` with YAML frontmatter and instructions
+5. Add supporting files as needed (reference.md, scripts/, templates/)
+6. Configure MCP servers in plugin.json if required
 7. Update marketplace.json to register the plugin
 
-### Testing Plugins
+### Testing Skills Locally
 
-Plugins are loaded from the local filesystem during development:
+Skills are loaded from the local filesystem during development:
 ```bash
-/plugin install ./plugins/<plugin-name>
+/plugin install ./git-workflows
 ```
 
-### Validating Plugin Configuration
+This installs the plugin and makes all skills available to Claude.
 
-Validate plugin configuration files before installing or publishing:
+### Validating Skill Configuration
+
+Validate plugin and skill configuration before installing or publishing:
 ```bash
 claude plugin validate /path/to/repository
 ```
@@ -129,13 +147,22 @@ claude plugin validate /path/to/repository
 This command checks:
 - Plugin metadata and structure
 - Skill definitions and frontmatter
-- Agent definitions and frontmatter
-- Slash command syntax
+- YAML syntax and required fields
+- File structure and naming conventions
 - MCP server configurations
-- Marketplace registration
 
 Run validation from the repository root directory to check all plugins at once.
 
+### Skills Documentation
+
+For comprehensive guidance on creating effective skills, refer to:
+- [How to create custom skills](https://support.claude.com/en/articles/12512198-how-to-create-custom-skills) - Tutorial and quick start
+- [Agent skills best practices](https://docs.claude.com/en/docs/agents-and-tools/agent-skills/best-practices) - Design patterns and recommendations
+- [Skills reference](https://docs.claude.com/en/docs/claude-code/plugins-reference#skills) - Technical specification and API reference
+
 ### Plugin Versioning
 
-Follow semantic versioning in plugin.json.
+Follow semantic versioning in plugin.json:
+- **Major**: Breaking changes to skill interfaces or behavior
+- **Minor**: New skills or backward-compatible enhancements
+- **Patch**: Bug fixes and documentation updates

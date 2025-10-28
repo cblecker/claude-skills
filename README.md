@@ -1,68 +1,57 @@
-# Claude Code Plugins
+# Claude Code Skills Collection
 
-A personal collection of Claude Code plugins, providing custom subagents, slash commands, hooks, and MCP servers to enhance my development workflow.
+My personal collection of Claude Code skills that extend Claude's capabilities through model-invoked workflows.
 
-## What are Claude Code Plugins?
+## What are Claude Code Skills?
 
-Claude Code plugins are custom collections that can include:
+Skills are intelligent workflows that Claude can invoke autonomously based on task context. When you ask Claude to perform a task, it analyzes your request and automatically selects the appropriate skill to handle it.
 
-- **Subagents**: Specialized AI agents for specific development tasks
-- **Slash Commands**: Custom shortcuts for common operations
-- **MCP Servers**: Tool and data source connections
-- **Hooks**: Workflow customization points
+Skills enable:
 
-Plugins help standardize my development environment, enforce best practices, and improve productivity.
+- **Autonomous workflow selection**: Claude determines which skill to use based on your request
+- **Phase-based execution**: Structured workflows with validation gates and state tracking
+- **Tool composition**: Skills can invoke other skills to complete complex tasks
+- **95%+ confidence decisions**: Structured reasoning for critical operations
+- **Best practice enforcement**: Codified expertise in git, GitHub, and development workflows
 
 ## Getting Started
 
-### Add this Plugin Collection
+### Add this Skills Collection
 
-To add this plugin collection to Claude Code:
+To add this skills collection to Claude Code:
 
 ```bash
-/plugin marketplace add cblecker/claude-plugins
+/plugin marketplace add cblecker/claude-skills
 ```
 
-### Install Plugins
+### Install Skills
 
-Once the marketplace is added, you can browse and install available plugins:
+Once the marketplace is added, you can browse and install available skill collections:
 
 ```bash
 /plugin install <plugin-name>
 ```
 
-### Manage Plugins
-
-Toggle plugins on/off to manage system complexity:
+For example, to install the git-workflows skills:
 
 ```bash
-/plugin list
-/plugin enable <plugin-name>
-/plugin disable <plugin-name>
+/plugin install git-workflows
 ```
 
-## Plugin Structure
+## Resources
 
-Each plugin in this marketplace is organized in the `plugins/` directory with the following structure:
+### Claude Code Skills Documentation
 
-```
-plugins/
-└── <plugin-name>/
-    ├── plugin.json          # Plugin metadata and configuration
-    ├── agents/              # Subagent definitions (markdown with YAML frontmatter)
-    ├── commands/            # Slash command definitions (markdown files)
-    ├── hooks/               # Hook configurations
-    └── mcp/                 # MCP server configurations
-```
+- [How to Create Custom Skills](https://support.claude.com/en/articles/12512198-how-to-create-custom-skills)
+- [Agent Skills Best Practices](https://docs.claude.com/en/docs/agents-and-tools/agent-skills/best-practices)
+- [Skills Reference](https://docs.claude.com/en/docs/claude-code/plugins-reference#skills)
+- [Official Skills Repository](https://github.com/anthropics/skills)
+
+### Claude Code Documentation
+
+- [Claude Code Documentation](https://docs.claude.com/en/docs/claude-code)
+- [Claude Code Plugins Announcement](https://www.anthropic.com/news/claude-code-plugins)
 
 ## License
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
-
-## Resources
-
-- [Claude Code Documentation](https://docs.claude.com/en/docs/claude-code)
-- [Claude Code Plugins Announcement](https://www.anthropic.com/news/claude-code-plugins)
-- [Subagents Guide](https://docs.claude.com/en/docs/claude-code/sub-agents.md)
-- [Slash Commands Guide](https://docs.claude.com/en/docs/claude-code/slash-commands.md)
-- [Hooks Guide](https://docs.claude.com/en/docs/claude-code/hooks-guide.md)
