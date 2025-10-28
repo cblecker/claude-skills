@@ -1,6 +1,6 @@
 ---
 name: creating-branch
-description: Structured workflow for creating git feature branches from a synchronized mainline base with conventional naming and stashing support
+description: Create git feature branches with automatic naming and base sync. Use when starting new work, creating branches, or when you say 'create a branch', 'make a new branch', 'start a branch for', or 'create feature branch'.
 allowed-tools: [mcp__git__git_status, mcp__git__git_checkout, mcp__git__git_create_branch, mcp__git__git_branch, mcp__git__git_log, Bash(git ls-remote:*), Bash(git stash:*)]
 ---
 
