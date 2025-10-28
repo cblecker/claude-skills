@@ -169,6 +169,69 @@ allowed-tools: Tool1, Tool2, mcp__server__*
   - Use this to restrict tools for security or focus
   - Example: `allowed-tools: Read, Glob, mcp__git__*, mcp__sequential-thinking__*`
 
+**Description Best Practices** (Critical for Skill Selection):
+
+When designing skill descriptions, apply these evidence-based principles (validated through systematic evaluation with 90%+ confidence):
+
+**1. Collaborative Framing** (Not Prescriptive):
+- ✅ "Automates [workflow/protocol]" - Positions skill as helpful automation
+- ❌ "MUST use for..." - Sounds mandatory and rigid
+- ❌ "This skill does..." - Generic and forgettable
+- Rationale: Collaborative framing scans better in long lists, feels assistive not controlling
+
+**2. Integrate System Terminology**:
+- ✅ Reference protocols skill automates: "Git Safety Protocol", "Branch Protection Protocol"
+- ✅ Use system tool language: "mainline branch protection", "fork detection", "upstream handling"
+- ❌ Generic terms: "makes commits", "creates branches"
+- Rationale: Connects skill to familiar system conventions, builds on existing mental models
+
+**3. Optimal Length: 45-52 Words**:
+- ❌ Too short (<35 words): Generic, lacks technical detail, poor differentiation
+- ✅ Sweet spot (45-52 words): Scannable, detailed, memorable
+- ❌ Too long (>60 words): Loses scannability, buried in walls of text
+- Rationale: Balances scannability in lists with sufficient technical specificity
+
+**4. Lead with Value Proposition**:
+- ✅ Start with WHY better than manual: "Automates", "Enforces", "Handles safely"
+- ✅ Follow with WHAT features: "detects conventions", "validates safety", "prevents errors"
+- ❌ Lead with implementation: "Uses mcp__git__* tools to..."
+- Rationale: Users scanning lists need immediate value signal
+
+**5. Technical Specificity**:
+- ✅ Specific capabilities: "detects Conventional Commits from history"
+- ✅ Technical features: "fork vs origin aware", "handles pre-commit hooks"
+- ❌ Vague claims: "smart commit messages", "handles branches"
+- Rationale: Technical users need concrete capability signals
+
+**6. Safety Emphasis**:
+- ✅ Highlight protection: "enforces mainline branch protection"
+- ✅ Error prevention: "validates prerequisites", "prevents conflicts"
+- ❌ Ignore safety: Focus only on functionality
+- Rationale: Safety features differentiate from manual commands
+
+**Pattern Template**:
+```
+"Automates [protocol/workflow name]: [2-3 specific technical features],
+[1-2 safety/validation features], and [integration point]. Use when
+[natural triggers]."
+```
+
+**Example Transformation**:
+
+❌ **Before** (35 words, generic):
+"Create git commits with smart message generation and code review. Use when committing changes, saving work, or when you say 'commit', 'make a commit', 'create a commit', or 'save my changes'."
+
+✅ **After** (48 words, collaborative):
+"Automates the Git Safety Protocol for commits: analyzes staged/unstaged changes, drafts descriptive messages (detects Conventional Commits from history), enforces mainline branch protection, and handles pre-commit hooks safely. Use when committing changes or when you say 'commit', 'save changes', 'create commit', 'check in my work'."
+
+**Why This Works**:
+- "Automates" = collaborative framing (not "MUST use")
+- "Git Safety Protocol" = system terminology integration
+- 48 words = optimal length (scannable + detailed)
+- "Automates...analyzes...drafts" = value proposition first
+- "Conventional Commits detection, pre-commit hooks" = technical specificity
+- "Mainline branch protection, handles safely" = safety emphasis
+
 **SKILL.md Body Structure** (following best practices):
 
 1. **Opening Context** - Brief skill identity and role

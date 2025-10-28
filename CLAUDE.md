@@ -40,6 +40,11 @@ Example structure:
 ---
 name: example-skill
 description: Brief description of when to invoke this skill
+  # Description Best Practices (see designer agent for details):
+  # - Use collaborative framing: "Automates [workflow]..." (not "MUST use for...")
+  # - Integrate system terminology (protocols, safety features)
+  # - Target 45-52 words (scannable yet detailed)
+  # - Lead with value proposition, include technical specificity and safety features
 allowed-tools:
   - tool_name_1
   - tool_name_2
@@ -52,9 +57,9 @@ allowed-tools:
 
 ### Optional Components
 
-While this repository focuses primarily on skills, plugins can optionally include:
+While this repository currently contains only skills, plugins can optionally include other components:
 - **Subagents**: Markdown files with YAML frontmatter defining specialized agents
-- **Slash Commands**: Markdown files for user-invokable commands
+- **Slash Commands**: User-invokable commands (different from skills - slash commands require explicit `/command` invocation, while skills are automatically invoked by Claude based on context)
 - **Hooks**: Configuration for lifecycle event handlers
 - **MCP Servers**: Connections to external tools and data sources (configured in plugin.json)
 

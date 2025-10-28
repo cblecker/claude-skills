@@ -1,6 +1,6 @@
 ---
 name: creating-commit
-description: Create git commits with smart message generation and code review. Use when committing changes, saving work, or when you say 'commit', 'make a commit', 'create a commit', or 'save my changes'.
+description: Automates the Git Safety Protocol for commits: analyzes staged/unstaged changes, drafts descriptive messages (detects Conventional Commits from history), enforces mainline branch protection, and handles pre-commit hooks safely. Use when committing changes or when you say 'commit', 'save changes', 'create commit', 'check in my work'.
 allowed-tools: [mcp__git__git_status, mcp__git__git_diff_unstaged, mcp__git__git_diff_staged, mcp__git__git_add, mcp__git__git_commit, mcp__git__git_log, mcp__git__git_branch, mcp__sequential-thinking__sequentialthinking, Bash(git ls-remote:*), Read, Glob]
 ---
 
