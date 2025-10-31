@@ -172,5 +172,4 @@ The following MCP servers are automatically configured when you install the plug
 
 - **uv** (for `uvx` command)
 - **Node.js** (for `npx` command)
-- **GITHUB_TOKEN** environment variable must be set for GitHub operations
-- Claude Code with MCP support
+- **gh** (for `gh auth token` secure retrieval of GitHub token)
