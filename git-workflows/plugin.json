@@ -2,7 +2,7 @@
   "name": "git-workflows",
   "displayName": "Git Workflows",
   "description": "Automate git and GitHub workflows including commits, branches, pull requests, syncing, and rebasing. Use when working with git repositories, creating commits or PRs, managing branches, or performing git operations.",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "author": {
     "name": "Christoph Blecker",
     "email": "admin@toph.ca",
@@ -24,6 +24,7 @@
   ],
   "mcpServers": {
     "git": {
+      "type": "stdio",
       "command": "uvx",
       "args": [
         "mcp-server-git"
