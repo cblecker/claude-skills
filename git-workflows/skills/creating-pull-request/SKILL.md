@@ -1,8 +1,11 @@
 ---
 name: creating-pull-request
 description: Automates GitHub PR creation workflow: handles uncommitted changes (invokes creating-commit if needed), analyzes full commit history from divergence point, generates compelling titles/descriptions following project conventions, detects fork/origin for correct head/base configuration. Use when creating PRs or when you say 'create PR', 'open a PR', 'submit for review'.
-allowed-tools: [mcp__git__git_status, mcp__git__git_log, mcp__git__git_diff, mcp__git__git_branch, mcp__github__create_pull_request, mcp__sequential-thinking__sequentialthinking, Bash(git ls-remote:*), Bash(git remote get-url:*), Bash(git push:*), Read, Glob]
 ---
+
+## MCP Fallback Warning
+
+When an MCP tool (mcp__git__*, mcp__github__*, mcp__sequential-thinking__*) is unavailable, warn user and proceed with Bash equivalent: "[Tool] unavailable - using Bash fallback (no IAM control)"
 
 # Skill: Creating a Pull Request
 
