@@ -146,7 +146,7 @@ This installs the plugin and makes all skills available to Claude.
 
 Validate plugin and skill configuration before installing or publishing:
 ```bash
-claude plugin validate /path/to/repository
+claude plugin validate <path>
 ```
 
 This command checks:
@@ -156,7 +156,9 @@ This command checks:
 - File structure and naming conventions
 - MCP server configurations
 
-Run validation from the repository root directory to check all plugins at once.
+Run validation on any path that contains a `.claude-plugin` directory:
+- Repository root: Validates the marketplace configuration
+- Individual plugin directories (e.g., `git-workflows/`): Validates the specific plugin
 
 ### Skills Documentation
 

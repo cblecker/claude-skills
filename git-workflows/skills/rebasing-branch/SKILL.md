@@ -1,8 +1,11 @@
 ---
 name: rebasing-branch
 description: Automates safe rebase workflow: syncs base branch first, prevents mainline rebase errors (enforces Git Safety Protocol), preserves working state across checkouts, provides conflict resolution guidance, and optionally resets author dates. Use for rebasing or when you say 'rebase branch', 'rebase on main', 'rebase onto', 'update branch history'.
-allowed-tools: [mcp__git__git_status, mcp__git__git_checkout, mcp__git__git_log, mcp__git__git_branch, Bash(git ls-remote:*), Bash(git merge-base:*), Bash(git rebase:*)]
 ---
+
+## MCP Fallback Warning
+
+When an MCP tool (mcp__git__*, mcp__github__*, mcp__sequential-thinking__*) is unavailable, warn user and proceed with Bash equivalent: "[Tool] unavailable - using Bash fallback (no IAM control)"
 
 # Skill: Rebasing a Branch
 

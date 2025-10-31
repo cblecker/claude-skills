@@ -1,8 +1,11 @@
 ---
 name: creating-branch
 description: Automates feature branch creation with safety checks: syncs base branch first, generates convention-based names (detects Conventional Commits for type prefixes), handles dirty working trees with stash/commit options. Use when creating branches or when you say 'create branch', 'new branch', 'start branch for', 'make feature branch'.
-allowed-tools: [mcp__git__git_status, mcp__git__git_checkout, mcp__git__git_create_branch, mcp__git__git_branch, mcp__git__git_log, Bash(git ls-remote:*), Bash(git stash:*)]
 ---
+
+## MCP Fallback Warning
+
+When an MCP tool (mcp__git__*, mcp__github__*, mcp__sequential-thinking__*) is unavailable, warn user and proceed with Bash equivalent: "[Tool] unavailable - using Bash fallback (no IAM control)"
 
 # Skill: Creating a Branch
 

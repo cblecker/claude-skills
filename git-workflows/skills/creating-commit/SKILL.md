@@ -1,8 +1,11 @@
 ---
 name: creating-commit
 description: Automates the Git Safety Protocol for commits: analyzes staged/unstaged changes, drafts descriptive messages (detects Conventional Commits from history), enforces mainline branch protection, and handles pre-commit hooks safely. Use when committing changes or when you say 'commit', 'save changes', 'create commit', 'check in my work'.
-allowed-tools: [mcp__git__git_status, mcp__git__git_diff_unstaged, mcp__git__git_diff_staged, mcp__git__git_add, mcp__git__git_commit, mcp__git__git_log, mcp__git__git_branch, mcp__sequential-thinking__sequentialthinking, Bash(git ls-remote:*), Read, Glob]
 ---
+
+## MCP Fallback Warning
+
+When an MCP tool (mcp__git__*, mcp__github__*, mcp__sequential-thinking__*) is unavailable, warn user and proceed with Bash equivalent: "[Tool] unavailable - using Bash fallback (no IAM control)"
 
 # Skill: Creating a Commit
 
