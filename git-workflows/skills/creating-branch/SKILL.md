@@ -40,17 +40,14 @@ This skill creates feature branches from a synchronized mainline base. It ensure
 
 ## Phase 1: Current State Validation
 
-**Objective**: Verify working tree is clean.
+**Objective**: Check working tree status and prepare for branch creation.
 
 **Steps**:
 1. Check status: `mcp__git__git_status` with `repo_path` (cwd)
 2. Get current: `mcp__git__git_branch` with `repo_path` (cwd), `branch_type: "local"`
+3. Note uncommitted changes: Set `has_uncommitted_changes` flag (true/false)
 
-**Validation Gate**: IF uncommitted changes:
-- Propose: Commit (invoke creating-commit), stash, or cancel
-- IF commit: Invoke skill, verify success, set stash_created = false
-- IF stash: Execute `git stash push -u -m "Auto-stash..."`, set stash_created = true
-- IF cancel: STOP
+**Note**: Uncommitted changes will be brought forward to the new branch. If syncing the base branch is required (Phase 3), changes will be automatically stashed and restored.
 
 Continue to Phase 2.
 
@@ -128,6 +125,12 @@ Plan mode is automatically enforced by the system. IF currently in plan mode:
 
 **Step 1: Checkout base branch**
 
+IF `has_uncommitted_changes` from Phase 1 AND current branch != base branch:
+  Execute stash: `git stash push -u -m "Auto-stash before branch sync"`
+  Set `stash_created = true`
+ELSE:
+  Set `stash_created = false`
+
 Tool: `mcp__git__git_checkout`
 Parameters:
 - `repo_path`: Current working directory absolute path
@@ -136,6 +139,7 @@ Permission: Requires user approval (state change operation)
 Expected output: Confirmation of branch switch
 
 IF checkout fails:
+  IF stash_created: Restore stash with `git stash pop`
   STOP immediately
   EXPLAIN: "Cannot checkout base branch '<base-branch>'"
   ANALYZE error for cause (branch doesn't exist, permission denied)
@@ -151,9 +155,12 @@ WAIT for skill completion
 
 IF syncing-branch skill succeeded:
   INFORM: "Base branch synced successfully"
+  IF stash_created:
+    Note: Stash will be restored after new branch is created in Phase 5
   PROCEED to Phase 4
 
 IF syncing-branch skill failed:
+  IF stash_created: Restore stash with `git stash pop`
   STOP immediately
   EXPLAIN: "Failed to sync base branch"
   SHOW: Error reported by syncing-branch skill
@@ -174,12 +181,23 @@ Phase 3 complete. Continue to Phase 4.
 3. Transform to kebab-case (lowercase, hyphens, alphanumerics only)
 4. Add type prefix if Conventional Commits (feat/, fix/, docs/, etc. based on keywords)
 5. Truncate to 47 chars if > 50, append "..."
-6. Present to user for approval; use alternative if provided
-7. Check uniqueness: `mcp__git__git_branch` with `repo_path` (cwd), `branch_type: "local"`
+6. Request approval using AskUserQuestion tool:
+   - Question: "Which branch name would you like to use?"
+   - Header: "Branch"
+   - Options:
+     - **Use generated**: "Use the suggested name: <generated-name>" - Uses generated name
+     - **Custom name**: "Provide a different branch name" - User provides alternative
+7. IF "Custom name" selected: Use the custom name provided by user via "Other" option
+8. Check uniqueness: `mcp__git__git_branch` with `repo_path` (cwd), `branch_type: "local"`
 
 **Validation Gate**: IF branch exists:
-- Propose alternative or switch to existing
-- Wait for user decision
+- EXPLAIN: "Branch '<branch-name>' already exists locally"
+- PROPOSE: Generate alternative with numeric suffix (e.g., feat/auth-2)
+- ASK: "Use alternative name '<alternative-name>' or provide custom name?"
+- HANDLE user selection:
+  - IF alternative accepted: Use alternative name
+  - IF custom provided: Use custom name and re-check uniqueness
+  - IF neither: STOP workflow
 
 Continue to Phase 5.
 
@@ -194,8 +212,16 @@ Continue to Phase 5.
 **Steps**:
 1. Create: `mcp__git__git_create_branch` with `repo_path` (cwd), `branch_name` from Phase 4, `base_branch` from Phase 2
 2. Checkout: `mcp__git__git_checkout` with `repo_path` (cwd), `branch_name` from Phase 4
+3. IF `stash_created` from Phase 3:
+   - Restore stash: `git stash pop`
+   - INFORM: "Uncommitted changes restored to new branch"
+   - IF conflicts during restore:
+     - EXPLAIN: "Stash conflicts detected"
+     - GUIDE: Resolve conflicts in files, stage resolved files
+     - Stash remains in stash list until manually dropped
 
 **Error Handling**: IF failure:
+- IF stash_created: Keep stash (don't pop) for manual recovery
 - Explain: Permission, branch exists (shouldn't happen), or base invalid
 - Propose solution and wait for retry approval
 

@@ -296,6 +296,43 @@ Phase 5 complete. Continue to Phase 6.
    - Description: Generate with sections (Summary, Changes, Motivation, Testing, Additional Notes)
 3. Populate from commit/diff analysis
 
+Continue to Phase 6.5.
+
+---
+
+## Phase 6.5: PR Content Review
+
+**Objective**: Present generated PR content for user review and approval.
+
+**Steps**:
+1. Present: Generated PR title and description from Phase 6
+2. Request approval using AskUserQuestion tool:
+   - Question: "How would you like to proceed with this pull request?"
+   - Header: "PR Content"
+   - Options:
+     - **Proceed**: "Create PR with this title and description" - Continues to Phase 7
+     - **Edit title**: "Modify the PR title" - Allows title customization
+     - **Edit description**: "Modify the PR description" - Allows description customization
+     - **Edit both**: "Modify both title and description" - Allows full customization
+
+**Validation Gate: Content Approval**
+HANDLE user selection:
+- IF "Proceed": Continue to Phase 7
+- IF "Edit title":
+  - User provides custom title via "Other" option
+  - Validate: Title ≤ 72 chars, non-empty
+  - IF invalid: Re-prompt with validation message
+  - Update title, return to Step 1 to show updated PR
+- IF "Edit description":
+  - User provides custom description via "Other" option
+  - Validate: Non-empty, markdown formatted
+  - Update description, return to Step 1 to show updated PR
+- IF "Edit both":
+  - User provides custom title and description via "Other" option
+  - Format expected: "TITLE: <title>\n\nDESCRIPTION:\n<description>"
+  - Validate both components
+  - Update both, return to Step 1 to show updated PR
+
 Continue to Phase 7.
 
 ---

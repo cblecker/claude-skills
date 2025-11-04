@@ -47,8 +47,23 @@ This skill executes the atomic commit workflow with analysis and validation gate
 
 **Validation Gate: Branch Protection**
 IF on mainline AND no explicit approval:
-  STOP: "On mainline branch. Create feature branch first."
-  PROPOSE: Invoke creating-branch skill
+  WARN: "Currently on mainline branch"
+  EXPLAIN: "Direct commits to mainline bypass review workflow"
+  Use AskUserQuestion tool:
+    - Question: "You're on the mainline branch. How would you like to proceed?"
+    - Header: "Mainline"
+    - Options:
+      - **Create branch first**: "Create a feature branch, then commit" - Invokes creating-branch skill
+      - **Commit anyway**: "Commit directly to mainline (not recommended)" - Continues to Phase 2
+      - **Cancel**: "Don't create a commit" - Stops workflow
+
+  HANDLE user selection:
+  - IF "Create branch first":
+    - INVOKE: creating-branch skill
+    - IF creating-branch succeeded: Continue to Phase 2 (on new branch)
+    - IF creating-branch failed: STOP workflow
+  - IF "Commit anyway": Continue to Phase 2
+  - IF "Cancel": STOP: "Commit cancelled by user"
 ELSE: Continue to Phase 2
 
 ---
@@ -121,12 +136,22 @@ Continue to Phase 5.
 2. Handle diff: Get using `mcp__git__git_diff_unstaged` and `mcp__git__git_diff_staged`
    - If < 100 lines: Show full diff
    - If ≥ 100 lines: Ask user if they want to see it
-3. Request approval: "Proceed with this commit? (yes/no/edit)"
+3. Request approval using AskUserQuestion tool:
+   - Question: "How would you like to proceed with this commit?"
+   - Header: "Commit"
+   - Options:
+     - **Proceed**: "Create the commit with this message" - Continues to Phase 6
+     - **Edit message**: "Modify the commit message" - Returns to Step 1 with user's custom message
+     - **Cancel**: "Don't create this commit" - Stops workflow
 
 **Validation Gate: User Approval**
-IF yes: Continue to Phase 6
-IF edit: Apply changes, return to Step 1
-IF no: STOP: "Commit cancelled"
+HANDLE user selection:
+- IF "Proceed": Continue to Phase 6
+- IF "Edit message":
+  - User provides custom message via "Other" option
+  - Apply custom message (replace generated message)
+  - Return to Step 1 to show updated commit details
+- IF "Cancel": STOP: "Commit cancelled by user"
 
 ---
 
