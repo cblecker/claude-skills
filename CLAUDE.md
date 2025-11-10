@@ -121,6 +121,31 @@ Workflows have mandatory STOP conditions:
 
 When STOP triggered: halt immediately, explain why, propose solution, wait for user decision.
 
+### Reporting Standards
+
+Skills follow different reporting formats based on their invocation pattern:
+
+**Utility Skills** (invoked by other skills only):
+- Return structured JSON output for programmatic consumption
+- Include success/failure indicators and all required data
+- Examples: mainline-branch, repository-type, detect-conventional-commits
+
+**User-Facing Workflow Skills** (invoked by users):
+- Use standardized reporting templates for consistency
+- Include success indicator (✓), operation name, key information, and next steps
+- Examples: creating-commit, creating-branch, creating-pull-request, syncing-branch, rebasing-branch
+
+Standard template format for user-facing skills:
+```text
+✓ <Operation> Completed Successfully
+
+<Key Info Line 1>
+<Key Info Line 2>
+...
+
+[Optional: Important notes or next steps]
+```
+
 ## Working with This Repository
 
 ### Adding New Skills

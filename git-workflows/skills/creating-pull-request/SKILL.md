@@ -7,31 +7,15 @@ description: Automates GitHub PR creation workflow: handles uncommitted changes 
 
 ## When to Use This Skill
 
-**Use this skill when the user requests:**
-- "create a PR"
-- "create a pull request"
-- "make a pull request"
-- "open a PR"
-- "submit for review"
-- "create PR for this"
-- Any variation requesting GitHub pull request creation
+Use this skill for pull request creation requests: "create a PR", "open a PR", "submit for review", or similar.
 
-**Use other skills instead when:**
-- Only committing changes → Use creating-commit skill
-- Viewing existing PRs → Use GitHub MCP tools directly
-- Updating existing PRs → Use GitHub MCP update tools
-
----
+Use other skills for: viewing existing PRs (GitHub MCP directly), updating PRs (GitHub MCP update), or only committing changes (creating-commit).
 
 ## Workflow Description
 
-This skill creates GitHub pull requests with automatic commit handling, repository type detection, PR content generation, branch pushing, and GitHub PR creation via MCP.
+Creates GitHub pull requests with automatic commit handling, repository detection, PR content generation, branch pushing, and GitHub PR creation via MCP.
 
-**Information to gather from user request:**
-- Draft status: Detect if user mentioned "draft" or "WIP" in their request (default: false)
-- PR title: Extract title if user provided one (e.g., "create PR titled '...'"), otherwise auto-generate
-- PR description: Extract description if user provided one, otherwise auto-generate
-- Target branch: Extract target branch if specified (e.g., "create PR to develop" or "base on staging"), otherwise use mainline
+Extract from user request: draft status ("draft"/"WIP" → true, default false), PR title/description (if provided), target branch (if specified, else mainline)
 
 ---
 
@@ -143,7 +127,7 @@ IF no target branch mentioned:
   Invoke mainline-branch skill to get mainline branch
   Use mainline as PR base
 
-Store PR_BASE for later phases.
+Store pr_base for later phases.
 
 Phase 2 complete. Continue to Phase 3.
 
@@ -274,32 +258,14 @@ Continue to Phase 7.
 1. Extract from Phase 6: PR number, URL, state, title
 
 2. Format output using standardized template:
+   ```text
+   ✓ Pull Request Created Successfully
 
-**Template for Regular PR**:
-```
-✓ Pull Request Created Successfully
+   PR #<number>: <title>
+   URL: <pr_url>
+   Status: <Open|Draft>
+   Base: <base_branch> ← Head: <head_branch>
 
-PR #<number>: <title>
-URL: <pr_url>
-Status: Open
-Base: <base_branch> ← Head: <head_branch>
-
-The pull request is ready for review.
-```
-
-**Template for Draft PR**:
-```
-✓ Draft Pull Request Created Successfully
-
-PR #<number>: <title>
-URL: <pr_url>
-Status: Draft
-Base: <base_branch> ← Head: <head_branch>
-
-This is a draft PR. Mark it as "Ready for review" when ready:
-<pr_url>
-```
-
-3. Report using appropriate template
-
-Workflow complete.
+   [If draft: "Mark as 'Ready for review' when ready: <pr_url>"]
+   [If open: "The pull request is ready for review."]
+   ```

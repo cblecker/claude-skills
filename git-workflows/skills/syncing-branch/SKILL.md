@@ -7,30 +7,17 @@ description: Automates branch sync with remote changes: detects fork vs origin s
 
 ## When to Use This Skill
 
-**Use this skill when the user requests:**
-- "sync my branch"
-- "pull latest changes"
-- "sync with remote"
-- "update my branch" (if intent is to pull from remote, not rebase)
-- "get latest from origin/upstream"
-- "sync with upstream"
-- Any variation requesting to fetch and merge remote changes
+Use this skill for sync requests: "sync my branch", "pull latest", "sync with remote", "update my branch", "get latest from origin/upstream".
 
-**Use other skills instead when:**
-- Rebasing is requested → Use rebasing-branch skill instead
-- Creating a PR → Use creating-pull-request skill (which handles pushing)
-- Viewing remote branches → Use git commands directly
+Use other skills for: rebasing (rebasing-branch), creating PRs (creating-pull-request), viewing remotes (git commands).
 
-**Disambiguation Note**: If user says "update my branch", ask whether they want to sync (fetch+merge) or rebase (rewrite history), as these are different operations with different outcomes.
-
----
+**Disambiguation**: "update my branch" → ask if sync (fetch+merge) or rebase (rewrite history).
 
 ## Workflow Description
 
-This skill updates a branch with remote changes, automatically detecting fork vs origin scenarios and executing the appropriate sync strategy.
+Updates branch with remote changes, auto-detecting fork vs origin scenarios.
 
-**Information to gather from user request:**
-- Target branch: Extract if user specified a specific branch to sync (e.g., "sync develop branch" or "sync the main branch"), otherwise use current branch
+Extract from user request: target branch (if specified, else current)
 
 ---
 
@@ -140,10 +127,14 @@ Continue to Phase 5.
    ```
    Look for: "## <branch>...origin/<branch>" with no ahead/behind indicators
 
-5. Report:
-   - Branch: <target-branch>
-   - Status: Synced with remote
-   - Working tree: Clean
-   - Recent commits: (show 5 most recent)
+5. Report using template:
+   ```text
+   ✓ Branch Synced Successfully
+
+   Branch: <branch_name>
+   Status: In sync with remote
+   Working tree: <Clean|Dirty>
+   ```
+
 
 Workflow complete.

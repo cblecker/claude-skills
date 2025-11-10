@@ -8,23 +8,15 @@ allowed-tools: Bash, Read
 
 ## When to Use This Skill
 
-**Use this skill when:**
-- Determining if repository is a fork or origin
-- Extracting owner and repository names from remotes
-- Identifying correct sync/push/PR strategy
-- Another skill needs repository structure information
+Use when determining fork vs origin, extracting owner/repo names, identifying sync/push/PR strategy, or when another skill needs repository structure.
 
-**This skill is invoked by:**
-- creating-pull-request: To determine PR target (upstream vs origin) and head format
-- syncing-branch: To determine sync strategy (fork vs origin)
-- rebasing-branch: To understand remote configuration
+Invoked by: creating-pull-request (PR target/head), syncing-branch (sync strategy), rebasing-branch (remote config).
 
 ## Workflow Description
 
-This skill analyzes git remote configuration to determine if the repository is a fork (has upstream remote) or origin-only repository. It extracts owner and repository names from remote URLs for GitHub API operations.
+Analyzes git remote configuration to determine fork (has upstream) vs origin-only. Extracts owner/repo from remote URLs for GitHub API operations.
 
-**Information to gather from invoking context:**
-- None required - skill analyzes current repository state
+---
 
 ## Phase 1: Check for Upstream Remote
 
@@ -40,7 +32,7 @@ This skill analyzes git remote configuration to determine if the repository is a
    - Exit 0: Upstream exists (FORK scenario)
    - Exit 128/2: No upstream (ORIGIN scenario)
 
-**Validation Gate: Remote Detection**
+### Validation Gate: Remote Detection
 
 IF exit code is 0:
   Set is_fork = true
@@ -57,7 +49,7 @@ Phase 1 complete. Continue to Phase 2.
 
 **Objective**: Retrieve all relevant remote URLs based on repository type.
 
-**Fork Scenario** (is_fork = true):
+### Fork Scenario (is_fork = true):
 
 Steps:
 1. Get upstream URL:
@@ -72,7 +64,7 @@ Steps:
 
 Capture: upstream_url, origin_url
 
-**Origin Scenario** (is_fork = false):
+### Origin Scenario (is_fork = false):
 
 Steps:
 1. Get origin URL:
@@ -82,7 +74,7 @@ Steps:
 
 Capture: origin_url
 
-**Validation Gate: URLs Retrieved**
+### Validation Gate: URLs Retrieved
 
 IF all required URLs successfully retrieved:
   Continue to Phase 3
@@ -118,18 +110,18 @@ Phase 2 complete. Continue to Phase 3.
 
 3. Apply to each URL based on repository type
 
-**Fork Scenario** (is_fork = true):
+### Fork Scenario (is_fork = true):
 
 Parse both upstream and origin URLs:
 - upstream_owner, upstream_repo
 - origin_owner, origin_repo
 
-**Origin Scenario** (is_fork = false):
+### Origin Scenario (is_fork = false):
 
 Parse origin URL only:
 - origin_owner, origin_repo
 
-**Validation Gate: Parsing Success**
+### Validation Gate: Parsing Success
 
 IF all owner/repo pairs successfully extracted:
   Continue to Phase 4
@@ -146,43 +138,22 @@ Phase 3 complete. Continue to Phase 4.
 
 **Objective**: Return structured repository information to invoking skill.
 
-**Fork Scenario Output**:
+Return structured result:
 
 ```json
 {
-  "is_fork": true,
-  "upstream": {
-    "url": "git@github.com:kubernetes/kubernetes.git",
-    "owner": "kubernetes",
-    "repo": "kubernetes"
+  "is_fork": <true|false>,
+  "upstream": { # only present if is_fork = true
+    "url": "<upstream_url>",
+    "owner": "<upstream_owner>",
+    "repo": "<upstream_repo>"
   },
   "origin": {
-    "url": "git@github.com:myuser/kubernetes.git",
-    "owner": "myuser",
-    "repo": "kubernetes"
-  }
-}
-```
-
-**Origin Scenario Output**:
-
-```json
-{
-  "is_fork": false,
-  "origin": {
-    "url": "git@github.com:cblecker/claude-skills.git",
-    "owner": "cblecker",
-    "repo": "claude-skills"
+    "url": "<origin_url>",
+    "owner": "<origin_owner>",
+    "repo": "<origin_repo>"
   }
 }
 ```
 
 Phase 4 complete. Workflow complete.
-
-## Success Criteria
-
-This skill succeeds when:
-- Repository type (fork vs origin) is correctly identified
-- All remote URLs are successfully retrieved
-- Owner and repository names are accurately extracted
-- Structured result is returned to invoking skill

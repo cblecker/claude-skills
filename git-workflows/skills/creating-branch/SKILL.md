@@ -7,29 +7,15 @@ description: Automates feature branch creation with safety checks: determines ba
 
 ## When to Use This Skill
 
-**Use this skill when the user requests:**
-- "create a branch"
-- "make a new branch"
-- "create a feature branch"
-- "start a branch for X"
-- "create branch called/named X"
-- Any variation requesting git branch creation
+Use this skill for branch creation: "create a branch", "new branch", "start a branch for X", "create branch called X".
 
-**Use other skills instead when:**
-- Switching to existing branches → Use `git checkout` directly
-- Listing branches → Use `git branch` directly
-- User is creating a PR and happens to be on mainline → Use creating-pull-request skill (which may invoke this skill)
-
----
+Use other tools for: switching branches (`git checkout`), listing branches (`git branch`).
 
 ## Workflow Description
 
-This skill creates feature branches from the current state, preserving any uncommitted changes. It generates conventional branch names based on repository conventions and validates uniqueness.
+Creates feature branches from current state, preserving uncommitted changes. Generates conventional names, validates uniqueness.
 
-**Information to gather from user request:**
-- Branch purpose/description: Extract from user's natural language (e.g., "create branch for adding metrics" → "adding metrics")
-- Branch name: If user provided explicit name (e.g., "create branch called fix-auth-bug"), use it; otherwise generate from description
-- Base branch: Extract if specified (e.g., "create branch from develop" or "based on staging"), otherwise use mainline
+Extract from user request: purpose/description, explicit name (if provided), base branch (if specified, else mainline)
 
 ---
 
@@ -186,10 +172,14 @@ Continue to Phase 5.
 
 2. Compare to expected branch name from Phase 3
 
-3. Report:
-   - Branch name: <branch-name>
-   - Created from: <base-branch from Phase 2>
-   - Uncommitted changes: Preserved (if any existed)
+3. Report using template:
+   ```text
+   ✓ Branch Created Successfully
+
+   Branch: <branch_name>
+   Created from: <base_branch>
+   Uncommitted changes: <Preserved|None>
+   ```
 
 **Validation Gate**: IF current branch does not match expected:
 - STOP: "Branch creation verification failed"

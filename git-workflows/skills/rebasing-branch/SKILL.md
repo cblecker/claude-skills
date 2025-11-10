@@ -7,29 +7,17 @@ description: Automates safe rebase workflow: syncs base branch first, prevents m
 
 ## When to Use This Skill
 
-**Use this skill when the user requests:**
-- "rebase my branch"
-- "rebase on main/master"
-- "rebase onto X"
-- "update my branch with main" (if intent is to rebase, not sync)
-- Any variation requesting git rebase operation
+Use this skill for rebase requests: "rebase my branch", "rebase on main", "rebase onto X", "update my branch with main".
 
-**Use other skills instead when:**
-- Syncing is requested → Use syncing-branch skill for fetch+merge (preserves history)
-- User is on mainline branch → Cannot rebase mainline (mainline should never be rebased)
-- Viewing rebase status → Use git status directly
+Use other skills for: syncing (syncing-branch for fetch+merge), viewing status (git status directly).
 
-**Disambiguation Note**: If user says "update my branch", ask whether they want to sync (fetch+merge, preserves history) or rebase (rewrites history), as these are fundamentally different operations.
-
----
+**Disambiguation**: "update my branch" → ask if sync (fetch+merge, preserves history) or rebase (rewrites history).
 
 ## Workflow Description
 
-This skill rebases a feature branch onto updated mainline, rewriting commit history to incorporate latest changes from the base branch. It handles state preservation, conflict resolution, and optional author date reset.
+Rebases feature branch onto updated mainline, rewriting commit history. Handles state preservation, conflict resolution, optional author date reset.
 
-**Information to gather from user request:**
-- Target branch: Extract if specified (e.g., "rebase onto develop" or "rebase on staging"), otherwise use mainline
-- Author date preference: Detect if user wants to preserve dates (e.g., "keep author dates" or "preserve dates"), default is to reset dates
+Extract from user request: target branch (if specified, else mainline), author date preference ("keep dates"/"preserve dates" → preserve, default reset)
 
 ---
 
@@ -92,9 +80,9 @@ Phase 1 complete. Continue to Phase 2.
 
 **Objective**: Remember current branch for later checkout.
 
-**CRITICAL**: Store SAVED_BRANCH = current branch from Phase 1
+**CRITICAL**: Store saved_branch = current branch from Phase 1
 - Must preserve through all phases
-- After Phase 4, ALWAYS use SAVED_BRANCH (not "current branch")
+- After Phase 4, ALWAYS use saved_branch (not "current branch")
 
 Continue to Phase 3.
 
@@ -116,7 +104,7 @@ IF target branch specified in user request:
 IF no target branch mentioned:
   Use mainline_branch from Phase 1 as rebase base
 
-Store REBASE_BASE for later phases.
+Store rebase_base for later phases.
 
 Phase 3 complete. Continue to Phase 4.
 
@@ -130,7 +118,7 @@ Phase 3 complete. Continue to Phase 4.
 
 Checkout rebase base:
 ```bash
-git checkout <REBASE_BASE from Phase 3>
+git checkout <rebase_base from Phase 3>
 ```
 
 **Error Handling**
@@ -147,7 +135,7 @@ IF checkout fails:
   - Other: Permission issues
 
   Propose solution:
-  - Doesn't exist: "Verify branch name with `git branch -a` or create it"
+  - Doesn't exist: "Verify branch name with `git branch --all` or create it"
   - Permission: "Check repository access and file permissions"
 
   WAIT for user decision
@@ -198,13 +186,13 @@ Phase 5 complete. Continue to Phase 6.
 
 **CRITICAL: Use Saved State**
 
-Retrieve SAVED_BRANCH from Phase 2 (NOT current branch - we're on base branch now)
+Retrieve saved_branch from Phase 2 (NOT current branch - we're on base branch now)
 
 **Step 1: Checkout feature branch**
 
 Checkout saved branch:
 ```bash
-git checkout <SAVED_BRANCH from Phase 2>
+git checkout <saved_branch from Phase 2>
 ```
 
 **Error Handling**
@@ -216,9 +204,9 @@ IF checkout fails:
   STOP immediately (CRITICAL FAILURE)
 
   EXPLAIN: "Cannot return to feature branch - workflow interrupted mid-operation"
-  INFORM: "You are currently on base branch: <REBASE_BASE from Phase 3>"
-  INFORM: "Your feature branch: <SAVED_BRANCH from Phase 2>"
-  PROPOSE: "Manually checkout your feature branch with: `git checkout <SAVED_BRANCH>`"
+  INFORM: "You are currently on base branch: <rebase_base from Phase 3>"
+  INFORM: "Your feature branch: <saved_branch from Phase 2>"
+  PROPOSE: "Manually checkout your feature branch with: `git checkout <saved_branch>`"
 
   WORKFLOW FAILED - Manual intervention required
 
@@ -280,7 +268,7 @@ Continue to Phase 9.
    git branch --show-current
    ```
 
-2. Compare to SAVED_BRANCH from Phase 2
+2. Compare to saved_branch from Phase 2
 
 3. Check status:
    ```bash
@@ -293,16 +281,22 @@ Continue to Phase 9.
    git log --oneline -5
    ```
 
-5. Report:
-   - Branch: <SAVED_BRANCH>
-   - Rebased onto: <REBASE_BASE>
-   - Author dates: Reset / Preserved (based on Phase 8)
-   - Recent commits: (show 5, note SHAs have changed)
-   - **Important**: Force push required: `git push --force-with-lease origin <SAVED_BRANCH>`
+5. Report using template:
+   ```text
+   ✓ Branch Rebased Successfully
 
-**Validation Gate**: IF current branch ≠ SAVED_BRANCH:
+   Branch: <saved_branch>
+   Rebased onto: <rebase_base>
+   Author dates: <Reset|Preserved>
+   Working tree: <Clean|Dirty>
+
+   ⚠ Important: Force push required
+   Run: git push --force-with-lease origin <saved_branch>
+   ```
+
+**Validation Gate**: IF current branch ≠ saved_branch:
 - STOP: "Branch state inconsistent after rebase"
-- SHOW: Expected (<SAVED_BRANCH>) vs Actual
-- PROPOSE: "Manually checkout with: `git checkout <SAVED_BRANCH>`"
+- SHOW: Expected (<saved_branch>) vs Actual
+- PROPOSE: "Manually checkout with: `git checkout <saved_branch>`"
 
 Workflow complete.

@@ -8,40 +8,24 @@ allowed-tools: Bash, Read
 
 ## When to Use This Skill
 
-**Use this skill when:**
-- Determining the repository's default/mainline branch (main, master, develop, etc.)
-- Checking if current or specified branch is the mainline
-- Validating branch context before git operations
-- Another skill needs mainline branch information
+Use when determining mainline branch (main/master/develop), checking if current/specified branch is mainline, validating branch context, or when another skill needs mainline info.
 
-**This skill is invoked by:**
-- creating-commit: To prevent accidental mainline commits
-- creating-pull-request: To validate feature branch usage and determine PR base
-- creating-branch: To determine default base branch
-- rebasing-branch: To prevent mainline rebase attempts
+Invoked by: creating-commit (prevent mainline commits), creating-pull-request (validate feature branch/PR base), creating-branch (default base), rebasing-branch (prevent mainline rebase).
 
 ## Workflow Description
 
-This skill detects the repository's mainline branch from remote configuration and optionally compares it against a specified or current branch. It's a read-only utility skill designed for autonomous invocation by other skills.
+Detects repository mainline from remote config, optionally compares against specified or current branch. Read-only utility for autonomous invocation.
 
-**Information to gather from invoking context:**
-- Branch to compare (optional): If provided, compare against mainline; otherwise just return mainline name
-- If no branch specified, detect current branch and use for comparison
+Gather from context: branch to compare (optional, else detect current).
+
+---
 
 ## Phase 1: Detect Mainline Branch
 
-**Objective**: Query remote to determine default branch name.
-
-**Steps**:
-1. Execute git command to detect mainline:
-   ```bash
-   git ls-remote --exit-code --symref origin HEAD
-   ```
-
-2. Parse output to extract branch name:
-   ```bash
-   sed -n 's/^ref: refs\/heads\/\(.*\)\tHEAD/\1/p'
-   ```
+Query remote for default branch:
+```bash
+git ls-remote --exit-code --symref origin HEAD | sed -n 's/^ref: refs\/heads\/\(.*\)\tHEAD/\1/p'
+```
 
 **Expected Output**:
 ```
@@ -100,25 +84,10 @@ Phase 2 complete. Continue to Phase 3.
 
 ```json
 {
-  "mainline_branch": "main",
-  "comparison_branch": "feature/new-api",
-  "is_mainline": false
-}
-```
-
-Or if only mainline detection requested:
-
-```json
-{
-  "mainline_branch": "main"
+  "is_mainline": <true|false>,
+  "mainline_branch": "<mainline_branch_name>",
+  "comparison_branch": "<comparison_branch_name>"
 }
 ```
 
 Phase 3 complete. Workflow complete.
-
-## Success Criteria
-
-This skill succeeds when:
-- Mainline branch name is successfully detected from remote
-- Comparison result is accurately determined (if comparison requested)
-- Structured result is returned to invoking skill

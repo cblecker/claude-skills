@@ -8,22 +8,15 @@ allowed-tools: Bash, Glob, Read
 
 ## When to Use This Skill
 
-**Use this skill when:**
-- Determining if repository uses Conventional Commits format
-- Generating commit messages or branch names
-- Enforcing project commit conventions
-- Another skill needs to know commit message format
+Use when determining Conventional Commits usage, generating commit messages/branch names, enforcing conventions, or when another skill needs commit format info.
 
-**This skill is invoked by:**
-- creating-commit: To determine commit message format
-- creating-branch: To determine if branch names should include type prefixes (feat/, fix/, etc.)
+Invoked by: creating-commit (message format), creating-branch (type prefixes feat/, fix/).
 
 ## Workflow Description
 
-This skill detects whether a repository follows Conventional Commits conventions by checking for commitlint configuration, documentation references, and analyzing commit history patterns.
+Detects Conventional Commits usage via commitlint config, documentation references, or commit history patterns (checked in priority order).
 
-**Information to gather from invoking context:**
-- None required - skill analyzes current repository state
+---
 
 ## Phase 1: Check for Commitlint Configuration
 
@@ -31,7 +24,7 @@ This skill detects whether a repository follows Conventional Commits conventions
 
 **Steps**:
 1. Search for commitlint config files:
-   ```
+   ```text
    Use Glob to search for:
    - .commitlintrc
    - .commitlintrc.json
@@ -49,7 +42,7 @@ This skill detects whether a repository follows Conventional Commits conventions
    - IF any file found: Set has_commitlint = true
    - IF no files found: Set has_commitlint = false
 
-**Early Return: Commitlint Found**
+### Early Return: Commitlint Found
 
 IF has_commitlint = true:
   RETURN immediately:
@@ -72,7 +65,7 @@ Phase 1 complete. Continue to Phase 2.
 
 **Steps**:
 1. Check if CONTRIBUTING.md exists using Glob:
-   ```
+   ```text
    Pattern: CONTRIBUTING.md or .github/CONTRIBUTING.md
    ```
 
@@ -87,7 +80,7 @@ Phase 1 complete. Continue to Phase 2.
 3. IF keywords found:
    Set has_doc_reference = true
 
-**Early Return: Documentation Reference Found**
+### Early Return: Documentation Reference Found
 
 IF has_doc_reference = true:
   RETURN immediately:
@@ -120,11 +113,11 @@ Phase 2 complete. Continue to Phase 3.
    ```
 
 3. Count matches:
-   - matches = number of commits matching pattern
-   - total = 10 (number of commits analyzed)
+   - match_count = number of commits matching pattern
+   - total_commits = 10 (number of commits analyzed)
 
 4. Calculate match rate:
-   - match_rate = matches / total
+   - match_rate = match_count / total_commits
 
 **Decision Logic**:
 
@@ -142,50 +135,13 @@ IF match_rate < 0.6:
 
 ```json
 {
-  "uses_conventional_commits": true,
+  "uses_conventional_commits": <true|false>,
   "detection_method": "history_pattern",
   "confidence": "medium",
-  "pattern_match_rate": 0.7,
+  "pattern_match_rate": <rate>,
   "commits_analyzed": 10,
-  "commits_matched": 7
-}
-```
-
-Or if not using Conventional Commits:
-
-```json
-{
-  "uses_conventional_commits": false,
-  "detection_method": "history_pattern",
-  "confidence": "medium",
-  "pattern_match_rate": 0.2,
-  "commits_analyzed": 10,
-  "commits_matched": 2
+  "commits_matched": <count>
 }
 ```
 
 Phase 3 complete. Workflow complete.
-
-## Success Criteria
-
-This skill succeeds when:
-- Detection method completes successfully (config, docs, or history)
-- Boolean result (uses_conventional_commits) is determined
-- Confidence level is reported
-- Structured result is returned to invoking skill
-
-## Notes
-
-**Detection Priority** (checked in order):
-1. Commitlint configuration (highest confidence)
-2. Documentation references (high confidence)
-3. Commit history patterns (medium confidence)
-
-**Pattern Matching**:
-- Requires 60% match rate for positive detection
-- Analyzes most recent 10 commits
-- Matches standard Conventional Commits types
-
-**Confidence Levels**:
-- high: Config file or explicit documentation
-- medium: Inferred from commit history patterns

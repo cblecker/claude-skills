@@ -134,6 +134,31 @@ All workflow skills automatically invoke utility skills as needed for mainline d
 
 This ensures workflows are complete and atomic without requiring multiple user commands.
 
+### Reporting Standards
+
+The plugin follows consistent reporting standards based on skill type:
+
+**Utility Skills** (mainline-branch, repository-type, detect-conventional-commits):
+- Return structured JSON output for programmatic consumption by other skills
+- Include all required data for downstream decision-making
+- Example formats provided in each skill's final phase
+
+**User-Facing Workflow Skills** (creating-commit, creating-branch, creating-pull-request, syncing-branch, rebasing-branch):
+- Use standardized reporting templates for consistency
+- Include success indicator (✓), operation name, key information, and next steps when applicable
+- Provide consistent user experience across all git operations
+
+Example template format:
+```text
+✓ <Operation> Completed Successfully
+
+<Key Info Line 1>
+<Key Info Line 2>
+...
+
+[Optional: Important notes or next steps]
+```
+
 ## Read-only Command Approval (Optional)
 
 For smoother operation, you can configure Claude Code to auto-approve read-only operations. This eliminates confirmation prompts for safe operations like checking status, viewing diffs, and listing branches, while still requiring approval for write operations like commits and pushes.
@@ -144,6 +169,7 @@ Add this to your Claude Code `settings.json`:
 {
   "permissions": {
     "allow": [
+      "Skill(git-workflows:*)",
       "mcp__github__get_pull_request",
       "mcp__github__get_pull_request_diff",
       "mcp__github__get_pull_request_files",
@@ -159,15 +185,16 @@ Add this to your Claude Code `settings.json`:
       "mcp__github__get_file_contents",
       "mcp__github__get_me",
       "mcp__sequential-thinking",
-      "Bash(git status*)",
-      "Bash(git branch*)",
-      "Bash(git log*)",
-      "Bash(git show*)",
-      "Bash(git diff*)",
-      "Bash(git ls-remote*)",
-      "Bash(git remote get-url*)",
-      "Bash(git merge-base*)",
-      "Bash(git rev-parse*)"
+      "Bash(git config --get:*)",
+      "Bash(git branch --show-current)",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git diff:*)",
+      "Bash(git ls-remote:*)",
+      "Bash(git remote get-url:*)",
+      "Bash(git merge-base:*)",
+      "Bash(git rev-parse:*)"
     ]
   }
 }

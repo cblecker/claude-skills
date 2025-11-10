@@ -7,28 +7,15 @@ description: Automates the Git Safety Protocol for commits: analyzes staged/unst
 
 ## When to Use This Skill
 
-**Use this skill when the user requests:**
-- "commit these changes"
-- "create a commit"
-- "save my work"
-- "make a commit"
-- "commit with message X"
-- Any variation requesting git commit creation
+Use this skill for commit requests: "commit these changes", "create a commit", "save my work", "commit with message X".
 
-**Use other skills instead when:**
-- Creating a pull request → Use creating-pull-request skill (which will invoke this skill if needed)
-- Viewing commit history → Use git log directly
-- No changes exist to commit → Report to user and exit
-
----
+Use other skills for: creating PRs (creating-pull-request), viewing history (git log directly).
 
 ## Workflow Description
 
-This skill executes the atomic commit workflow with analysis and validation gates. It follows a deterministic, phase-based procedure with mandatory validation gates at each step.
+Executes atomic commit workflow with analysis and validation gates.
 
-**Information to gather from user request:**
-- Commit message format: Detect if user wants to force Conventional Commits (e.g., "use conventional commits"), default is to auto-detect
-- Explicit commit message: Extract if user provided one (e.g., "commit with message '...'"), otherwise auto-generate
+Extract from user request: commit message format ("use conventional commits" → force, default auto-detect), explicit message (if provided, else auto-generate)
 
 ---
 
@@ -242,10 +229,12 @@ Continue to Phase 7.
 
 5. Verify: Compare subject to approved message from Phase 5; warn if differs
 
-6. Report success:
-   - Commit SHA (short): `${SHA:0:7}`
-   - Message: Subject line
-   - Files: File count
-   - Branch: Current branch name
+6. Report using template:
+   ```text
+   ✓ Commit Created Successfully
 
-Workflow complete.
+   Commit: <sha_short> "<subject>"
+   Branch: <branch_name>
+   Files: <file_count> file(s) changed
+   Author: <author_name>
+   ```
