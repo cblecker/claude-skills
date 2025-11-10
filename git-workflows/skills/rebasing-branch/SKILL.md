@@ -1,39 +1,23 @@
 ---
 name: rebasing-branch
-description: Automates safe rebase workflow: syncs base branch first, prevents mainline rebase errors (enforces Git Safety Protocol), preserves working state across checkouts, provides conflict resolution guidance, and optionally resets author dates. Use for rebasing or when you say 'rebase branch', 'rebase on main', 'rebase onto', 'update branch history'.
+description: Automates safe rebase workflow: syncs base branch first, prevents mainline rebase errors (enforces Git Safety Protocol), preserves working state across checkouts, provides conflict resolution guidance. Use for rebasing or saying 'rebase branch', 'rebase on main', 'rebase onto', 'update branch history'.
 ---
-
-## MCP Fallback Warning
-
-When an MCP tool (mcp__git__*, mcp__github__*, mcp__sequential-thinking__*) is unavailable, warn user and proceed with Bash equivalent: "[Tool] unavailable - using Bash fallback (no IAM control)"
 
 # Skill: Rebasing a Branch
 
 ## When to Use This Skill
 
-**Use this skill when the user requests:**
-- "rebase my branch"
-- "rebase on main/master"
-- "rebase onto X"
-- "update my branch with main" (if intent is to rebase, not sync)
-- Any variation requesting git rebase operation
+Use this skill for rebase requests: "rebase my branch", "rebase on main", "rebase onto X", "update my branch with main".
 
-**Use other skills instead when:**
-- Syncing is requested → Use syncing-branch skill for fetch+merge (preserves history)
-- User is on mainline branch → Cannot rebase mainline (mainline should never be rebased)
-- Viewing rebase status → Use git status directly
+Use other skills for: syncing (syncing-branch for fetch+merge), viewing status (git status directly).
 
-**Disambiguation Note**: If user says "update my branch", ask whether they want to sync (fetch+merge, preserves history) or rebase (rewrites history), as these are fundamentally different operations.
-
----
+**Disambiguation**: "update my branch" → ask if sync (fetch+merge, preserves history) or rebase (rewrites history).
 
 ## Workflow Description
 
-This skill rebases a feature branch onto updated mainline, rewriting commit history to incorporate latest changes from the base branch. It handles state preservation, conflict resolution, and optional author date reset.
+Rebases feature branch onto updated mainline, rewriting commit history. Handles state preservation, conflict resolution, optional author date reset.
 
-**Information to gather from user request:**
-- Target branch: Extract if specified (e.g., "rebase onto develop" or "rebase on staging"), otherwise use mainline
-- Author date preference: Detect if user wants to preserve dates (e.g., "keep author dates" or "preserve dates"), default is to reset dates
+Extract from user request: target branch (if specified, else mainline), author date preference ("keep dates"/"preserve dates" → preserve, default reset)
 
 ---
 
@@ -43,45 +27,39 @@ This skill rebases a feature branch onto updated mainline, rewriting commit hist
 
 **Step 1: Get current branch**
 
-Tool: `mcp__git__git_branch`
-Parameters:
-- `repo_path`: Current working directory absolute path
-- `branch_type`: "local"
-Permission: Auto-approved (read-only MCP tool)
-Expected output: List of local branches with current branch indicated
-Capture: Current branch name (the branch marked as current)
+Get current branch:
+```bash
+git branch --show-current
+```
 
-**Step 2: Get mainline branch**
+Capture: current_branch
 
-Command: `git ls-remote --exit-code --symref origin HEAD | sed -n 's/^ref: refs\/heads\/\(.*\)\tHEAD/\1/p'`
-Permission: Matches `Bash(git ls-remote:*)` in allowed-tools
-Purpose: Get repository's default branch name (main/master/develop/etc)
-Expected output: Single line with mainline branch name (e.g., "main")
-Capture: Mainline branch name
+**Step 2: Check if on mainline**
 
-**Step 3: Compare current branch to mainline**
+Invoke mainline-branch skill:
+  - Request comparison against current branch
+  - Receive structured result with is_mainline flag and mainline_branch name
+  - Store both for later phases
 
-Compare captured branch names to determine if on mainline.
+**Step 3: Check working tree status**
 
-**Step 4: Check working tree status**
+Check status:
+```bash
+git status --porcelain
+```
 
-Tool: `mcp__git__git_status`
-Parameters:
-- `repo_path`: Current working directory absolute path
-Permission: Auto-approved (read-only MCP tool)
-Expected output: Status showing working tree state
-Capture: Working tree clean status
+Capture: working tree clean status (empty = clean)
 
 **Validation Gate: Safe to Rebase**
 
-IF current branch equals mainline:
+IF is_mainline = true:
   STOP immediately
   EXPLAIN: "Cannot rebase the mainline branch. Mainline should never be rebased as it's the stable reference point for all feature branches."
   INFORM: "Rebasing mainline would rewrite its history and break all feature branches based on it."
   PROPOSE: "Create a feature branch first if you need to test changes"
   EXIT workflow
 
-IF current branch is not mainline AND working tree has uncommitted changes:
+IF is_mainline = false AND working tree not clean (status output not empty):
   STOP immediately
   EXPLAIN: "Cannot rebase with uncommitted changes. Rebase rewrites history and requires a clean working tree."
   PROPOSE: "Choose how to proceed:"
@@ -91,7 +69,7 @@ IF current branch is not mainline AND working tree has uncommitted changes:
     3. "Cancel workflow"
   WAIT for user to resolve uncommitted changes
 
-IF current branch is not mainline AND working tree is clean:
+IF is_mainline = false AND working tree clean:
   PROCEED to Phase 2
 
 Phase 1 complete. Continue to Phase 2.
@@ -102,9 +80,9 @@ Phase 1 complete. Continue to Phase 2.
 
 **Objective**: Remember current branch for later checkout.
 
-**CRITICAL**: Store SAVED_BRANCH = current branch from Phase 1
+**CRITICAL**: Store saved_branch = current branch from Phase 1
 - Must preserve through all phases
-- After Phase 4, ALWAYS use SAVED_BRANCH (not "current branch")
+- After Phase 4, ALWAYS use saved_branch (not "current branch")
 
 Continue to Phase 3.
 
@@ -114,23 +92,19 @@ Continue to Phase 3.
 
 **Objective**: Identify which branch to rebase onto.
 
-**Step 1: Determine rebase target from user request**
+**Step 1: Check user request for rebase target**
 
 Analyze user's request for target branch specification:
 - Look for phrases like: "rebase onto <branch>", "rebase on <branch>", "rebase against <branch>"
 - Common branch names: main, master, develop, staging, release, etc.
 
-IF target branch mentioned in user request:
+IF target branch specified in user request:
   Use specified branch as rebase base
-  Set user_specified = true
 
 IF no target branch mentioned:
-  Use mainline branch from Phase 1 as rebase base
-  Set user_specified = false
+  Use mainline_branch from Phase 1 as rebase base
 
-**Step 2: Store rebase base**
-
-REBASE_BASE = specified branch or mainline from Phase 1
+Store rebase_base for later phases.
 
 Phase 3 complete. Continue to Phase 4.
 
@@ -142,12 +116,10 @@ Phase 3 complete. Continue to Phase 4.
 
 **Step 1: Checkout base branch**
 
-Tool: `mcp__git__git_checkout`
-Parameters:
-- `repo_path`: Current working directory absolute path
-- `branch_name`: Rebase base from Phase 3
-Permission: Requires user approval (state change operation)
-Expected output: Confirmation of branch switch
+Checkout rebase base:
+```bash
+git checkout <rebase_base from Phase 3>
+```
 
 **Error Handling**
 
@@ -157,13 +129,14 @@ IF checkout succeeds:
 IF checkout fails:
   STOP immediately
 
-  EXPLAIN error clearly to user:
-  - IF branch doesn't exist: "Base branch '<rebase-base>' does not exist locally"
-  - IF permission denied: "Permission denied accessing repository or branch"
+  Analyze and explain error:
+  - "error: pathspec '...' did not match": Base branch doesn't exist locally
+  - "error: Your local changes": Working tree not clean (shouldn't happen after Phase 1)
+  - Other: Permission issues
 
-  PROPOSE solution:
-  - IF branch doesn't exist: "Verify branch name spelling with `git branch -a` or create it"
-  - IF permission: "Check repository access and file permissions"
+  Propose solution:
+  - Doesn't exist: "Verify branch name with `git branch --all` or create it"
+  - Permission: "Check repository access and file permissions"
 
   WAIT for user decision
 
@@ -213,19 +186,14 @@ Phase 5 complete. Continue to Phase 6.
 
 **CRITICAL: Use Saved State**
 
-Retrieve saved branch from Phase 2:
-- Use SAVED_BRANCH from preserved state
-- DO NOT use "current branch" (we're on base branch now)
-- This is why state preservation in Phase 2 is critical
+Retrieve saved_branch from Phase 2 (NOT current branch - we're on base branch now)
 
 **Step 1: Checkout feature branch**
 
-Tool: `mcp__git__git_checkout`
-Parameters:
-- `repo_path`: Current working directory absolute path
-- `branch_name`: SAVED_BRANCH from Phase 2 (NOT current branch)
-Permission: Requires user approval (state change operation)
-Expected output: Confirmation of checkout
+Checkout saved branch:
+```bash
+git checkout <saved_branch from Phase 2>
+```
 
 **Error Handling**
 
@@ -236,9 +204,9 @@ IF checkout fails:
   STOP immediately (CRITICAL FAILURE)
 
   EXPLAIN: "Cannot return to feature branch - workflow interrupted mid-operation"
-  INFORM: "You are currently on base branch: [rebase base name from Phase 3]"
-  INFORM: "Your feature branch: [saved branch from Phase 2]"
-  PROPOSE: "Manually checkout your feature branch with: `git checkout [saved branch]`"
+  INFORM: "You are currently on base branch: <rebase_base from Phase 3>"
+  INFORM: "Your feature branch: <saved_branch from Phase 2>"
+  PROPOSE: "Manually checkout your feature branch with: `git checkout <saved_branch>`"
 
   WORKFLOW FAILED - Manual intervention required
 
@@ -295,16 +263,40 @@ Continue to Phase 9.
 **Objective**: Confirm rebase completed successfully.
 
 **Steps**:
-1. Verify: `mcp__git__git_branch` with `repo_path` (cwd), `branch_type: "local"`
-2. Compare to SAVED_BRANCH from Phase 2
-3. Check status: `mcp__git__git_status` with `repo_path` (cwd)
-4. Get recent: `mcp__git__git_log` with `repo_path` (cwd), `max_count: 5`
-5. Report: Branch, rebased onto, author dates status, recent commits (SHAs changed)
+1. Verify current branch:
+   ```bash
+   git branch --show-current
+   ```
 
-**Validation Gate**: IF current ≠ SAVED_BRANCH:
-- STOP: Branch state inconsistent
-- Propose manual checkout
+2. Compare to saved_branch from Phase 2
 
-**Important**: Inform user force push required: `git push --force-with-lease origin [branch]`
+3. Check status:
+   ```bash
+   git status --porcelain
+   ```
+   Verify clean (empty output)
+
+4. Get recent commits:
+   ```bash
+   git log --oneline -5
+   ```
+
+5. Report using template:
+   ```text
+   ✓ Branch Rebased Successfully
+
+   Branch: <saved_branch>
+   Rebased onto: <rebase_base>
+   Author dates: <Reset|Preserved>
+   Working tree: <Clean|Dirty>
+
+   ⚠ Important: Force push required
+   Run: git push --force-with-lease origin <saved_branch>
+   ```
+
+**Validation Gate**: IF current branch ≠ saved_branch:
+- STOP: "Branch state inconsistent after rebase"
+- SHOW: Expected (<saved_branch>) vs Actual
+- PROPOSE: "Manually checkout with: `git checkout <saved_branch>`"
 
 Workflow complete.
