@@ -28,6 +28,12 @@ Extract from user request: commit message format ("use conventional commits" →
    - Request comparison against current branch
    - Receive structured result with is_mainline flag
 
+2. Detect GPG signing configuration:
+   ```bash
+   git config --get commit.gpgsign
+   ```
+   Capture: `gpg_enabled` (true if output is "true", false otherwise). Store for Phase 6.
+
 **Validation Gate: Branch Protection**
 
 IF is_mainline = false (on feature branch):
@@ -171,9 +177,15 @@ HANDLE user selection:
 
 ## Phase 6: Execution
 
-**Objective**: Stage files and create commit.
+**Objective**: Stage files and create commit, handling GPG signing if enabled.
 
 **Plan Mode**: Auto-enforced read-only if active
+
+**GPG Signing Handling**:
+- IF `gpg_enabled` from Phase 1:
+  - Use `dangerouslyDisableSandbox: true` for `git commit`
+  - Reason: GPG requires write access to `~/.gnupg` for lock files and socket access to gpg-agent
+  - This is safe because git is trusted and commit content was reviewed in Phase 5
 
 **Steps**:
 1. Stage all changes:
@@ -183,18 +195,13 @@ HANDLE user selection:
 
 2. Create commit:
    ```bash
-   git commit -m "<message from Phase 4>"
-   ```
-
-   If message has body:
-   ```bash
-   git commit -m "<subject>" -m "<body>"
+   git commit -m "<subject>" [-m "<body>"]
    ```
 
 **Error Handling**: IF failure:
 - Analyze error output
-- Explain: What failed, why, impact
-- Common issues: Pre-commit hooks failed, insufficient permissions, empty commit
+- Explain: what failed, why, and potential impact
+- Common issues: pre-commit hooks failed, insufficient permissions, empty commit, GPG signing issues
 - Propose solution and ask user to retry or handle manually
 
 Continue to Phase 7.
@@ -238,3 +245,21 @@ Continue to Phase 7.
    Files: <file_count> file(s) changed
    Author: <author_name>
    ```
+
+---
+
+## Implementation Notes
+
+### GPG Commit Signing
+
+When git is configured with `commit.gpgsign=true`, the commit operation requires sandbox to be disabled because:
+
+1. **Filesystem Access**: GPG creates temporary lock files in `~/.gnupg/` which is not in the sandbox write allowlist
+2. **Socket Access**: GPG connects to the agent socket at `~/.gnupg/S.gpg-agent` which is not in the sandbox Unix socket allowlist
+
+**Security Assessment:**
+- Risk: Low to moderate
+- Justification: Git is a trusted system binary, commit content is user-reviewed in Phase 5, and GPG signing is explicitly configured by the user
+- This follows the same pattern as other privileged system operations (e.g., npm install)
+
+The skill automatically detects GPG configuration in Phase 1 and applies appropriate sandbox handling in Phase 6 without user intervention.
