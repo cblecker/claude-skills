@@ -1,11 +1,7 @@
 ---
 name: syncing-branch
-description: Automates branch sync with remote changes: detects fork vs origin scenarios, fetches from correct remotes, safely merges with fast-forward checks, and handles upstream remotes. Use for syncing branches or when you say 'sync branch', 'pull latest', 'get latest changes', 'sync with upstream'.
+description: Automates branch sync with remote changes: detects fork vs origin scenarios, fetches from correct remotes, safely merges with fast-forward checks, handles upstream remotes. Use for syncing branches or saying 'sync branch', 'pull latest', 'get latest changes', 'sync with upstream'.
 ---
-
-## MCP Fallback Warning
-
-When an MCP tool (mcp__git__*, mcp__github__*, mcp__sequential-thinking__*) is unavailable, warn user and proceed with Bash equivalent: "[Tool] unavailable - using Bash fallback (no IAM control)"
 
 # Skill: Syncing a Branch
 
@@ -43,9 +39,16 @@ This skill updates a branch with remote changes, automatically detecting fork vs
 **Objective**: Determine which branch to sync.
 
 **Steps**:
-1. Check user request for specific branch (e.g., "sync main")
-2. If not specified: Get current via `mcp__git__git_branch` with `repo_path` (cwd), `branch_type: "local"`
-3. Set target branch (specified or current)
+1. Check user request for specific branch (e.g., "sync main", "sync the develop branch")
+
+2. IF branch specified in request:
+     Use specified branch as target
+   ELSE:
+     Get current branch:
+     ```bash
+     git branch --show-current
+     ```
+     Use current as target
 
 Continue to Phase 2.
 
@@ -55,25 +58,38 @@ Continue to Phase 2.
 
 **Objective**: Switch to target branch if needed.
 
-**Skip**: If target equals current, skip to Phase 3
+**Skip**: If target equals current from Phase 1
 
-**Steps**: `mcp__git__git_checkout` with `repo_path` (cwd), `branch_name` from Phase 1
+**Steps**:
+1. Checkout target branch:
+   ```bash
+   git checkout <target-branch>
+   ```
 
 **Validation Gate**: IF checkout fails:
-- Analyze: Dirty tree, branch doesn't exist, or permission issue
-- Propose solution and wait for user
+- Analyze error:
+  - "error: pathspec '...' did not match": Branch doesn't exist
+  - "error: Your local changes": Dirty working tree
+  - Other: Permission issues
+- Explain error
+- Propose solution:
+  - Doesn't exist: "Create branch first or verify name"
+  - Dirty tree: "Commit or stash changes before switching branches"
+  - Permission: "Check repository access"
+- Wait for user to resolve
 
 Continue to Phase 3.
 
 ---
 
-## Phase 3: Detect Upstream Remote
+## Phase 3: Detect Repository Type
 
-**Objective**: Determine if repository has upstream remote (fork scenario).
+**Objective**: Determine sync strategy based on repository structure.
 
-**Steps**: Execute `git remote get-url upstream`
-- Exit 0: Set is_fork = true, capture URL
-- Exit non-zero: Set is_fork = false
+**Steps**:
+1. Invoke repository-type skill:
+   - Receive structured result with is_fork flag
+   - Store for Phase 4 sync strategy selection
 
 Continue to Phase 4.
 
@@ -106,9 +122,28 @@ Continue to Phase 5.
 **Objective**: Confirm sync completed successfully.
 
 **Steps**:
-1. Check status: `mcp__git__git_status` with `repo_path` (cwd)
-2. Verify: Working tree clean, branch up-to-date, no conflicts
-3. Get recent: `mcp__git__git_log` with `repo_path` (cwd), `max_count: 5`
-4. Report: Branch synced, status, recent commits
+1. Check status:
+   ```bash
+   git status --porcelain
+   ```
+
+2. Verify working tree clean (empty output)
+
+3. Get recent commits:
+   ```bash
+   git log --oneline -5
+   ```
+
+4. Check upstream status:
+   ```bash
+   git status -sb
+   ```
+   Look for: "## <branch>...origin/<branch>" with no ahead/behind indicators
+
+5. Report:
+   - Branch: <target-branch>
+   - Status: Synced with remote
+   - Working tree: Clean
+   - Recent commits: (show 5 most recent)
 
 Workflow complete.

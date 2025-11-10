@@ -4,15 +4,16 @@ Comprehensive Git and GitHub automation for Claude Code. This plugin provides de
 
 ## Overview
 
-The git-workflows plugin automates your entire Git and GitHub workflow, from code review through pull request creation. It uses MCP (Model Context Protocol) tools for fine-grained permission control, ensuring safe and transparent operations.
+The git-workflows plugin automates your entire Git and GitHub workflow, from code review through pull request creation. It provides deterministic, phase-based workflows with built-in safety, validation, and intelligent decision-making.
 
 **Key Features:**
 - **Automated code review** with security and quality checks
 - **Intelligent commit message generation** with Conventional Commits support
-- **Smart branch management** with mainline synchronization
+- **Smart branch management** with automatic mainline detection
 - **Fork-aware operations** for both origin and upstream workflows
 - **Validation gates** that prevent common mistakes
 - **95%+ confidence decisions** using structured reasoning
+- **Direct git CLI commands** for transparent operations
 
 ## Installation
 
@@ -32,7 +33,9 @@ git clone https://github.com/cblecker/claude-skills.git
 
 ## Available Skills
 
-The plugin provides five core skills that are invoked directly by Claude based on your requests:
+The plugin provides five core workflow skills and three utility skills that are invoked automatically by Claude based on your requests:
+
+### Workflow Skills
 
 ### `creating-commit`
 Creates atomic commits with optional code review, intelligent message generation, and validation gates. Automatically detects Conventional Commits usage and generates appropriate messages.
@@ -63,13 +66,13 @@ Creates GitHub pull requests with AI-generated title and description. Automatica
 - Target branch - Say "create PR to [branch]" or "base on [branch]" (defaults to mainline)
 
 ### `creating-branch`
-Creates feature branches from synchronized mainline with smart naming. Syncs mainline first (invokes syncing-branch) to ensure you're branching from the latest state. Handles uncommitted changes via stashing or committing.
+Creates feature branches from current state with smart naming. Automatically detects Conventional Commits usage to generate type-prefixed branch names (feat/, fix/, etc.). Preserves uncommitted changes when creating the new branch.
 
 **Triggered by:** "create a branch", "make a new branch", "create a feature branch"
 
 **Natural Language Options:**
 - Create from specific branch - Say "from [branch]" or "based on [branch]" (defaults to mainline)
-- Skip sync - Say "without syncing" or "skip sync"
+- Explicit branch name - Say "called [name]" or "named [name]"
 
 ### `rebasing-branch`
 Rebases current branch onto updated mainline with conflict handling and optional author date reset. Syncs base branch first (invokes syncing-branch) and handles fork and origin scenarios automatically.
@@ -79,6 +82,19 @@ Rebases current branch onto updated mainline with conflict handling and optional
 **Natural Language Options:**
 - Rebase onto specific branch - Say "rebase onto [branch]" (defaults to mainline)
 - Skip author date reset - Say "skip author date reset" or "keep author dates"
+
+### Utility Skills (Automatically Invoked)
+
+The following utility skills are automatically invoked by the main workflow skills to encapsulate common operations. You don't need to invoke these directly.
+
+#### `mainline-branch`
+Detects the repository's mainline/default branch by querying remote HEAD configuration. Compares current or specified branch against mainline to enforce branch protection. Invoked by commit, PR, branch, and rebase skills.
+
+#### `repository-type`
+Detects fork vs origin repository structure by analyzing git remote configuration. Extracts owner and repository names from remote URLs for GitHub operations. Invoked by PR and sync skills.
+
+#### `detect-conventional-commits`
+Detects whether the repository follows Conventional Commits convention through configuration analysis and commit history pattern matching. Invoked by commit and branch skills to determine message/name format.
 
 ## Usage
 
@@ -110,9 +126,11 @@ The skills are invoked automatically by Claude based on your natural language re
 
 Skills can invoke other skills automatically:
 
-- **creating-pull-request** → **creating-commit** (if uncommitted changes exist)
-- **creating-branch** → **syncing-branch** (to sync mainline before branching)
+- **creating-commit** → **creating-branch** (if on mainline branch)
+- **creating-pull-request** → **creating-commit** (if uncommitted changes exist) → **creating-branch** (if on mainline)
 - **rebasing-branch** → **syncing-branch** (to sync base before rebasing)
+
+All workflow skills automatically invoke utility skills as needed for mainline detection, repository type detection, and convention detection.
 
 This ensures workflows are complete and atomic without requiring multiple user commands.
 
@@ -126,13 +144,6 @@ Add this to your Claude Code `settings.json`:
 {
   "permissions": {
     "allow": [
-      "mcp__git__git_status",
-      "mcp__git__git_diff_unstaged",
-      "mcp__git__git_diff_staged",
-      "mcp__git__git_diff",
-      "mcp__git__git_log",
-      "mcp__git__git_show",
-      "mcp__git__git_branch",
       "mcp__github__get_pull_request",
       "mcp__github__get_pull_request_diff",
       "mcp__github__get_pull_request_files",
@@ -148,11 +159,15 @@ Add this to your Claude Code `settings.json`:
       "mcp__github__get_file_contents",
       "mcp__github__get_me",
       "mcp__sequential-thinking",
-      "Bash(git remote get-url:*)",
-      "Bash(git branch --show-current)",
-      "Bash(git ls-remote:*)",
-      "Bash(git merge-base:*)",
-      "Bash(git log:*)"
+      "Bash(git status*)",
+      "Bash(git branch*)",
+      "Bash(git log*)",
+      "Bash(git show*)",
+      "Bash(git diff*)",
+      "Bash(git ls-remote*)",
+      "Bash(git remote get-url*)",
+      "Bash(git merge-base*)",
+      "Bash(git rev-parse*)"
     ]
   }
 }
@@ -162,15 +177,16 @@ Add this to your Claude Code `settings.json`:
 
 ### MCP Servers
 
-The following MCP servers are automatically configured when you install the plugin:
+The following MCP servers are recommended for enhanced functionality:
 
-- **mcp-server-git** - Git operations via MCP (installed via `uvx`)
 - **GitHub Copilot API** - GitHub operations via MCP (HTTP connection)
 - **@modelcontextprotocol/server-sequential-thinking** - Structured reasoning (installed via `npx`)
 
+The plugin uses direct git CLI commands for all git operations, eliminating the need for git MCP servers.
+
 ### Prerequisites
 
-- **uv** (for `uvx` command)
-- **Node.js** (for `npx` command)
+- **Git** - Git CLI must be available in PATH
+- **Node.js** (for `npx` command, if using sequential-thinking MCP)
 - **GITHUB_TOKEN** environment variable must be set for GitHub operations
-- Claude Code with MCP support
+- Claude Code with MCP support (optional - for GitHub MCP and sequential-thinking)

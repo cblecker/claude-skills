@@ -1,11 +1,7 @@
 ---
 name: creating-pull-request
-description: Automates GitHub PR creation workflow: handles uncommitted changes (invokes creating-commit if needed), analyzes full commit history from divergence point, generates compelling titles/descriptions following project conventions, detects fork/origin for correct head/base configuration. Use when creating PRs or when you say 'create PR', 'open a PR', 'submit for review'.
+description: Automates GitHub PR creation workflow: handles uncommitted changes (invokes creating-commit if needed), analyzes full commit history from divergence point, generates titles/descriptions following project conventions, detects fork/origin for correct head/base configuration. Use when creating PRs or saying 'create PR', 'open a PR', 'submit for review'.
 ---
-
-## MCP Fallback Warning
-
-When an MCP tool (mcp__git__*, mcp__github__*, mcp__sequential-thinking__*) is unavailable, warn user and proceed with Bash equivalent: "[Tool] unavailable - using Bash fallback (no IAM control)"
 
 # Skill: Creating a Pull Request
 
@@ -39,225 +35,102 @@ This skill creates GitHub pull requests with automatic commit handling, reposito
 
 ---
 
-## Phase 1: Verify Committed Changes
+## Phase 1: Pre-flight Checks
 
-**Objective**: Ensure all changes are committed.
+**Objective**: Verify all prerequisites for PR creation.
 
-**Steps**:
-1. Check: `mcp__git__git_status` with `repo_path` (cwd)
-2. Parse: Identify modified, untracked, staged files
+**Step 1: Check for uncommitted changes**
 
-**Validation Gate**: IF uncommitted changes:
-- Propose invoking creating-commit skill
-- IF user approves: Invoke skill, verify success
-- IF user declines or skill fails: STOP
+Check status:
+```bash
+git status --porcelain
+```
 
-Continue to Phase 2.
+IF output is not empty (uncommitted changes exist):
+  EXPLAIN: "You have uncommitted changes that need to be committed before creating a PR"
+  ASK: "Would you like me to create a commit for these changes?"
+  WAIT for user decision
 
----
+  IF user approves:
+    INVOKE: creating-commit skill
+    WAIT for creating-commit to complete
 
-## Phase 2: Feature Branch Validation
+    IF creating-commit succeeded:
+      Continue to Step 2
 
-**Objective**: Ensure we're on a feature branch, not mainline.
+    IF creating-commit failed:
+      STOP immediately
+      EXPLAIN: "Cannot create PR without committing changes"
+      EXIT workflow
 
-**Step 1: Get current branch**
+  IF user declines:
+    STOP immediately
+    EXPLAIN: "Cannot create PR with uncommitted changes"
+    EXIT workflow
 
-Tool: `mcp__git__git_branch`
-Parameters:
-- `repo_path`: Current working directory absolute path
-- `branch_type`: "local"
-Permission: Auto-approved (read-only MCP tool)
-Expected output: List of local branches with current branch indicated
-Capture: Current branch name (the branch marked as current)
+IF no uncommitted changes:
+  Continue to Step 2
 
-**Step 2: Detect mainline branch**
+**Step 2: Validate feature branch usage**
 
-Command: `git ls-remote --exit-code --symref origin HEAD | sed -n 's/^ref: refs\/heads\/\(.*\)\tHEAD/\1/p'`
-Permission: Matches `Bash(git ls-remote:*)` in allowed-tools
-Purpose: Get remote repository's default branch name (main/master/develop/etc)
-Expected output: Single line with mainline branch name (e.g., "main")
-Capture: Mainline branch name
+Invoke mainline-branch skill:
+  - Request comparison against current branch
+  - Receive structured result with is_mainline flag
 
-**Step 3: Compare current branch to mainline**
+IF is_mainline = false (on feature branch):
+  Continue to Step 3
 
-Compare captured branch names:
-- IF current equals mainline: Set on_mainline = true
-- IF current differs from mainline: Set on_mainline = false
-
-**Validation Gate: Not on Mainline**
-
-IF on_mainline = false (on feature branch):
-  PROCEED to Phase 3
-
-IF on_mainline = true AND user has not explicitly approved:
-  WARN: "Currently on mainline branch [branch-name]"
-  EXPLAIN: "Pull requests should be created from feature branches to keep mainline clean and enable proper review workflow"
+IF is_mainline = true (on mainline):
+  WARN: "Currently on mainline branch"
+  EXPLAIN: "Pull requests should be created from feature branches"
   PROPOSE: "Create a feature branch for this PR"
   ASK: "Would you like me to create a feature branch now?"
   WAIT for user decision
 
-  IF user approves branch creation:
+  IF user approves:
     INVOKE: creating-branch skill
-    WAIT for creating-branch skill to complete
+    WAIT for creating-branch to complete
 
     IF creating-branch succeeded:
       VERIFY: Now on feature branch (not mainline)
-      Capture new current branch name
-      PROCEED to Phase 3
+      Continue to Step 3
 
     IF creating-branch failed:
       STOP immediately
       EXPLAIN: "Branch creation failed, cannot proceed with PR"
       EXIT workflow
 
-  IF user declines branch creation:
-    ASK: "Continue with PR from mainline branch anyway? (This is not recommended as it bypasses review workflow)"
+  IF user declines:
+    ASK: "Continue with PR from mainline anyway? (not recommended)"
     WAIT for explicit confirmation
 
     IF user confirms:
       INFORM: "Proceeding with PR from mainline (not recommended)"
-      PROCEED to Phase 3
+      Continue to Step 3
 
     IF user declines:
       STOP immediately
       EXPLAIN: "Cannot create PR without feature branch"
       EXIT workflow
 
-Phase 2 complete. Continue to Phase 3.
+**Step 3: Detect repository structure**
+
+Invoke repository-type skill:
+  - Receive structured result with repository information
+  - Store for later phases:
+    - is_fork: Fork vs origin flag
+    - upstream/origin owner and repo names
+    - Remote URLs
+
+Continue to Phase 2.
 
 ---
 
-## Phase 3: Detect Repository Type (Fork vs Origin)
-
-**Objective**: Determine if working in fork or origin repository.
-
-**THINKING CHECKPOINT (RECOMMENDED)**
-
-Tool: `mcp__sequential-thinking__sequentialthinking`
-Purpose: Achieve 95%+ confidence in repository structure understanding
-Permission: Auto-approved (sequential-thinking MCP tool)
-
-Think through systematically:
-1. Analyze remote configuration (origin vs upstream)
-2. Understand fork vs origin implications for PR
-3. Determine correct PR target repository (where PR should be created)
-4. Identify correct head reference format (fork-owner:branch vs just branch)
-5. Validate understanding of PR parameters
-
-**Step 1: Get current branch**
-
-Tool: `mcp__git__git_branch`
-Parameters:
-- `repo_path`: Current working directory absolute path
-- `branch_type`: "local"
-Permission: Auto-approved (read-only MCP tool)
-Expected output: List of local branches with current branch indicated
-Capture: Current branch name (the branch marked as current)
-
-**Step 2: Check for upstream remote**
-
-Command: `git remote get-url upstream`
-Permission: Matches `Bash(git remote get-url:*)` in allowed-tools
-Purpose: Detect fork scenario by checking for upstream remote
-Expected output: URL of upstream remote (if exists)
-Expected error: Exit code 128 or 2 if upstream doesn't exist
-
-**Step 3: Check exit code**
-
-IF exit code is 0:
-  Upstream exists (FORK scenario)
-  Set is_fork = true
-  Capture upstream URL
-
-IF exit code is non-zero:
-  No upstream (ORIGIN scenario)
-  Set is_fork = false
-
-Phase 3 complete. Continue to Phase 4.
-
----
-
-## Phase 4: Parse Remote URLs
-
-**Objective**: Extract owner and repository names from remote URLs.
-
-**Step 1: Get remote URLs based on repository type**
-
-IF is_fork = true (upstream exists):
-  Command: `git remote get-url upstream`
-  Permission: Matches `Bash(git remote get-url:*)` in allowed-tools
-  Expected output: Upstream URL
-  Capture: Upstream URL
-
-  Command: `git remote get-url origin`
-  Permission: Matches `Bash(git remote get-url:*)` in allowed-tools
-  Expected output: Origin URL
-  Capture: Origin URL
-
-IF is_fork = false (origin only):
-  Command: `git remote get-url origin`
-  Permission: Matches `Bash(git remote get-url:*)` in allowed-tools
-  Expected output: Origin URL
-  Capture: Origin URL
-
-**Step 2: Parse URLs to extract owner and repository**
-
-Handle both SSH and HTTPS URL formats:
-
-**SSH format**: `git@github.com:owner/repo.git`
-**HTTPS format**: `https://github.com/owner/repo.git`
-
-**Parsing method using bash**:
-```bash
-echo "$URL" | sed 's/git@github.com://; s|https://github.com/||; s/.git$//'
-```
-
-This extracts `owner/repo` from either format.
-
-Then split on `/` to get:
-- owner (first part)
-- repo (second part)
-
-**Example parsing**:
-- `git@github.com:kubernetes/kubernetes.git` → `kubernetes/kubernetes` → owner: `kubernetes`, repo: `kubernetes`
-- `https://github.com/cblecker/claude-plugins.git` → `cblecker/claude-plugins` → owner: `cblecker`, repo: `claude-plugins`
-
-**Step 3: Determine PR parameters**
-
-IF is_fork = true:
-  PR target owner: Upstream owner (from parsed upstream URL)
-  PR target repo: Upstream repo (from parsed upstream URL)
-  PR head: `<origin-owner>:<current-branch>` (fork:branch format required by GitHub API)
-  Base: Upstream mainline branch (from Phase 2)
-
-IF is_fork = false:
-  PR target owner: Origin owner (from parsed origin URL)
-  PR target repo: Origin repo (from parsed origin URL)
-  PR head: `<current-branch>` (just branch name, no owner prefix)
-  Base: Origin mainline branch (from Phase 2)
-
-**Validation Gate: URLs Parsed Successfully**
-
-IF owner and repo successfully extracted from URLs:
-  PROCEED to Phase 5
-
-IF cannot parse owner/repo from URLs:
-  STOP immediately
-  EXPLAIN: "Cannot parse repository information from remote URLs"
-  SHOW: URLs that were attempted to parse
-  SHOW: Parsing results or errors encountered
-  PROPOSE: "Verify remote configuration with `git remote -v` or create PR manually via GitHub web interface"
-  WAIT for user decision
-
-Phase 4 complete. Continue to Phase 5.
-
----
-
-## Phase 5: Determine PR Base Branch
+## Phase 2: Determine PR Base Branch
 
 **Objective**: Identify target branch for pull request.
 
-**Step 1: Determine target branch from user request**
+**Step 1: Check user request for target branch**
 
 Analyze user's request for target branch specification:
 - Look for phrases like: "create PR to <branch>", "base on <branch>", "merge into <branch>", "target <branch>"
@@ -265,26 +138,28 @@ Analyze user's request for target branch specification:
 
 IF target branch mentioned in user request:
   Use specified branch as PR base
-  Set user_specified = true
 
 IF no target branch mentioned:
-  Use mainline branch from Phase 2 as PR base
-  Set user_specified = false
+  Invoke mainline-branch skill to get mainline branch
+  Use mainline as PR base
 
-**Step 2: Store PR base**
+Store PR_BASE for later phases.
 
-PR_BASE = specified branch or mainline
-
-Phase 5 complete. Continue to Phase 6.
+Phase 2 complete. Continue to Phase 3.
 
 ---
 
-## Phase 6: Generate PR Content
+## Phase 3: Generate PR Content
 
 **Objective**: Create compelling PR title and description.
 
 **THINKING CHECKPOINT**: Use `mcp__sequential-thinking__sequentialthinking` to:
-- Review commits (`mcp__git__git_log`, max 50) and diff (`mcp__git__git_diff` vs `<base>...HEAD`)
+- Review commits and diff:
+  ```bash
+  git log --pretty=format:"%H %s" -n 50
+  git diff <base>...HEAD
+  ```
+- Invoke detect-conventional-commits skill for title format detection
 - Analyze purpose, scope, key changes, breaking changes
 - Draft title (<72 chars, imperative) and description
 - Validate quality and completeness
@@ -292,32 +167,32 @@ Phase 5 complete. Continue to Phase 6.
 **Steps**:
 1. Check user request for explicit title/description; use if provided
 2. If not provided:
-   - Title: Use Conventional Commits format if `Glob` finds `.commitlintrc*` or `commitlint.config.*`
+   - Title: Use Conventional Commits format if detected by detect-conventional-commits skill
    - Description: Generate with sections (Summary, Changes, Motivation, Testing, Additional Notes)
 3. Populate from commit/diff analysis
 
-Continue to Phase 6.5.
+Continue to Phase 4.
 
 ---
 
-## Phase 6.5: PR Content Review
+## Phase 4: PR Content Review
 
 **Objective**: Present generated PR content for user review and approval.
 
 **Steps**:
-1. Present: Generated PR title and description from Phase 6
+1. Present: Generated PR title and description from Phase 3
 2. Request approval using AskUserQuestion tool:
    - Question: "How would you like to proceed with this pull request?"
    - Header: "PR Content"
    - Options:
-     - **Proceed**: "Create PR with this title and description" - Continues to Phase 7
+     - **Proceed**: "Create PR with this title and description" - Continues to Phase 5
      - **Edit title**: "Modify the PR title" - Allows title customization
      - **Edit description**: "Modify the PR description" - Allows description customization
      - **Edit both**: "Modify both title and description" - Allows full customization
 
 **Validation Gate: Content Approval**
 HANDLE user selection:
-- IF "Proceed": Continue to Phase 7
+- IF "Proceed": Continue to Phase 5
 - IF "Edit title":
   - User provides custom title via "Other" option
   - Validate: Title ≤ 72 chars, non-empty
@@ -333,36 +208,52 @@ HANDLE user selection:
   - Validate both components
   - Update both, return to Step 1 to show updated PR
 
-Continue to Phase 7.
+Continue to Phase 5.
 
 ---
 
-## Phase 7: Push to Remote
+## Phase 5: Push to Remote
 
 **Objective**: Push current branch to remote.
 
 **Plan Mode**: Auto-enforced read-only if active
 
 **Steps**:
-1. Get branch: `mcp__git__git_branch` with `repo_path` (cwd), `branch_type: "local"`
-2. Push: `git push -u origin <branch-name>` (sets upstream tracking)
+1. Get current branch:
+   ```bash
+   git branch --show-current
+   ```
+
+2. Push branch with upstream tracking:
+   ```bash
+   git push -u origin <branch-name>
+   ```
 
 **Validation Gate**: IF push fails:
-- Explain: Auth, network, force needed, protected, or permission
-- Propose solution and wait for retry approval
+- Analyze error:
+  - "fatal: could not read Username": Authentication required
+  - "error: failed to push": Rejected, may need force
+  - "error: src refspec": Branch doesn't exist
+  - Network errors: Connection issues
+- Explain error clearly
+- Propose solution:
+  - Auth: "Set GITHUB_TOKEN or configure git credentials"
+  - Rejected: "Check branch protection rules, may need PR approval"
+  - Network: "Check internet connection and retry"
+- Wait for user to resolve
 
-Continue to Phase 8.
+Continue to Phase 6.
 
 ---
 
-## Phase 8: Create Pull Request
+## Phase 6: Create Pull Request
 
 **Objective**: Create PR on GitHub using MCP.
 
 **Plan Mode**: Auto-enforced read-only if active
 
 **Steps**:
-1. Prepare: owner, repo, head (from Phase 4), base (Phase 5), title/body (Phase 6)
+1. Prepare: owner, repo, head (from Phase 1), base (Phase 2), title/body (Phase 3)
 2. Determine draft: Check user request for "draft", "WIP", "work in progress"
 3. Create: `mcp__github__create_pull_request` with all parameters
 
@@ -371,17 +262,44 @@ Continue to Phase 8.
 - Explain: Auth, permissions, invalid params, duplicate PR, rate limit, or network
 - Propose solution and wait for retry approval
 
-Continue to Phase 9.
+Continue to Phase 7.
 
 ---
 
-## Phase 9: Return PR URL
+## Phase 7: Return PR URL
 
-**Objective**: Provide PR URL and confirm success.
+**Objective**: Provide PR URL and confirm success with standardized output.
 
 **Steps**:
-1. Extract from Phase 8: PR number, URL, state
-2. Report: PR #, title, URL, status (Open/Draft), base, head
-3. If draft: Note conversion to "Ready for review" available
+1. Extract from Phase 6: PR number, URL, state, title
+
+2. Format output using standardized template:
+
+**Template for Regular PR**:
+```
+✓ Pull Request Created Successfully
+
+PR #<number>: <title>
+URL: <pr_url>
+Status: Open
+Base: <base_branch> ← Head: <head_branch>
+
+The pull request is ready for review.
+```
+
+**Template for Draft PR**:
+```
+✓ Draft Pull Request Created Successfully
+
+PR #<number>: <title>
+URL: <pr_url>
+Status: Draft
+Base: <base_branch> ← Head: <head_branch>
+
+This is a draft PR. Mark it as "Ready for review" when ready:
+<pr_url>
+```
+
+3. Report using appropriate template
 
 Workflow complete.
