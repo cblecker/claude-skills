@@ -1,6 +1,6 @@
 ---
 name: syncing-branch
-description: Automates branch sync with remote changes: detects fork vs origin scenarios, fetches from correct remotes, safely merges with fast-forward checks, handles upstream remotes. Use for syncing branches or saying 'sync branch', 'pull latest', 'get latest changes', 'sync with upstream'.
+description: Branch synchronization workflow replacing manual git fetch/pull/merge commands: detects fork vs origin scenarios, fetches from correct remotes, safely merges with fast-forward checks, handles upstream remotes. Standard procedure: 'sync branch', 'pull latest', 'get latest changes', 'sync with upstream'.
 ---
 
 # Skill: Syncing a Branch
@@ -128,12 +128,12 @@ Continue to Phase 5.
    Look for: "## <branch>...origin/<branch>" with no ahead/behind indicators
 
 5. Report using template:
-   ```text
+   ```markdown
    ✓ Branch Synced Successfully
 
-   Branch: <branch_name>
-   Status: In sync with remote
-   Working tree: <Clean|Dirty>
+   **Branch:** <branch_name>  
+   **Status:** In sync with remote  
+   **Working tree:** <Clean|Dirty>  
    ```
 
 

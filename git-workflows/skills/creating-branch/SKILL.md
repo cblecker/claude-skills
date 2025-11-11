@@ -1,6 +1,6 @@
 ---
 name: creating-branch
-description: Automates feature branch creation with safety checks: determines base branch, generates convention-based names, preserves uncommitted changes. Use when creating branches or saying 'create branch', 'new branch', 'start branch for', 'make feature branch'.
+description: Primary branch creation workflow replacing manual git checkout/branch commands: determines base branch, generates convention-based names, preserves uncommitted changes, enforces mainline protection. Standard procedure for branch operations: 'create branch', 'new branch', 'on a new branch', 'start branch for'.
 ---
 
 # Skill: Creating a Branch
@@ -173,12 +173,12 @@ Continue to Phase 5.
 2. Compare to expected branch name from Phase 3
 
 3. Report using template:
-   ```text
+   ```markdown
    ✓ Branch Created Successfully
 
-   Branch: <branch_name>
-   Created from: <base_branch>
-   Uncommitted changes: <Preserved|None>
+   **Branch:** <branch_name>  
+   **Created from:** <base_branch>  
+   **Uncommitted changes:** <Preserved|None>  
    ```
 
 **Validation Gate**: IF current branch does not match expected:

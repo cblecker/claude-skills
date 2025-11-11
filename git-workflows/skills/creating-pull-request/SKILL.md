@@ -1,6 +1,6 @@
 ---
 name: creating-pull-request
-description: Automates GitHub PR creation workflow: handles uncommitted changes (invokes creating-commit if needed), analyzes full commit history from divergence point, generates titles/descriptions following project conventions, detects fork/origin for correct head/base configuration. Use when creating PRs or saying 'create PR', 'open a PR', 'submit for review'.
+description: Primary GitHub PR workflow replacing manual gh/git commands: orchestrates end-to-end creation handling uncommitted changes (auto-invokes creating-commit/creating-branch), analyzes commit history from divergence point, generates convention-aware titles/descriptions, detects fork/origin configuration. Standard procedure: 'create PR', 'open PR', 'pull request', 'commit and PR'.
 ---
 
 # Skill: Creating a Pull Request
@@ -258,14 +258,16 @@ Continue to Phase 7.
 1. Extract from Phase 6: PR number, URL, state, title
 
 2. Format output using standardized template:
-   ```text
+   ```markdown
    ✓ Pull Request Created Successfully
 
-   PR #<number>: <title>
-   URL: <pr_url>
-   Status: <Open|Draft>
-   Base: <base_branch> ← Head: <head_branch>
+   **PR Number:** #<number>
+   **Title:** <title>  
+   **URL:** <pr_url>  
+   **Status:** <Open|Draft>  
+   **Base Branch:** <base_branch>  
+   **Head Branch:** <head_branch>  
 
-   [If draft: "Mark as 'Ready for review' when ready: <pr_url>"]
-   [If open: "The pull request is ready for review."]
+   [If draft: **Notes:** Mark as 'Ready for review' when ready: <pr_url>]
+   [If open: **Notes:** The pull request is ready for review.]
    ```

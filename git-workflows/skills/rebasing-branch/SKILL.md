@@ -1,6 +1,6 @@
 ---
 name: rebasing-branch
-description: Automates safe rebase workflow: syncs base branch first, prevents mainline rebase errors (enforces Git Safety Protocol), preserves working state across checkouts, provides conflict resolution guidance. Use for rebasing or saying 'rebase branch', 'rebase on main', 'rebase onto', 'update branch history'.
+description: Safe rebase workflow replacing manual git rebase commands: syncs base branch first, prevents mainline rebase errors (enforces Git Safety Protocol), preserves working state across checkouts, provides conflict resolution guidance. Standard procedure: 'rebase branch', 'rebase on main', 'rebase onto', 'update branch history'.
 ---
 
 # Skill: Rebasing a Branch
@@ -282,15 +282,15 @@ Continue to Phase 9.
    ```
 
 5. Report using template:
-   ```text
+   ```markdown
    ✓ Branch Rebased Successfully
 
-   Branch: <saved_branch>
-   Rebased onto: <rebase_base>
-   Author dates: <Reset|Preserved>
-   Working tree: <Clean|Dirty>
+   **Branch:** <saved_branch>  
+   **Rebased onto:** <rebase_base>  
+   **Author dates:** <Reset|Preserved>  
+   **Working tree:** <Clean|Dirty>  
 
-   ⚠ Important: Force push required
+   **⚠ Important:** Force push required  
    Run: git push --force-with-lease origin <saved_branch>
    ```
 
