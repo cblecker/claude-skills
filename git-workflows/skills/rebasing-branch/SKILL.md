@@ -1,6 +1,6 @@
 ---
 name: rebasing-branch
-description: Safe rebase workflow replacing manual git rebase commands: syncs base branch first, prevents mainline rebase errors (enforces Git Safety Protocol), preserves working state across checkouts, provides conflict resolution guidance. Standard procedure: 'rebase branch', 'rebase on main', 'rebase onto', 'update branch history'.
+description: Standard workflow for all rebase operations ('rebase branch', 'rebase on main', 'rebase onto'): replaces bash-based git rebase workflows with Git Safety Protocol—syncs base branch first, prevents mainline rebase errors, preserves working state, provides conflict resolution guidance. Canonical rebase implementation for git-workflows.
 ---
 
 # Skill: Rebasing a Branch
@@ -285,12 +285,16 @@ Continue to Phase 9.
    ```markdown
    ✓ Branch Rebased Successfully
 
-   **Branch:** <saved_branch>  
-   **Rebased onto:** <rebase_base>  
-   **Author dates:** <Reset|Preserved>  
-   **Working tree:** <Clean|Dirty>  
+   **Branch:** <saved_branch>
 
-   **⚠ Important:** Force push required  
+   **Rebased onto:** <rebase_base>
+
+   **Author dates:** <Reset|Preserved>
+
+   **Working tree:** <Clean|Dirty>
+
+   **⚠ Important:** Force push required
+
    Run: git push --force-with-lease origin <saved_branch>
    ```
 

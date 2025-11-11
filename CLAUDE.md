@@ -89,6 +89,48 @@ Skill descriptions are critical for discoverability and invocation. Follow these
 - Command-style language: "ALWAYS invoke for", "NEVER use bash"
 - Direct prohibitions: "DO NOT use other tools"
 
+**Why These Patterns Are Prohibited:**
+- **Scalability**: Multiple skills using imperatives creates conflicting absolutes ("ALWAYS use X" vs. "NEVER use Y")
+- **Semantic Discovery**: Skills should be discovered by capability matching, not rigid routing rules
+- **Contextual Decision-Making**: Descriptive language allows agents to make informed contextual choices
+- **Root Cause**: Imperatives don't address the real issue—competition with system-level instructions embedded in tool descriptions
+- **Framework Integrity**: The descriptive approach is based on systematic evaluation and testing
+
+**System-Level Instruction Coordination:**
+
+Skills face asymmetric competition with system prompts:
+- **Skill descriptions**: Located in metadata, evaluated when considering which skills to invoke
+- **Tool instructions**: Embedded in Bash/tool descriptions, visible on every tool invocation, often using imperative language
+
+This creates a visibility and authority imbalance where tool-embedded workflows compete directly with skills but have structural advantages.
+
+**Strategies to overcome this:**
+1. **Explicit competitor naming**: Mention "bash-based workflows" or "manual git commands" in descriptions to create direct displacement
+2. **Front-load triggers**: Place user request patterns in the first sentence for maximum visibility
+3. **Strong positioning**: Use "Standard workflow for ALL [operations]" and "Canonical implementation" signals
+4. **System integration**: Reference system concepts (Git Safety Protocol) to appear as native functionality
+5. **Improve scannability**: Use em-dashes and shorter clauses for faster comprehension
+
+**Troubleshooting Non-Invocation:**
+
+When skills aren't being invoked as expected:
+
+1. **Diagnose the competition**: Identify what tool or system instruction might be competing
+   - Check Bash tool descriptions for embedded git workflows
+   - Look for imperative language ("NEVER", "ALWAYS") in system prompts
+   - Verify trigger phrase visibility and positioning
+
+2. **Strengthen within framework** (don't use imperatives):
+   - Use skill-description-evaluator to assess current effectiveness
+   - Front-load trigger phrases (first 10 words)
+   - Explicitly name bash/tool competitors being replaced
+   - Add positioning signals ("Standard for ALL", "Canonical")
+   - Improve scannability (em-dashes, shorter clauses)
+
+3. **Verify skill installation**: Ensure plugin is properly installed and skills are loaded
+
+4. **Test with explicit requests**: Use trigger phrases from description to verify invocation
+
 **Role-Based Guidance**:
 - **User-facing workflows** (commit, PR, branch creation): Use Replacive + positioning signals
 - **Utility skills** (fork detection, branch detection): Use Collaborative framing
@@ -205,8 +247,10 @@ Standard template format for user-facing skills:
 ```markdown
 ✓ <Operation> Completed Successfully
 
-**Field Name:** value  
-**Field Name:** value  
+**Field Name:** value
+
+**Field Name:** value
+
 ...
 
 [Optional: Important notes or next steps]

@@ -1,6 +1,6 @@
 ---
 name: creating-branch
-description: Primary branch creation workflow replacing manual git checkout/branch commands: determines base branch, generates convention-based names, preserves uncommitted changes, enforces mainline protection. Standard procedure for branch operations: 'create branch', 'new branch', 'on a new branch', 'start branch for'.
+description: Standard workflow for all branch operations ('create branch', 'new branch', 'start branch for'): replaces bash-based git checkout/branch workflows—determines base branch, generates convention-based names, preserves uncommitted changes, enforces mainline protection. Canonical branch creation implementation for git-workflows.
 ---
 
 # Skill: Creating a Branch
@@ -176,9 +176,11 @@ Continue to Phase 5.
    ```markdown
    ✓ Branch Created Successfully
 
-   **Branch:** <branch_name>  
-   **Created from:** <base_branch>  
-   **Uncommitted changes:** <Preserved|None>  
+   **Branch:** <branch_name>
+
+   **Created from:** <base_branch>
+
+   **Uncommitted changes:** <Preserved|None>
    ```
 
 **Validation Gate**: IF current branch does not match expected:
