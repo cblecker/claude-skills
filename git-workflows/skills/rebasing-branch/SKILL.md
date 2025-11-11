@@ -285,12 +285,16 @@ Continue to Phase 9.
    ```markdown
    ✓ Branch Rebased Successfully
 
-   **Branch:** <saved_branch>  
-   **Rebased onto:** <rebase_base>  
-   **Author dates:** <Reset|Preserved>  
-   **Working tree:** <Clean|Dirty>  
+   **Branch:** <saved_branch>
 
-   **⚠ Important:** Force push required  
+   **Rebased onto:** <rebase_base>
+
+   **Author dates:** <Reset|Preserved>
+
+   **Working tree:** <Clean|Dirty>
+
+   **⚠ Important:** Force push required
+
    Run: git push --force-with-lease origin <saved_branch>
    ```
 

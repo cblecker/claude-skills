@@ -131,9 +131,11 @@ Continue to Phase 5.
    ```markdown
    ✓ Branch Synced Successfully
 
-   **Branch:** <branch_name>  
-   **Status:** In sync with remote  
-   **Working tree:** <Clean|Dirty>  
+   **Branch:** <branch_name>
+
+   **Status:** In sync with remote
+
+   **Working tree:** <Clean|Dirty>
    ```
 
 

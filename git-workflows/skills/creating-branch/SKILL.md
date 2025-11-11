@@ -176,9 +176,11 @@ Continue to Phase 5.
    ```markdown
    ✓ Branch Created Successfully
 
-   **Branch:** <branch_name>  
-   **Created from:** <base_branch>  
-   **Uncommitted changes:** <Preserved|None>  
+   **Branch:** <branch_name>
+
+   **Created from:** <base_branch>
+
+   **Uncommitted changes:** <Preserved|None>
    ```
 
 **Validation Gate**: IF current branch does not match expected:

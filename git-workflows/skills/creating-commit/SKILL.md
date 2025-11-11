@@ -240,12 +240,17 @@ Continue to Phase 7.
    ```markdown
    ✓ Commit Created Successfully
 
-   **Commit:** <sha_short>  
-   **Subject:** <subject>  
-   **Branch:** <branch_name>  
-   **Files Changed:** <file_count>  
-   **Author:** <author_name>  
-   **Date:** <commit_date>  
+   **Commit:** <sha_short>
+
+   **Subject:** <subject>
+
+   **Branch:** <branch_name>
+
+   **Files Changed:** <file_count>
+
+   **Author:** <author_name>
+
+   **Date:** <commit_date>
    ```
 
 ---

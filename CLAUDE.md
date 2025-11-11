@@ -247,8 +247,10 @@ Standard template format for user-facing skills:
 ```markdown
 ✓ <Operation> Completed Successfully
 
-**Field Name:** value  
-**Field Name:** value  
+**Field Name:** value
+
+**Field Name:** value
+
 ...
 
 [Optional: Important notes or next steps]
