@@ -258,14 +258,16 @@ Continue to Phase 7.
 1. Extract from Phase 6: PR number, URL, state, title
 
 2. Format output using standardized template:
-   ```text
+   ```markdown
    ✓ Pull Request Created Successfully
 
-   PR #<number>: <title>
-   URL: <pr_url>
-   Status: <Open|Draft>
-   Base: <base_branch> ← Head: <head_branch>
+   **PR Number:** #<number>
+   **Title:** <title>  
+   **URL:** <pr_url>  
+   **Status:** <Open|Draft>  
+   **Base Branch:** <base_branch>  
+   **Head Branch:** <head_branch>  
 
-   [If draft: "Mark as 'Ready for review' when ready: <pr_url>"]
-   [If open: "The pull request is ready for review."]
+   [If draft: **Notes:** Mark as 'Ready for review' when ready: <pr_url>]
+   [If open: **Notes:** The pull request is ready for review.]
    ```

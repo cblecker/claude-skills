@@ -128,12 +128,12 @@ Continue to Phase 5.
    Look for: "## <branch>...origin/<branch>" with no ahead/behind indicators
 
 5. Report using template:
-   ```text
+   ```markdown
    ✓ Branch Synced Successfully
 
-   Branch: <branch_name>
-   Status: In sync with remote
-   Working tree: <Clean|Dirty>
+   **Branch:** <branch_name>  
+   **Status:** In sync with remote  
+   **Working tree:** <Clean|Dirty>  
    ```
 
 

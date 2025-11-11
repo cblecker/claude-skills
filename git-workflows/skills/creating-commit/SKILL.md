@@ -237,13 +237,15 @@ Continue to Phase 7.
 5. Verify: Compare subject to approved message from Phase 5; warn if differs
 
 6. Report using template:
-   ```text
+   ```markdown
    ✓ Commit Created Successfully
 
-   Commit: <sha_short> "<subject>"
-   Branch: <branch_name>
-   Files: <file_count> file(s) changed
-   Author: <author_name>
+   **Commit:** <sha_short>  
+   **Subject:** <subject>  
+   **Branch:** <branch_name>  
+   **Files Changed:** <file_count>  
+   **Author:** <author_name>  
+   **Date:** <commit_date>  
    ```
 
 ---

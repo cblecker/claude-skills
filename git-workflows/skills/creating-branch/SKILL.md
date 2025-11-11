@@ -173,12 +173,12 @@ Continue to Phase 5.
 2. Compare to expected branch name from Phase 3
 
 3. Report using template:
-   ```text
+   ```markdown
    ✓ Branch Created Successfully
 
-   Branch: <branch_name>
-   Created from: <base_branch>
-   Uncommitted changes: <Preserved|None>
+   **Branch:** <branch_name>  
+   **Created from:** <base_branch>  
+   **Uncommitted changes:** <Preserved|None>  
    ```
 
 **Validation Gate**: IF current branch does not match expected:

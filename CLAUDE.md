@@ -202,11 +202,11 @@ Skills follow different reporting formats based on their invocation pattern:
 - Examples: creating-commit, creating-branch, creating-pull-request, syncing-branch, rebasing-branch
 
 Standard template format for user-facing skills:
-```text
+```markdown
 ✓ <Operation> Completed Successfully
 
-<Key Info Line 1>
-<Key Info Line 2>
+**Field Name:** value  
+**Field Name:** value  
 ...
 
 [Optional: Important notes or next steps]
