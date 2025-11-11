@@ -1,6 +1,6 @@
 ---
 name: creating-pull-request
-description: Automates GitHub PR creation workflow: handles uncommitted changes (invokes creating-commit if needed), analyzes full commit history from divergence point, generates titles/descriptions following project conventions, detects fork/origin for correct head/base configuration. Use when creating PRs or saying 'create PR', 'open a PR', 'submit for review'.
+description: Primary GitHub PR workflow replacing manual gh/git commands: orchestrates end-to-end creation handling uncommitted changes (auto-invokes creating-commit/creating-branch), analyzes commit history from divergence point, generates convention-aware titles/descriptions, detects fork/origin configuration. Standard procedure: 'create PR', 'open PR', 'pull request', 'commit and PR'.
 ---
 
 # Skill: Creating a Pull Request

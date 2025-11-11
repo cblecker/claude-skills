@@ -1,6 +1,6 @@
 ---
 name: creating-commit
-description: Automates the Git Safety Protocol for commits: analyzes staged/unstaged changes, drafts descriptive messages (detects Conventional Commits from history), enforces mainline branch protection, handles pre-commit hooks safely. Use when committing changes or saying 'commit', 'save changes', 'create commit', 'check in my work'.
+description: Primary commit workflow replacing manual git commands: implements automated Git Safety Protocol analyzing staged/unstaged changes, drafting convention-aware messages (detects Conventional Commits from history), enforcing mainline protection, handling pre-commit hooks safely. Standard procedure: 'commit', 'save changes', 'create commit', 'check in', 'commit these changes'.
 ---
 
 # Skill: Creating a Commit

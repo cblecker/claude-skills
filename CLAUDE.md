@@ -156,6 +156,11 @@ The primary plugin in this collection. Provides comprehensive git and GitHub aut
 - **Prescriptive**: Exact tool specifications per step ("Use mcp__git__git_status" not "use MCP tools")
 - **Plan mode aware**: Skills automatically limited to read-only operations in plan mode
 
+**Skill Description Approach:**
+- **User-facing workflows** (creating-commit, creating-branch, creating-pull-request, syncing-branch, rebasing-branch): Use **Replacive authority pattern** (80-85%) with "Primary [operation] workflow replacing manual git commands" framing to establish precedence over bash-based workflows
+- **Utility skills** (repository-type, detect-conventional-commits, mainline-branch): Use **Collaborative authority pattern** (60-70%) with "Automates [task]" framing, appropriate for skills invoked by other skills rather than users directly
+- All descriptions follow framework requirements: third-person voice, 45-52 words, explicit trigger phrases, system protocol integration
+
 ## Workflow Patterns
 
 ### Phase-Based Execution

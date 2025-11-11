@@ -1,6 +1,6 @@
 ---
 name: creating-branch
-description: Automates feature branch creation with safety checks: determines base branch, generates convention-based names, preserves uncommitted changes. Use when creating branches or saying 'create branch', 'new branch', 'start branch for', 'make feature branch'.
+description: Primary branch creation workflow replacing manual git checkout/branch commands: determines base branch, generates convention-based names, preserves uncommitted changes, enforces mainline protection. Standard procedure for branch operations: 'create branch', 'new branch', 'on a new branch', 'start branch for'.
 ---
 
 # Skill: Creating a Branch
