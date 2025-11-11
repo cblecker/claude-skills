@@ -1,6 +1,6 @@
 ---
 name: rebasing-branch
-description: Safe rebase workflow replacing manual git rebase commands: syncs base branch first, prevents mainline rebase errors (enforces Git Safety Protocol), preserves working state across checkouts, provides conflict resolution guidance. Standard procedure: 'rebase branch', 'rebase on main', 'rebase onto', 'update branch history'.
+description: Standard workflow for all rebase operations ('rebase branch', 'rebase on main', 'rebase onto'): replaces bash-based git rebase workflows with Git Safety Protocol—syncs base branch first, prevents mainline rebase errors, preserves working state, provides conflict resolution guidance. Canonical rebase implementation for git-workflows.
 ---
 
 # Skill: Rebasing a Branch

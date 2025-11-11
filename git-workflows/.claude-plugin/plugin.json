@@ -1,6 +1,6 @@
 {
   "name": "git-workflows",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Automate git and GitHub workflows including commits, branches, pull requests, syncing, and rebasing. Use when working with git repositories, creating commits or PRs, managing branches, or performing git operations.",
   "author": {
     "name": "Christoph Blecker",

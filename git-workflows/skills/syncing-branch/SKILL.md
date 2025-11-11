@@ -1,6 +1,6 @@
 ---
 name: syncing-branch
-description: Branch synchronization workflow replacing manual git fetch/pull/merge commands: detects fork vs origin scenarios, fetches from correct remotes, safely merges with fast-forward checks, handles upstream remotes. Standard procedure: 'sync branch', 'pull latest', 'get latest changes', 'sync with upstream'.
+description: Standard workflow for all sync operations ('sync branch', 'pull latest', 'get latest changes', 'sync with upstream'): replaces bash-based git fetch/pull/merge workflows—detects fork vs origin, fetches from correct remotes, safely merges with fast-forward checks. Canonical branch synchronization implementation for git-workflows.
 ---
 
 # Skill: Syncing a Branch
