@@ -214,6 +214,7 @@ The plugin uses direct git CLI commands for all git operations, eliminating the 
 ### Prerequisites
 
 - **Git** - Git CLI must be available in PATH
+- **jq** - JSON processor required for UserPromptSubmit hook functionality (hook will show a warning if not installed)
 - **Node.js** (for `npx` command, if using sequential-thinking MCP)
 - **GITHUB_TOKEN** environment variable must be set for GitHub operations
 - Claude Code with MCP support (optional - for GitHub MCP and sequential-thinking)
