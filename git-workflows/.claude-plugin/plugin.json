@@ -20,5 +20,17 @@
     "pull-requests",
     "skills",
     "workflows"
-  ]
+  ],
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/detect-git-workflow.sh"
+          }
+        ]
+      }
+    ]
+  }
 }
