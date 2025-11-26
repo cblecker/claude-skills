@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Categorize files by type (code, tests, docs, config, other)
 # Usage: echo -e "file1\nfile2" | ./categorize-files.sh
 

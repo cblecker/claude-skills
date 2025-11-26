@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Detect fork vs origin repository and extract owner/repo metadata
 # Usage: ./get-repository-type.sh
 

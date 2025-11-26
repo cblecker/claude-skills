@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Detect mainline branch and optionally compare against a specified branch
 # Usage: ./get-mainline-branch.sh [branch_name]
 

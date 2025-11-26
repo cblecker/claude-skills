@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Gather all context needed for commit message generation
 # Usage: ./gather-commit-context.sh
 

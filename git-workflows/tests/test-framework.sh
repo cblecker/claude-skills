@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Test Framework for git-workflows Scripts
 # Provides utilities for testing bash scripts with JSON output
 
@@ -324,10 +324,10 @@ run_test() {
   # Run test function and capture result
   if $test_function; then
     success "✓ $test_name"
-    ((TESTS_PASSED++))
+    ((++TESTS_PASSED))
   else
     error "✗ $test_name"
-    ((TESTS_FAILED++))
+    ((++TESTS_FAILED))
   fi
 
   # Cleanup after each test

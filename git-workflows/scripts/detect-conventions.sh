@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Detect if repository uses Conventional Commits
 # Usage: ./detect-conventions.sh
 

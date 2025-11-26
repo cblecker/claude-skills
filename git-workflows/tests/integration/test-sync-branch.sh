@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Integration tests for sync-branch.sh
 
 set -euo pipefail

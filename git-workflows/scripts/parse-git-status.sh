@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Parse git status --porcelain output into structured JSON
 # Usage: git status --porcelain | ./parse-git-status.sh
 

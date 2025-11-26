@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Gather all context needed for PR title/description generation
 # Usage: ./gather-pr-context.sh <base_branch>
 

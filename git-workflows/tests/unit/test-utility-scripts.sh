@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Unit tests for utility scripts (get-repository-type, get-mainline-branch, detect-conventions)
 
 set -euo pipefail

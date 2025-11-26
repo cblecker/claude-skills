@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Integration tests for context gatherer scripts
 
 set -euo pipefail

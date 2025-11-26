@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Execute fork-aware branch synchronization
 # Usage: ./sync-branch.sh [branch_name]
 

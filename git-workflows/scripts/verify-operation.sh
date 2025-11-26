@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Verify operation success and generate standardized reports
 # Usage: ./verify-operation.sh <operation_type> [additional_args...]
 

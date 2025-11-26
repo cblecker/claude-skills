@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Unit tests for helper scripts (parse-git-status.sh, categorize-files.sh)
 
 set -euo pipefail
