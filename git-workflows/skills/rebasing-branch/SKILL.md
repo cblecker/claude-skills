@@ -72,23 +72,13 @@ IF is_mainline = false AND working tree not clean (status output not empty):
 IF is_mainline = false AND working tree clean:
   PROCEED to Phase 2
 
+**Save State**: Store saved_branch = current_branch (preserve through all phases)
+
 Phase 1 complete. Continue to Phase 2.
 
 ---
 
-## Phase 2: Save State
-
-**Objective**: Remember current branch for later checkout.
-
-**CRITICAL**: Store saved_branch = current branch from Phase 1
-- Must preserve through all phases
-- After Phase 4, ALWAYS use saved_branch (not "current branch")
-
-Continue to Phase 3.
-
----
-
-## Phase 3: Determine Rebase Base
+## Phase 2: Determine Rebase Base
 
 **Objective**: Identify which branch to rebase onto.
 
@@ -106,11 +96,11 @@ IF no target branch mentioned:
 
 Store rebase_base for later phases.
 
-Phase 3 complete. Continue to Phase 4.
+Phase 2 complete. Continue to Phase 3.
 
 ---
 
-## Phase 4: Checkout Base Branch
+## Phase 3: Checkout Base Branch
 
 **Objective**: Switch to base branch for syncing.
 
@@ -118,13 +108,13 @@ Phase 3 complete. Continue to Phase 4.
 
 Checkout rebase base:
 ```bash
-git checkout <rebase_base from Phase 3>
+git checkout <rebase_base from Phase 2>
 ```
 
 **Error Handling**
 
 IF checkout succeeds:
-  PROCEED to Phase 5
+  PROCEED to Phase 4
 
 IF checkout fails:
   STOP immediately
@@ -140,11 +130,11 @@ IF checkout fails:
 
   WAIT for user decision
 
-Phase 4 complete. Continue to Phase 5.
+Phase 3 complete. Continue to Phase 4.
 
 ---
 
-## Phase 5: Sync Base Branch
+## Phase 4: Sync Base Branch
 
 **Objective**: Ensure base branch is up-to-date with remote.
 
@@ -164,7 +154,7 @@ WAIT for skill completion
 
 IF syncing-branch skill succeeded:
   INFORM: "Base branch synced successfully with remote"
-  PROCEED to Phase 6
+  PROCEED to Phase 5
 
 IF syncing-branch skill failed:
   STOP immediately
@@ -176,56 +166,56 @@ IF syncing-branch skill failed:
     - "Retry sync operation"
   WAIT for user decision
 
-Phase 5 complete. Continue to Phase 6.
+Phase 4 complete. Continue to Phase 5.
 
 ---
 
-## Phase 6: Return to Feature Branch
+## Phase 5: Return to Feature Branch
 
 **Objective**: Switch back to feature branch for rebase.
 
 **CRITICAL: Use Saved State**
 
-Retrieve saved_branch from Phase 2 (NOT current branch - we're on base branch now)
+Retrieve saved_branch from Phase 1 (NOT current branch - we're on base branch now)
 
 **Step 1: Checkout feature branch**
 
 Checkout saved branch:
 ```bash
-git checkout <saved_branch from Phase 2>
+git checkout <saved_branch from Phase 1>
 ```
 
 **Error Handling**
 
 IF checkout succeeds:
-  PROCEED to Phase 7
+  PROCEED to Phase 6
 
 IF checkout fails:
   STOP immediately (CRITICAL FAILURE)
 
   EXPLAIN: "Cannot return to feature branch - workflow interrupted mid-operation"
-  INFORM: "You are currently on base branch: <rebase_base from Phase 3>"
-  INFORM: "Your feature branch: <saved_branch from Phase 2>"
+  INFORM: "You are currently on base branch: <rebase_base from Phase 2>"
+  INFORM: "Your feature branch: <saved_branch from Phase 1>"
   PROPOSE: "Manually checkout your feature branch with: `git checkout <saved_branch>`"
 
   WORKFLOW FAILED - Manual intervention required
 
-Phase 6 complete. Continue to Phase 7.
+Phase 5 complete. Continue to Phase 6.
 
 ---
 
-## Phase 7: Rebase Execution
+## Phase 6: Rebase Execution
 
 **Objective**: Perform the actual rebase operation.
 
 **Plan Mode**: Auto-enforced read-only if active
 
 **Steps**:
-1. Execute: `git rebase <rebase-base>` (from Phase 3)
+1. Execute: `git rebase <rebase-base>` (from Phase 2)
 2. Check exit code
 
 **Validation Gate**:
-- IF success (exit 0): Continue to Phase 8
+- IF success (exit 0): Continue to Phase 7
 - IF conflicts: PAUSE workflow (normal, not failure)
   - Guide: Edit files, remove markers, `git add`, `git rebase --continue` or `--abort`
   - Wait for user resolution
@@ -233,11 +223,11 @@ Phase 6 complete. Continue to Phase 7.
 
 **Note**: Conflicts are normal, not failures. Workflow PAUSED ≠ FAILED.
 
-Continue to Phase 8.
+Continue to Phase 7.
 
 ---
 
-## Phase 8: Reset Author Dates (Conditional)
+## Phase 7: Reset Author Dates (Conditional)
 
 **Objective**: Update author dates to current time.
 
@@ -246,7 +236,7 @@ Continue to Phase 8.
 **Plan Mode**: Auto-enforced read-only if active
 
 **Steps**:
-1. Find fork point: `git merge-base --fork-point <rebase-base>` (from Phase 3)
+1. Find fork point: `git merge-base --fork-point <rebase-base>` (from Phase 2)
 2. Reset dates: `git rebase <fork-point> --reset-author-date`
 3. Check exit code
 
@@ -254,11 +244,11 @@ Continue to Phase 8.
 - Warn: Rebase succeeded but date reset failed
 - Ask to continue without reset or abort
 
-Continue to Phase 9.
+Continue to Phase 8.
 
 ---
 
-## Phase 9: Verification
+## Phase 8: Verification
 
 **Objective**: Confirm rebase completed successfully.
 
@@ -268,7 +258,7 @@ Continue to Phase 9.
    git branch --show-current
    ```
 
-2. Compare to saved_branch from Phase 2
+2. Compare to saved_branch from Phase 1
 
 3. Check status:
    ```bash
@@ -285,17 +275,14 @@ Continue to Phase 9.
    ```markdown
    ✓ Branch Rebased Successfully
 
-   **Branch:** <saved_branch>
-
-   **Rebased onto:** <rebase_base>
-
-   **Author dates:** <Reset|Preserved>
-
+   **Branch:** <saved_branch>\
+   **Rebased onto:** <rebase_base>\
+   **Author dates:** <Reset|Preserved>\
    **Working tree:** <Clean|Dirty>
 
    **⚠ Important:** Force push required
 
-   Run: git push --force-with-lease origin <saved_branch>
+   Run: `git push --force-with-lease origin <saved_branch>`
    ```
 
 **Validation Gate**: IF current branch ≠ saved_branch:

@@ -310,7 +310,7 @@ Provides standardized verification and reporting for workflow operations.
     "date": "2025-11-20T12:00:00-08:00",
     "files_changed": 3
   },
-  "formatted_report": "✓ Commit Completed Successfully\n\n**Commit:** abc123d\n..."
+  "formatted_report": "✓ Commit Completed Successfully\n\n**Commit:** abc123d\\\n**Branch:** feature-branch\\\n..."
 }
 ```
 
@@ -338,12 +338,13 @@ Example error handling:
 - `not_git_repo`: Not in a git repository
 ```
 
-### Integration with MCP Tools
+### Integration with Bash and MCP
 
-According to the refactor plan, skills should:
+Skills should:
 
 1. **Use scripts for data gathering** (read operations)
-2. **Use MCP tools for write operations** (commits, branches)
+2. **Use bash git commands for local git operations** (add, commit, checkout)
+3. **Use GitHub MCP tools for remote operations** (PR creation)
 
 Example workflow for creating a commit:
 
@@ -358,11 +359,11 @@ Use the context + AI to generate commit message.
 Present message and file list for approval.
 
 ## Phase 6: Execution
-Use MCP tools directly:
-1. mcp__git-workflows_git__git_add to stage files
-2. mcp__git-workflows_git__git_commit with message
+Use bash git commands:
+1. git add . to stage files
+2. git commit -m "message" to create commit
 
-Git hooks work automatically via MCP!
+Git hooks work automatically!
 
 ## Phase 7: Verification
 Use verify-operation.sh to generate standardized report.
@@ -485,5 +486,4 @@ Potential future additions:
 
 For issues or questions:
 - Check test files for usage examples
-- Review REFACTOR_PLAN.md for architecture details
 - See skill implementations for integration patterns

@@ -87,28 +87,28 @@ while IFS= read -r file; do
   categorize_file "$file"
 done
 
-# Helper function to convert bash array to JSON array using null-delimited stream
-array_to_json() {
-  local -n arr=$1
-  if [ ${#arr[@]} -eq 0 ]; then
-    echo "[]"
-  else
-    printf '%s\0' "${arr[@]}" | jq -R -s -c 'split("\u0000") | map(select(length > 0))'
-  fi
-}
-
 # Build JSON output (jq is required)
 if ! command -v jq &> /dev/null; then
   echo '{"error": "jq is required but not installed"}' >&2
   exit 1
 fi
 
-# Build arrays safely using null-delimited streams
-code_json=$(array_to_json code_files)
-test_json=$(array_to_json test_files)
-doc_json=$(array_to_json doc_files)
-config_json=$(array_to_json config_files)
-other_json=$(array_to_json other_files)
+# Helper function to convert array elements to JSON (bash 3.2 compatible)
+# Uses positional parameters to receive array elements
+build_json_array() {
+  if [ $# -eq 0 ]; then
+    echo "[]"
+  else
+    printf '%s\0' "$@" | jq -R -s -c 'split("\u0000") | map(select(length > 0))'
+  fi
+}
+
+# Build arrays safely using null-delimited streams (bash 3.2 compatible)
+code_json=$(build_json_array "${code_files[@]+"${code_files[@]}"}")
+test_json=$(build_json_array "${test_files[@]+"${test_files[@]}"}")
+doc_json=$(build_json_array "${doc_files[@]+"${doc_files[@]}"}")
+config_json=$(build_json_array "${config_files[@]+"${config_files[@]}"}")
+other_json=$(build_json_array "${other_files[@]+"${other_files[@]}"}")
 
 # Build final object
 jq -n \

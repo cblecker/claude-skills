@@ -92,10 +92,10 @@ verify_commit() {
   report=$(cat <<EOF
 ✓ Commit Completed Successfully
 
-**Commit:** ${commit_hash:0:7}
-**Branch:** $branch
-**Subject:** $subject
-**Author:** $author
+**Commit:** ${commit_hash:0:7}\\
+**Branch:** $branch\\
+**Subject:** $subject\\
+**Author:** $author\\
 **Files Changed:** $files_changed
 EOF
 )
@@ -164,8 +164,8 @@ verify_branch() {
     report=$(cat <<EOF
 ✓ Branch Operation Completed Successfully
 
-**Branch:** $branch_name
-**Base Branch:** $base_branch
+**Branch:** $branch_name\\
+**Base Branch:** $base_branch\\
 **Diverged From:** ${diverged_from:0:7}
 EOF
 )
@@ -230,8 +230,8 @@ verify_sync() {
   report=$(cat <<EOF
 ✓ Sync Operation Completed Successfully
 
-**Branch:** $branch
-**Status:** $([ "$is_clean" = "true" ] && echo "Clean" || echo "Has uncommitted changes")
+**Branch:** $branch\\
+**Status:** $([ "$is_clean" = "true" ] && echo "Clean" || echo "Has uncommitted changes")\\
 **Recent Commits:**
 $formatted_commits
 EOF

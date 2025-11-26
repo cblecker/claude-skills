@@ -188,61 +188,38 @@ HANDLE user selection:
 
 ---
 
-## Phase 4: Execution (MCP Tools)
+## Phase 4: Execution
 
-**Objective**: Stage files and create commit using MCP git tools.
+**Objective**: Stage files and create commit.
 
 **Plan Mode**: Auto-enforced read-only if active
 
-**MCP Tool Usage**:
-
-This phase uses MCP git tools which run outside the sandbox and handle git hooks and SSH authentication automatically. No sandbox bypass needed!
-
 **Steps**:
 
-1. Stage files using MCP:
-   ```text
-   Use mcp__git-workflows_git__git_add tool
-   Parameters: {
-     "pathspecs": ["."]  // or specific files from context
-   }
+1. Stage files:
+   ```bash
+   git add .
+   ```
+   Or stage specific files from context if user requested selective staging.
+
+2. Create commit with approved message:
+   ```bash
+   git commit -m "<approved message from Phase 3>"
    ```
 
-2. Create commit using MCP:
-   ```text
-   Use mcp__git-workflows_git__git_commit tool
-   Parameters: {
-     "message": "<approved message from Phase 3>"
-   }
-   ```
-
-**Automatic Features via MCP**:
-- ✓ Git hooks execute normally
-- ✓ No sandbox bypass required
-- ✓ Secure and reliable
+**Pre-commit Hooks**:
+- Git hooks execute normally
+- If hooks modify files, the commit may need to be amended
 
 **Error Handling**:
 
-IF MCP tools are unavailable:
-- ABORT immediately with clear error:
-  ```text
-  Error: Git MCP server unavailable
-
-  The git-workflows plugin requires the MCP git server to function.
-
-  Please ensure:
-  - uvx is installed and available
-  - MCP server can start (check: uvx mcp-server-git)
-
-  For assistance, see: https://github.com/modelcontextprotocol/servers
-  ```
-- NO fallback to bash commands
-
 IF commit fails:
-- Analyze error output from MCP tool
-- Explain: what failed, why, and potential impact
-- Common issues: pre-commit hooks failed, empty commit
-- Propose solution and ask user to retry or handle manually
+- Analyze error output
+- Common issues:
+  - **Pre-commit hook failed**: Review hook output for required changes
+  - **Empty commit**: No staged changes, verify staging succeeded
+  - **Author not set**: Configure `git config user.email` and `git config user.name`
+- Explain failure and propose solution
 
 Continue to Phase 5.
 
@@ -281,68 +258,13 @@ Continue to Phase 5.
    ```markdown
    ✓ Commit Completed Successfully
 
-   **Commit:** <short_hash>
-
-   **Subject:** <subject>
-
-   **Branch:** <branch_name>
-
-   **Files Changed:** <file_count>
-
+   **Commit:** <short_hash>\
+   **Subject:** <subject>\
+   **Branch:** <branch_name>\
+   **Files Changed:** <file_count>\
    **Author:** <author_name>
    ```
 
 4. Verify: Compare subject to approved message from Phase 3; warn if differs (indicates hook modification)
 
 Workflow complete.
-
----
-
-## Implementation Notes
-
-### Performance Improvements
-
-This updated skill uses the optimized scripting architecture:
-
-**Tool Call Reduction:**
-- Before: ~17 tool calls across 7 phases
-- After: 4-5 tool calls (Phase 1: 1 gather-context, Phase 2: 1 sequential-thinking, Phase 4: 2 MCP, Phase 5: 1 verify)
-- **Reduction: 75-80%**
-
-**Execution Speed:**
-- Context gathering: 10-12 operations → 1 atomic script call
-- Verification: 3-4 operations → 1 atomic script call
-- Overall: 3-5x faster
-
-### MCP vs Bash for Commits
-
-The skill now uses MCP git tools for commit operations instead of bash commands:
-
-**Why MCP?**
-1. **No sandbox bypass needed**: MCP tools run outside sandbox with proper permissions
-2. **Git hooks support**: Pre-commit hooks execute normally
-3. **SSH authentication**: Works for commit signatures if configured
-4. **Structured errors**: Better error handling
-5. **Safer**: No dangerouslyDisableSandbox flag required
-
-**Previous Approach (Deprecated)**:
-- Used `dangerouslyDisableSandbox: true` for git commands
-- Risk of permission issues
-
-**Current Approach**:
-- MCP tools handle all complexity
-- Guaranteed to work if MCP is configured
-- Simple abort if MCP unavailable
-
-### Context Data Structure
-
-The `gather-commit-context.sh` script provides comprehensive context:
-
-- **Branch info**: Current branch, mainline branch, is_mainline flag
-- **Conventions**: Conventional commits usage and confidence level
-- **Working tree**: Staged, unstaged, untracked files
-- **File categorization**: Code, tests, docs, config, other
-- **Diff summary**: Files changed, insertions, deletions
-- **Recent commits**: For style matching
-
-All gathered in a single atomic operation for optimal performance.

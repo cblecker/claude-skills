@@ -182,12 +182,11 @@ The primary plugin in this collection. Provides comprehensive git and GitHub aut
 - `rebasing-branch` - Rebase workflow with conflict handling (invokes syncing-branch for base sync)
 
 **MCP Servers Used:**
-- `git` (mcp-server-git): Git operations via MCP
 - `github` (GitHub Copilot API): GitHub operations via MCP
 - `sequential-thinking`: Structured reasoning for complex decisions
 
 **Architecture Philosophy:**
-- **MCP-first**: Uses MCP tools for all git/GitHub operations to enable fine-grained IAM control
+- **Bash for git, MCP for GitHub**: Uses bash commands for local git operations and MCP tools for GitHub API operations
 - **Skills-based**: Main context directly invokes skills based on user intent (no orchestrator agent)
 - **Phase-based**: Deterministic workflows with validation gates and structured state tracking
 - **Skill composition**: Skills can invoke other skills autonomously (e.g., creating-pull-request → creating-commit)
@@ -195,7 +194,7 @@ The primary plugin in this collection. Provides comprehensive git and GitHub aut
   - No explicit skill references in allowed-tools (removed in v3.0.0)
   - Skill invocation is based on task context and skill descriptions
 - **95%+ confidence**: Uses sequential-thinking tool to achieve high confidence in decisions
-- **Prescriptive**: Exact tool specifications per step ("Use mcp__git__git_status" not "use MCP tools")
+- **Prescriptive**: Exact tool specifications per step (e.g., `git status --porcelain` for status checks)
 - **Plan mode aware**: Skills automatically limited to read-only operations in plan mode
 
 **Skill Description Approach:**
@@ -213,7 +212,7 @@ All workflows follow strict phase-based execution with JSON state tracking:
 2. Data gathering (status, diffs, logs)
 3. Analysis and decision-making (using sequential-thinking when needed)
 4. User approval for critical operations
-5. Execution using MCP tools
+5. Execution (bash for git, MCP for GitHub)
 6. Verification and reporting
 
 Each phase outputs structured JSON state that passes to the next phase.
@@ -224,7 +223,7 @@ Workflows have mandatory STOP conditions:
 - On mainline branch without approval
 - Critical issues in code review
 - Test failures
-- MCP tool unavailable for required operation
+- Tool or command failure
 - User rejection
 
 When STOP triggered: halt immediately, explain why, propose solution, wait for user decision.
@@ -247,14 +246,14 @@ Standard template format for user-facing skills:
 ```markdown
 ✓ <Operation> Completed Successfully
 
+**Field Name:** value\
+**Field Name:** value\
 **Field Name:** value
-
-**Field Name:** value
-
-...
 
 [Optional: Important notes or next steps]
 ```
+
+Note: Use backslash (`\`) at the end of lines to create hard line breaks in CommonMark without extra vertical spacing. This ensures consistent rendering across different markdown viewers.
 
 ## Working with This Repository
 

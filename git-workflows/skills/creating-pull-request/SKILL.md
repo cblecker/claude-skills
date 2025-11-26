@@ -306,65 +306,15 @@ Continue to Phase 7.
    ```markdown
    ✓ Pull Request Created Successfully
 
-   **PR Number:** #<number>
-
-   **Title:** <title>
-
-   **URL:** <pr_url>
-
-   **Status:** <Open|Draft>
-
-   **Base Branch:** <base_branch>
-
+   **PR Number:** #<number>\
+   **Title:** <title>\
+   **URL:** <pr_url>\
+   **Status:** <Open|Draft>\
+   **Base Branch:** <base_branch>\
    **Head Branch:** <head_branch>
 
-   [If draft: **Notes:** Mark as 'Ready for review' when ready: <pr_url>]
-   [If open: **Notes:** The pull request is ready for review.]
+   [If draft: **Notes:** Mark as 'Ready for review' when ready]
+   [If open: **Notes:** The pull request is ready for review]
    ```
 
 Workflow complete.
-
----
-
-## Implementation Notes
-
-### Performance Improvements
-
-This updated skill uses the optimized scripting architecture:
-
-**Tool Call Reduction:**
-- Before: ~10-12 tool calls across 8 phases
-- After: 2-3 tool calls (Phase 1: 1 gather-pr-context.sh, Phase 6: 1 MCP create PR)
-- **Reduction: 75-83%**
-
-**Execution Speed:**
-- Context gathering: 8-10 operations → 1 atomic script call
-- Validation: All pre-flight checks in single operation
-- Overall: 3-5x faster
-
-### MCP for PR Creation
-
-The skill uses MCP GitHub tools for PR creation instead of bash gh commands:
-
-**Why MCP?**
-1. **No sandbox bypass needed**: MCP tools run outside sandbox with proper permissions
-2. **Structured output**: Better error handling and response parsing
-3. **Authentication**: Works seamlessly with GITHUB_TOKEN
-4. **Rate limiting**: Automatic handling by MCP server
-5. **Safer**: No dangerouslyDisableSandbox flag required
-
-**Tool Used:**
-- `mcp__github__create_pull_request`: Creates PR with title, body, base, head, draft status
-
-### Context Data Structure
-
-The `gather-pr-context.sh` script provides comprehensive context:
-
-- **Repository info**: Fork detection, owner/repo for upstream and origin
-- **Branch info**: Current branch, base branch, is_feature_branch flag
-- **Validation**: Uncommitted changes detection, file list
-- **Commit history**: Full history from base to HEAD with subjects and bodies
-- **Diff summary**: Files changed, insertions, deletions
-- **Conventions**: Conventional commits detection
-
-All gathered in a single atomic operation for optimal performance.

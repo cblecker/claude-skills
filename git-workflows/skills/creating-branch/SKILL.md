@@ -38,8 +38,6 @@ Extract from user request: purpose/description, explicit name (if provided), bas
    - current_branch: Captured branch name
    - has_uncommitted: true if status output not empty, false otherwise
 
-**Note**: Uncommitted changes will automatically carry forward to the new branch when it's created. No stashing is needed.
-
 Continue to Phase 2.
 
 ---
@@ -176,10 +174,8 @@ Continue to Phase 5.
    ```markdown
    ✓ Branch Created Successfully
 
-   **Branch:** <branch_name>
-
-   **Created from:** <base_branch>
-
+   **Branch:** <branch_name>\
+   **Created from:** <base_branch>\
    **Uncommitted changes:** <Preserved|None>
    ```
 
