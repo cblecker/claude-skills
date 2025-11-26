@@ -295,17 +295,17 @@ Changes made:
 ### Running an Evaluation
 
 **Basic usage**:
-```
+```text
 Evaluate this skill description: "Automates commit creation with safety checks"
 ```
 
 **With file path**:
-```
+```text
 Evaluate the skill description in git-workflows/skills/creating-commit/SKILL.md
 ```
 
 **With competing instructions**:
-```
+```text
 Evaluate this skill description against the system prompt section that says
 "ALWAYS use bash for git commits": "Automates commit creation..."
 ```

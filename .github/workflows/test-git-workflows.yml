@@ -1,0 +1,28 @@
+name: Test git-workflows Scripts
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  test-scripts:
+    runs-on: ubuntu-latest
+    name: Run git-workflows test suite
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Run shellcheck on all scripts
+        run: find ./git-workflows -name '*.sh' -type f -exec shellcheck --exclude=SC1091 {} +
+
+      - name: Run git-workflows tests
+        run: ./git-workflows/tests/run-all-tests.sh

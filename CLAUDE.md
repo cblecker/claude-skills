@@ -18,7 +18,7 @@ Skills are invoked automatically by Claude when user requests match the skill's 
 
 ## Repository Structure
 
-```
+```text
 <plugin-name>/
 ├── plugin.json              # Plugin metadata and configuration
 └── <skill-name>/
@@ -139,21 +139,21 @@ When skills aren't being invoked as expected:
 **Template Examples**:
 
 *Replacive (user-facing workflow):*
-```
+```text
 Primary [operation] workflow replacing manual [commands]: [implements/orchestrates]
 [protocol/system concept] with [key features]. Standard procedure for [operation
 category]: '[trigger 1]', '[trigger 2]', '[trigger 3]'.
 ```
 
 *Integrative (protocol implementation):*
-```
+```text
 Implements [system protocol] for [operation]: [key feature 1], [key feature 2]
 ([technical detail]), [key feature 3]. Use when [scenario] or saying '[trigger 1]',
 '[trigger 2]'.
 ```
 
 *Collaborative (utility skill):*
-```
+```text
 Automates [specific task]: [how it works], [what it provides]. [When invoked or
 use case]. Use when [scenario].
 ```
@@ -182,12 +182,11 @@ The primary plugin in this collection. Provides comprehensive git and GitHub aut
 - `rebasing-branch` - Rebase workflow with conflict handling (invokes syncing-branch for base sync)
 
 **MCP Servers Used:**
-- `git` (mcp-server-git): Git operations via MCP
 - `github` (GitHub Copilot API): GitHub operations via MCP
 - `sequential-thinking`: Structured reasoning for complex decisions
 
 **Architecture Philosophy:**
-- **MCP-first**: Uses MCP tools for all git/GitHub operations to enable fine-grained IAM control
+- **Bash for git, MCP for GitHub**: Uses bash commands for local git operations and MCP tools for GitHub API operations
 - **Skills-based**: Main context directly invokes skills based on user intent (no orchestrator agent)
 - **Phase-based**: Deterministic workflows with validation gates and structured state tracking
 - **Skill composition**: Skills can invoke other skills autonomously (e.g., creating-pull-request → creating-commit)
@@ -195,13 +194,13 @@ The primary plugin in this collection. Provides comprehensive git and GitHub aut
   - No explicit skill references in allowed-tools (removed in v3.0.0)
   - Skill invocation is based on task context and skill descriptions
 - **95%+ confidence**: Uses sequential-thinking tool to achieve high confidence in decisions
-- **Prescriptive**: Exact tool specifications per step ("Use mcp__git__git_status" not "use MCP tools")
+- **Prescriptive**: Exact tool specifications per step (e.g., `git status --porcelain` for status checks)
 - **Plan mode aware**: Skills automatically limited to read-only operations in plan mode
 
 **Skill Description Approach:**
 - **User-facing workflows** (creating-commit, creating-branch, creating-pull-request, syncing-branch, rebasing-branch): Use **Replacive authority pattern** (80-85%) with "Primary [operation] workflow replacing manual git commands" framing to establish precedence over bash-based workflows
-- **Utility skills** (repository-type, detect-conventional-commits, mainline-branch): Use **Collaborative authority pattern** (60-70%) with "Automates [task]" framing, appropriate for skills invoked by other skills rather than users directly
-- All descriptions follow framework requirements: third-person voice, 45-52 words, explicit trigger phrases, system protocol integration
+- **Utility functions** are implemented as bash scripts (not skills) for efficiency: `get-mainline-branch.sh`, `get-repository-type.sh`, `detect-conventions.sh`
+- All skill descriptions follow framework requirements: third-person voice, 45-52 words, explicit trigger phrases, system protocol integration
 
 ## Workflow Patterns
 
@@ -213,7 +212,7 @@ All workflows follow strict phase-based execution with JSON state tracking:
 2. Data gathering (status, diffs, logs)
 3. Analysis and decision-making (using sequential-thinking when needed)
 4. User approval for critical operations
-5. Execution using MCP tools
+5. Execution (bash for git, MCP for GitHub)
 6. Verification and reporting
 
 Each phase outputs structured JSON state that passes to the next phase.
@@ -224,7 +223,7 @@ Workflows have mandatory STOP conditions:
 - On mainline branch without approval
 - Critical issues in code review
 - Test failures
-- MCP tool unavailable for required operation
+- Tool or command failure
 - User rejection
 
 When STOP triggered: halt immediately, explain why, propose solution, wait for user decision.
@@ -233,10 +232,10 @@ When STOP triggered: halt immediately, explain why, propose solution, wait for u
 
 Skills follow different reporting formats based on their invocation pattern:
 
-**Utility Skills** (invoked by other skills only):
+**Utility Scripts** (invoked by skills):
 - Return structured JSON output for programmatic consumption
 - Include success/failure indicators and all required data
-- Examples: mainline-branch, repository-type, detect-conventional-commits
+- Examples: `get-mainline-branch.sh`, `get-repository-type.sh`, `detect-conventions.sh`
 
 **User-Facing Workflow Skills** (invoked by users):
 - Use standardized reporting templates for consistency
@@ -247,14 +246,14 @@ Standard template format for user-facing skills:
 ```markdown
 ✓ <Operation> Completed Successfully
 
+**Field Name:** value\
+**Field Name:** value\
 **Field Name:** value
-
-**Field Name:** value
-
-...
 
 [Optional: Important notes or next steps]
 ```
+
+Note: Use backslash (`\`) at the end of lines to create hard line breaks in CommonMark without extra vertical spacing. This ensures consistent rendering across different markdown viewers.
 
 ## Working with This Repository
 
@@ -299,7 +298,7 @@ Run validation on any path that contains a `.claude-plugin` directory:
 
 Use the `skill-description-evaluator` skill to assess the effectiveness of skill descriptions:
 
-```
+```text
 Evaluate the skill description in git-workflows/skills/creating-commit/SKILL.md
 ```
 

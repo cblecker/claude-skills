@@ -21,34 +21,18 @@ Extract from user request: target branch (if specified, else current)
 
 ---
 
-## Phase 1: Branch Identification
+## Phase 1: Branch Identification and Checkout
 
-**Objective**: Determine which branch to sync.
-
-**Steps**:
-1. Check user request for specific branch (e.g., "sync main", "sync the develop branch")
-
-2. IF branch specified in request:
-     Use specified branch as target
-   ELSE:
-     Get current branch:
-     ```bash
-     git branch --show-current
-     ```
-     Use current as target
-
-Continue to Phase 2.
-
----
-
-## Phase 2: Checkout Target Branch (Conditional)
-
-**Objective**: Switch to target branch if needed.
-
-**Skip**: If target equals current from Phase 1
+**Objective**: Determine which branch to sync and switch to it if needed.
 
 **Steps**:
-1. Checkout target branch:
+
+1. **Determine target branch** from user request:
+   - Check for specific branch (e.g., "sync main", "sync the develop branch")
+   - IF branch specified: use specified branch
+   - IF not specified: get current branch to use as default
+
+2. **Checkout target branch** if specified and different from current:
    ```bash
    git checkout <target-branch>
    ```
@@ -56,87 +40,147 @@ Continue to Phase 2.
 **Validation Gate**: IF checkout fails:
 - Analyze error:
   - "error: pathspec '...' did not match": Branch doesn't exist
-  - "error: Your local changes": Dirty working tree
+  - "error: Your local changes": Dirty working tree (will be caught by Phase 2)
   - Other: Permission issues
 - Explain error
 - Propose solution:
   - Doesn't exist: "Create branch first or verify name"
-  - Dirty tree: "Commit or stash changes before switching branches"
   - Permission: "Check repository access"
 - Wait for user to resolve
+
+Continue to Phase 2.
+
+---
+
+## Phase 2: Execute Sync (Optimized)
+
+**Objective**: Perform fork-aware branch synchronization in a single atomic operation.
+
+**Plan Mode**: Auto-enforced read-only if active
+
+**Steps**:
+
+1. **Execute sync-branch script**:
+   ```bash
+   "$CLAUDE_PLUGIN_ROOT/scripts/sync-branch.sh" [target-branch]
+   ```
+
+   Note: Pass target-branch only if user specified a branch in Phase 1. Otherwise, omit to sync current branch.
+
+2. **Parse the JSON response and handle results**:
+
+**IF `success: false`**:
+
+Handle error based on `error_type`:
+
+- **`not_git_repo`**:
+  - STOP: "Not in a git repository"
+  - Display: `message` and `suggested_action` from response
+  - EXIT workflow
+
+- **`branch_not_found`**:
+  - STOP: "Branch not found"
+  - Display: `message` and `suggested_action` from response
+  - Explain: The branch may not exist locally
+  - EXIT workflow
+
+- **`uncommitted_changes`**:
+  - STOP: "Cannot sync with uncommitted changes"
+  - Display: `message` from response
+  - List files from `uncommitted_files` array
+  - EXPLAIN: "Commit or stash your changes before syncing"
+  - ASK: "Would you like me to commit these changes?"
+  - WAIT for user decision
+
+  IF user approves:
+    INVOKE: creating-commit skill
+    WAIT for creating-commit to complete
+
+    IF creating-commit succeeded:
+      RE-RUN Phase 2 (sync again after commit)
+      Continue to Phase 3
+
+    IF creating-commit failed:
+      STOP immediately
+      EXPLAIN: "Cannot sync without committing changes"
+      EXIT workflow
+
+  IF user declines:
+    STOP immediately
+    EXPLAIN: "Cannot sync with uncommitted changes"
+    EXIT workflow
+
+- **`sync_conflict`**:
+  - STOP: "Conflict encountered during sync"
+  - Display: `message` and `suggested_action` from response
+  - EXPLAIN: "Conflicts must be resolved manually"
+  - EXIT workflow
+
+- **`branch_diverged`**:
+  - STOP: "Local branch has diverged from remote"
+  - Display: `message` from response
+  - EXPLAIN: "Cannot fast-forward merge - branch histories have diverged"
+  - PROPOSE: "Use rebase to reconcile changes (rebasing-branch skill)"
+  - EXIT workflow
+
+- **`repo_type_detection_failed`**:
+  - STOP: "Could not detect repository type"
+  - Display: `message` and `suggested_action` from response
+  - EXIT workflow
+
+- **Other errors**:
+  - STOP: Display error details
+  - EXIT workflow
+
+**IF `success: true`**:
+
+Extract sync results:
+```json
+{
+  "success": true,
+  "branch": "main",
+  "is_fork": true,
+  "operations_performed": [
+    "fetched_all",
+    "rebased_on_upstream",
+    "pushed_to_origin"
+  ],
+  "commits_pulled": 3,
+  "status": "up_to_date"
+}
+```
 
 Continue to Phase 3.
 
 ---
 
-## Phase 3: Detect Repository Type
+## Phase 3: Report Results
 
-**Objective**: Determine sync strategy based on repository structure.
-
-**Steps**:
-1. Invoke repository-type skill:
-   - Receive structured result with is_fork flag
-   - Store for Phase 4 sync strategy selection
-
-Continue to Phase 4.
-
----
-
-## Phase 4: Sync Execution
-
-**Objective**: Fetch and merge changes from remote.
-
-**Plan Mode**: Auto-enforced read-only if active
-
-**Fork Scenario** (if is_fork = true):
-Execute: `git fetch --prune --all && git pull --stat --rebase upstream <target-branch> && git push $(git config --get branch.<target-branch>.remote) <target-branch>`
-Where <target-branch> is from Phase 1
-
-**Origin-Only Scenario** (if is_fork = false):
-Execute: `git fetch --prune && git merge --ff-only @{u}`
-Where @{u} = upstream tracking branch
-
-**Validation Gate**: IF sync fails:
-- Explain: Network, conflicts, divergence, auth, missing branch, or no tracking
-- Propose solution and wait for user
-
-Continue to Phase 5.
-
----
-
-## Phase 5: Verification
-
-**Objective**: Confirm sync completed successfully.
+**Objective**: Confirm sync completed successfully with standardized output.
 
 **Steps**:
-1. Check status:
-   ```bash
-   git status --porcelain
-   ```
 
-2. Verify working tree clean (empty output)
+1. **Format status message** based on sync results:
+   - Use `branch`, `commits_pulled`, and `status` from Phase 2 response
+   - Determine repository type from `is_fork` flag
+   - List operations from `operations_performed` array
 
-3. Get recent commits:
-   ```bash
-   git log --oneline -5
-   ```
-
-4. Check upstream status:
-   ```bash
-   git status -sb
-   ```
-   Look for: "## <branch>...origin/<branch>" with no ahead/behind indicators
-
-5. Report using template:
+2. **Report using standardized template**:
    ```markdown
    ✓ Branch Synced Successfully
 
-   **Branch:** <branch_name>
-
-   **Status:** In sync with remote
-
-   **Working tree:** <Clean|Dirty>
+   **Branch:** <branch>\
+   **Repository Type:** <Fork|Origin-only>\
+   **Commits Pulled:** <commits_pulled>\
+   **Status:** <status description>\
+   **Operations:** <operations_performed as list>
    ```
 
+   Status descriptions:
+   - `up_to_date`: "Branch is in sync with remote"
+   - `no_upstream`: "No upstream tracking branch configured"
+   - `upstream_missing_branch`: "Upstream doesn't have this branch"
+   - `push_failed`: "Rebased on upstream but push to origin failed"
+   - `sync_conflict`: "Encountered conflicts during sync"
 
 Workflow complete.

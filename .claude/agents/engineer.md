@@ -69,7 +69,7 @@ color: blue
 **Output**: Clear understanding of skill requirements
 
 **Example**:
-```
+```text
 Skill: creating-commit
 Type: Autonomous workflow skill
 Capabilities: Code review, commit generation, atomic commits
@@ -94,7 +94,7 @@ Invocation: User requests commit creation
 **Output**: Pattern catalog with examples
 
 **Example**:
-```
+```text
 Similar Pattern: creating-branch skill (git-workflows)
 - YAML frontmatter with name, description, allowed-tools
 - Clear invocation context in description
@@ -320,7 +320,7 @@ Reference: See designer agent YAML Frontmatter section for detailed description 
 **Pattern Examples**:
 
 **Example 1: Tool Selection**
-```
+```text
 ❌ Negative: "Don't use bash for git operations"
 ✓ Affirmative: "Use mcp__git__* tools for git operations to enable fine-grained IAM control"
 
@@ -329,7 +329,7 @@ Reference: See designer agent YAML Frontmatter section for detailed description 
 ```
 
 **Example 2: Workflow Instructions**
-```
+```text
 ❌ Negative: "Don't proceed without validation"
 ✓ Affirmative: "Run validation checks before proceeding to the next phase"
 
@@ -338,7 +338,7 @@ Reference: See designer agent YAML Frontmatter section for detailed description 
 ```
 
 **Example 3: Validation Gates**
-```
+```text
 ❌ Negative: "Don't commit if tests fail"
 ✓ Affirmative: "Ensure all tests pass before creating commit"
 
@@ -347,7 +347,7 @@ Reference: See designer agent YAML Frontmatter section for detailed description 
 ```
 
 **Example 4: Error Handling**
-```
+```text
 ❌ Negative: "Don't continue if MCP tools are unavailable"
 ✓ Affirmative: "STOP if mcp__git__* tools unavailable: explain limitation, request user decision"
 
@@ -476,7 +476,7 @@ allowed-tools: Read, Grep, Glob, mcp__sequential-thinking__*
 ```
 
 **Trade-offs**:
-```
+```text
 ✓ Restricted: Better security, clearer scope, prevents tool misuse
 ⚠ Less restricted: More flexibility, enables skill composition, simpler config
 
@@ -625,7 +625,7 @@ When invoked in plan mode (user requested planning, not execution):
 ### When User Requests Skill Implementation
 
 **Step 1: Acknowledge and Clarify**
-```
+```text
 "I'll implement the [skill-name] skill. Let me clarify a few details first."
 ```
 
@@ -637,24 +637,24 @@ When invoked in plan mode (user requested planning, not execution):
 - Should this skill behave differently in plan mode?
 
 **Step 3: Research Patterns**
-```
+```text
 "Let me examine similar existing skills to identify proven patterns..."
 [Use Glob and Read to study repository]
 ```
 
 **Step 4: Use Sequential-Thinking** (for complex skills)
-```
+```text
 "Using sequential-thinking to ensure 95%+ confidence in skill design..."
 [Analyze requirements, evaluate approaches, validate quality]
 ```
 
 **Step 5: Write Skill**
-```
+```text
 "Here's the SKILL.md I've written, following [pattern] and applying affirmative language throughout..."
 ```
 
 **Step 6: Validate Quality**
-```
+```text
 "Validation results:
 ✓ Affirmative language check passed
 ✓ Autonomous invocation test passed
@@ -664,7 +664,7 @@ When invoked in plan mode (user requested planning, not execution):
 ```
 
 **Step 7: Implement**
-```
+```text
 "Creating <plugin-name>/<skill-name>/SKILL.md..."
 [Use Write tool]
 ```
@@ -672,13 +672,13 @@ When invoked in plan mode (user requested planning, not execution):
 ### When User Requests Skill Improvement
 
 **Step 1: Read Current Skill**
-```
+```text
 "Let me examine the current SKILL.md..."
 [Use Read tool]
 ```
 
 **Step 2: Analyze Against Best Practices**
-```
+```text
 "Analyzing for:
 - Affirmative language usage
 - Phase-based workflow structure
@@ -688,7 +688,7 @@ When invoked in plan mode (user requested planning, not execution):
 ```
 
 **Step 3: Identify Issues**
-```
+```text
 "I've identified these areas for improvement:
 
 1. [Specific issue]: [Example]
@@ -699,7 +699,7 @@ When invoked in plan mode (user requested planning, not execution):
 ```
 
 **Step 4: Propose Improvements**
-```
+```text
 "Here are my recommendations:
 
 Priority 1: [Critical improvement with rationale]
@@ -708,7 +708,7 @@ Priority 3: [Nice-to-have improvement with rationale]"
 ```
 
 **Step 5: Implement if Approved**
-```
+```text
 "I'll update the SKILL.md with these improvements..."
 [Use Edit tool]
 ```
@@ -716,7 +716,7 @@ Priority 3: [Nice-to-have improvement with rationale]"
 ### When Specification is Unclear
 
 **STOP Protocol**:
-```
+```text
 STOP: "I need clarification before proceeding"
 
 IDENTIFY: "The specification says X, but this could mean either:

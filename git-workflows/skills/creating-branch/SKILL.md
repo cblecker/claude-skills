@@ -38,8 +38,6 @@ Extract from user request: purpose/description, explicit name (if provided), bas
    - current_branch: Captured branch name
    - has_uncommitted: true if status output not empty, false otherwise
 
-**Note**: Uncommitted changes will automatically carry forward to the new branch when it's created. No stashing is needed.
-
 Continue to Phase 2.
 
 ---
@@ -59,7 +57,11 @@ IF base branch specified in user request:
   Continue to Phase 3
 
 IF no base branch mentioned:
-  Invoke mainline-branch skill to detect default branch
+  Detect mainline branch:
+  ```bash
+  "$CLAUDE_PLUGIN_ROOT/scripts/get-mainline-branch.sh"
+  ```
+  Parse JSON response and extract `mainline_branch` field
   Use detected mainline as base
   Continue to Phase 3
 
@@ -87,8 +89,11 @@ Phase 2 complete. Continue to Phase 3.
    - Look for phrases: "called <name>", "named <name>", "create branch <name>"
    - IF explicit name found: Use it, skip to uniqueness check (Step 5)
 
-2. IF no explicit name: Invoke detect-conventional-commits skill
-   - Receive structured result with uses_conventional_commits flag
+2. IF no explicit name: Detect commit conventions:
+   ```bash
+   "$CLAUDE_PLUGIN_ROOT/scripts/detect-conventions.sh"
+   ```
+   Parse JSON response and extract `uses_conventional_commits` flag
 
 3. Extract description from user request:
    - Example: "create branch for adding metrics" → "adding metrics"
@@ -176,10 +181,8 @@ Continue to Phase 5.
    ```markdown
    ✓ Branch Created Successfully
 
-   **Branch:** <branch_name>
-
-   **Created from:** <base_branch>
-
+   **Branch:** <branch_name>\
+   **Created from:** <base_branch>\
    **Uncommitted changes:** <Preserved|None>
    ```
 

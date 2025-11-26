@@ -19,19 +19,108 @@ Extract from user request: draft status ("draft"/"WIP" → true, default false),
 
 ---
 
-## Phase 1: Pre-flight Checks
+## Phase 1: Gather Context (Optimized)
 
-**Objective**: Verify all prerequisites for PR creation.
+**Objective**: Collect all PR context and validate prerequisites in a single atomic operation.
 
-**Step 1: Check for uncommitted changes**
+**Steps**:
 
-Check status:
-```bash
-git status --porcelain
+1. **Determine base branch** from user request (optional):
+   - Analyze user request for target branch specification
+   - Look for phrases like: "create PR to <branch>", "base on <branch>", "merge into <branch>", "target <branch>"
+   - Common branch names: develop, staging, main, master, release, etc.
+   - Store base_branch if found, otherwise let script detect mainline
+
+2. **Execute gather-pr-context script**:
+   ```bash
+   "$CLAUDE_PLUGIN_ROOT/scripts/gather-pr-context.sh" [base_branch]
+   ```
+
+3. **Parse the JSON response and handle results**:
+
+**IF `success: false`**:
+
+Handle error based on `error_type`:
+
+- **`not_git_repo`**:
+  - STOP: "Not in a git repository"
+  - Display: `message` and `suggested_action` from response
+  - EXIT workflow
+
+- **`on_base_branch`**:
+  - STOP: "Cannot create PR from base branch"
+  - Display: `message` from response
+  - EXPLAIN: "Pull requests should be created from feature branches"
+  - PROPOSE: "Create a feature branch for this PR"
+  - ASK: "Would you like me to create a feature branch now?"
+  - WAIT for user decision
+
+  IF user approves:
+    INVOKE: creating-branch skill
+    WAIT for creating-branch to complete
+
+    IF creating-branch succeeded:
+      VERIFY: Now on feature branch (not mainline)
+      RE-RUN Phase 1 (gather context again on new branch)
+      Continue to Phase 2
+
+    IF creating-branch failed:
+      STOP immediately
+      EXPLAIN: "Branch creation failed, cannot proceed with PR"
+      EXIT workflow
+
+  IF user declines:
+    ASK: "Continue with PR from base branch anyway? (not recommended)"
+    WAIT for explicit confirmation
+
+    IF user confirms:
+      INFORM: "Proceeding with PR from base branch (not recommended)"
+      Continue to Phase 3
+
+    IF user declines:
+      STOP immediately
+      EXPLAIN: "Cannot create PR without feature branch"
+      EXIT workflow
+
+- **`no_commits`**:
+  - STOP: "Branch has no commits to include in PR"
+  - Display: `message` and `suggested_action` from response
+  - EXIT workflow
+
+- **Other errors**:
+  - STOP: Display error details
+  - EXIT workflow
+
+**IF `success: true`**:
+
+Extract and store context:
+```json
+{
+  "current_branch": "feature-branch",
+  "base_branch": "main",
+  "is_fork": true,
+  "repository": {
+    "upstream_owner": "owner",
+    "upstream_repo": "repo",
+    "origin_owner": "user",
+    "origin_repo": "repo"
+  },
+  "branch_validation": {
+    "is_feature_branch": true,
+    "has_uncommitted_changes": false
+  },
+  "uncommitted_files": [],
+  "commit_history": [...],
+  "diff_summary": {...},
+  "uses_conventional_commits": true
+}
 ```
 
-IF output is not empty (uncommitted changes exist):
+### Validation Gate: Uncommitted Changes
+
+IF `branch_validation.has_uncommitted_changes: true`:
   EXPLAIN: "You have uncommitted changes that need to be committed before creating a PR"
+  List files from `uncommitted_files` array
   ASK: "Would you like me to create a commit for these changes?"
   WAIT for user decision
 
@@ -40,7 +129,8 @@ IF output is not empty (uncommitted changes exist):
     WAIT for creating-commit to complete
 
     IF creating-commit succeeded:
-      Continue to Step 2
+      RE-RUN Phase 1 (gather context again after commit)
+      Continue to Phase 2
 
     IF creating-commit failed:
       STOP immediately
@@ -53,81 +143,25 @@ IF output is not empty (uncommitted changes exist):
     EXIT workflow
 
 IF no uncommitted changes:
-  Continue to Step 2
+  Continue to Phase 2
 
-**Step 2: Validate feature branch usage**
-
-Invoke mainline-branch skill:
-  - Request comparison against current branch
-  - Receive structured result with is_mainline flag
-
-IF is_mainline = false (on feature branch):
-  Continue to Step 3
-
-IF is_mainline = true (on mainline):
-  WARN: "Currently on mainline branch"
-  EXPLAIN: "Pull requests should be created from feature branches"
-  PROPOSE: "Create a feature branch for this PR"
-  ASK: "Would you like me to create a feature branch now?"
-  WAIT for user decision
-
-  IF user approves:
-    INVOKE: creating-branch skill
-    WAIT for creating-branch to complete
-
-    IF creating-branch succeeded:
-      VERIFY: Now on feature branch (not mainline)
-      Continue to Step 3
-
-    IF creating-branch failed:
-      STOP immediately
-      EXPLAIN: "Branch creation failed, cannot proceed with PR"
-      EXIT workflow
-
-  IF user declines:
-    ASK: "Continue with PR from mainline anyway? (not recommended)"
-    WAIT for explicit confirmation
-
-    IF user confirms:
-      INFORM: "Proceeding with PR from mainline (not recommended)"
-      Continue to Step 3
-
-    IF user declines:
-      STOP immediately
-      EXPLAIN: "Cannot create PR without feature branch"
-      EXIT workflow
-
-**Step 3: Detect repository structure**
-
-Invoke repository-type skill:
-  - Receive structured result with repository information
-  - Store for later phases:
-    - is_fork: Fork vs origin flag
-    - upstream/origin owner and repo names
-    - Remote URLs
-
-Continue to Phase 2.
+Phase 1 complete. Continue to Phase 2.
 
 ---
 
-## Phase 2: Determine PR Base Branch
+## Phase 2: Verify PR Base Branch
 
-**Objective**: Identify target branch for pull request.
+**Objective**: Confirm target branch for pull request.
 
-**Step 1: Check user request for target branch**
+**Steps**:
 
-Analyze user's request for target branch specification:
-- Look for phrases like: "create PR to <branch>", "base on <branch>", "merge into <branch>", "target <branch>"
-- Common branch names: develop, staging, main, master, release, etc.
+1. Use `base_branch` from Phase 1 context (already detected mainline)
 
-IF target branch mentioned in user request:
-  Use specified branch as PR base
+2. IF user specified different target branch in Step 1 of Phase 1:
+   - Override with user-specified branch
+   - INFORM: "Using <user_branch> as PR base (overriding default <detected_mainline>)"
 
-IF no target branch mentioned:
-  Invoke mainline-branch skill to get mainline branch
-  Use mainline as PR base
-
-Store pr_base for later phases.
+3. Store `pr_base` for later phases
 
 Phase 2 complete. Continue to Phase 3.
 
@@ -135,15 +169,13 @@ Phase 2 complete. Continue to Phase 3.
 
 ## Phase 3: Generate PR Content
 
-**Objective**: Create compelling PR title and description.
+**Objective**: Create compelling PR title and description using context from Phase 1.
 
 **THINKING CHECKPOINT**: Use `mcp__sequential-thinking__sequentialthinking` to:
-- Review commits and diff:
-  ```bash
-  git log --pretty=format:"%H %s" -n 50
-  git diff <base>...HEAD
-  ```
-- Invoke detect-conventional-commits skill for title format detection
+- Review commit history and diff summary from Phase 1 context
+- Use `commit_history` array (contains hash, subject, body for each commit)
+- Use `diff_summary` object (files_changed, insertions, deletions)
+- Check `uses_conventional_commits` flag for title format
 - Analyze purpose, scope, key changes, breaking changes
 - Draft title (<72 chars, imperative) and description
 - Validate quality and completeness
@@ -151,9 +183,16 @@ Phase 2 complete. Continue to Phase 3.
 **Steps**:
 1. Check user request for explicit title/description; use if provided
 2. If not provided:
-   - Title: Use Conventional Commits format if detected by detect-conventional-commits skill
+   - Title: Use Conventional Commits format if `uses_conventional_commits: true` from context
    - Description: Generate with sections (Summary, Changes, Motivation, Testing, Additional Notes)
-3. Populate from commit/diff analysis
+3. Populate from `commit_history` and `diff_summary` in context
+
+**Context Available** for PR content generation:
+- `commit_history`: Array of commits with hash, subject, body
+- `diff_summary`: Files changed, insertions, deletions
+- `uses_conventional_commits`: Whether to use conventional format for title
+- `base_branch`: Target branch for PR
+- `current_branch`: Source branch for PR
 
 Continue to Phase 4.
 
@@ -174,7 +213,8 @@ Continue to Phase 4.
      - **Edit description**: "Modify the PR description" - Allows description customization
      - **Edit both**: "Modify both title and description" - Allows full customization
 
-**Validation Gate: Content Approval**
+### Validation Gate: Content Approval
+
 HANDLE user selection:
 - IF "Proceed": Continue to Phase 5
 - IF "Edit title":
@@ -203,17 +243,16 @@ Continue to Phase 5.
 **Plan Mode**: Auto-enforced read-only if active
 
 **Steps**:
-1. Get current branch:
-   ```bash
-   git branch --show-current
-   ```
+1. Use `current_branch` from Phase 1 context (no need to query git)
 
 2. Push branch with upstream tracking:
    ```bash
-   git push -u origin <branch-name>
+   git push -u origin <current_branch>
    ```
 
-**Validation Gate**: IF push fails:
+### Validation Gate: Push Failure
+
+IF push fails:
 - Analyze error:
   - "fatal: could not read Username": Authentication required
   - "error: failed to push": Rejected, may need force
@@ -237,8 +276,14 @@ Continue to Phase 6.
 **Plan Mode**: Auto-enforced read-only if active
 
 **Steps**:
-1. Prepare: owner, repo, head (from Phase 1), base (Phase 2), title/body (Phase 3)
+1. Prepare parameters from Phase 1 context:
+   - owner, repo: From `repository` object
+   - head: `current_branch`
+   - base: `pr_base` (from Phase 2)
+   - title/body: Generated in Phase 3, approved in Phase 4
+
 2. Determine draft: Check user request for "draft", "WIP", "work in progress"
+
 3. Create: `mcp__github__create_pull_request` with all parameters
 
 **Error Handling**: IF failure:
@@ -261,18 +306,15 @@ Continue to Phase 7.
    ```markdown
    ✓ Pull Request Created Successfully
 
-   **PR Number:** #<number>
-
-   **Title:** <title>
-
-   **URL:** <pr_url>
-
-   **Status:** <Open|Draft>
-
-   **Base Branch:** <base_branch>
-
+   **PR Number:** #<number>\
+   **Title:** <title>\
+   **URL:** <pr_url>\
+   **Status:** <Open|Draft>\
+   **Base Branch:** <base_branch>\
    **Head Branch:** <head_branch>
 
-   [If draft: **Notes:** Mark as 'Ready for review' when ready: <pr_url>]
-   [If open: **Notes:** The pull request is ready for review.]
+   [If draft: **Notes:** Mark as 'Ready for review' when ready]
+   [If open: **Notes:** The pull request is ready for review]
    ```
+
+Workflow complete.
