@@ -38,9 +38,22 @@ fi
 
 # Function to verify commit operation
 verify_commit() {
-  # Get the last commit
-  local commit_info
-  if ! commit_info=$(git log -1 --format='{"hash": "%H", "subject": "%s", "author": "%an", "date": "%ai"}' 2>/dev/null); then
+  # Get the last commit using null-delimited format for safe parsing
+  local commit_hash=""
+  local subject=""
+  local author=""
+  local date=""
+
+  # Use null-delimited format to safely handle special characters in commit messages
+  {
+    IFS= read -r -d '' commit_hash
+    IFS= read -r -d '' subject
+    IFS= read -r -d '' author
+    IFS= read -r -d '' date
+  } < <(git log -1 --format='%H%x00%s%x00%an%x00%ai%x00' 2>/dev/null)
+
+  # Check if we got the commit hash (first field)
+  if [ -z "$commit_hash" ]; then
     jq -n \
       --arg error_type "no_commits" \
       --arg message "No commits found" \
@@ -51,16 +64,6 @@ verify_commit() {
       }'
     return 1
   fi
-
-  # Parse commit info
-  local commit_hash
-  local subject
-  local author
-  local date
-  commit_hash=$(echo "$commit_info" | jq -r '.hash')
-  subject=$(echo "$commit_info" | jq -r '.subject')
-  author=$(echo "$commit_info" | jq -r '.author')
-  date=$(echo "$commit_info" | jq -r '.date')
 
   # Get current branch
   local branch

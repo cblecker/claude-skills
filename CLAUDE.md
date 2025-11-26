@@ -18,7 +18,7 @@ Skills are invoked automatically by Claude when user requests match the skill's 
 
 ## Repository Structure
 
-```
+```text
 <plugin-name>/
 ├── plugin.json              # Plugin metadata and configuration
 └── <skill-name>/
@@ -139,21 +139,21 @@ When skills aren't being invoked as expected:
 **Template Examples**:
 
 *Replacive (user-facing workflow):*
-```
+```text
 Primary [operation] workflow replacing manual [commands]: [implements/orchestrates]
 [protocol/system concept] with [key features]. Standard procedure for [operation
 category]: '[trigger 1]', '[trigger 2]', '[trigger 3]'.
 ```
 
 *Integrative (protocol implementation):*
-```
+```text
 Implements [system protocol] for [operation]: [key feature 1], [key feature 2]
 ([technical detail]), [key feature 3]. Use when [scenario] or saying '[trigger 1]',
 '[trigger 2]'.
 ```
 
 *Collaborative (utility skill):*
-```
+```text
 Automates [specific task]: [how it works], [what it provides]. [When invoked or
 use case]. Use when [scenario].
 ```
@@ -199,8 +199,8 @@ The primary plugin in this collection. Provides comprehensive git and GitHub aut
 
 **Skill Description Approach:**
 - **User-facing workflows** (creating-commit, creating-branch, creating-pull-request, syncing-branch, rebasing-branch): Use **Replacive authority pattern** (80-85%) with "Primary [operation] workflow replacing manual git commands" framing to establish precedence over bash-based workflows
-- **Utility skills** (repository-type, detect-conventional-commits, mainline-branch): Use **Collaborative authority pattern** (60-70%) with "Automates [task]" framing, appropriate for skills invoked by other skills rather than users directly
-- All descriptions follow framework requirements: third-person voice, 45-52 words, explicit trigger phrases, system protocol integration
+- **Utility functions** are implemented as bash scripts (not skills) for efficiency: `get-mainline-branch.sh`, `get-repository-type.sh`, `detect-conventions.sh`
+- All skill descriptions follow framework requirements: third-person voice, 45-52 words, explicit trigger phrases, system protocol integration
 
 ## Workflow Patterns
 
@@ -232,10 +232,10 @@ When STOP triggered: halt immediately, explain why, propose solution, wait for u
 
 Skills follow different reporting formats based on their invocation pattern:
 
-**Utility Skills** (invoked by other skills only):
+**Utility Scripts** (invoked by skills):
 - Return structured JSON output for programmatic consumption
 - Include success/failure indicators and all required data
-- Examples: mainline-branch, repository-type, detect-conventional-commits
+- Examples: `get-mainline-branch.sh`, `get-repository-type.sh`, `detect-conventions.sh`
 
 **User-Facing Workflow Skills** (invoked by users):
 - Use standardized reporting templates for consistency
@@ -298,7 +298,7 @@ Run validation on any path that contains a `.claude-plugin` directory:
 
 Use the `skill-description-evaluator` skill to assess the effectiveness of skill descriptions:
 
-```
+```text
 Evaluate the skill description in git-workflows/skills/creating-commit/SKILL.md
 ```
 

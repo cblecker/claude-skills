@@ -4,6 +4,12 @@
 
 set -euo pipefail
 
+# Check for required jq dependency
+if ! command -v jq &> /dev/null; then
+  echo '{"success": false, "error_type": "missing_dependency", "message": "jq is required but not installed", "suggested_action": "Install jq: brew install jq (macOS) or apt-get install jq (Linux)"}' >&2
+  exit 1
+fi
+
 # Arrays to hold files
 declare -a staged_files=()
 declare -a unstaged_files=()
@@ -49,78 +55,34 @@ if [ ${#staged_files[@]} -gt 0 ] || [ ${#unstaged_files[@]} -gt 0 ] || [ ${#untr
 fi
 
 # Build JSON output
-# Use jq if available for proper JSON formatting, otherwise use basic concatenation
-if command -v jq &> /dev/null; then
-  # Build arrays with jq (handle empty arrays)
-  if [ ${#staged_files[@]} -gt 0 ]; then
-    staged_json=$(printf '%s\n' "${staged_files[@]}" | jq -s '.')
-  else
-    staged_json="[]"
-  fi
-
-  if [ ${#unstaged_files[@]} -gt 0 ]; then
-    unstaged_json=$(printf '%s\n' "${unstaged_files[@]}" | jq -s '.')
-  else
-    unstaged_json="[]"
-  fi
-
-  if [ ${#untracked_files[@]} -gt 0 ]; then
-    untracked_json=$(printf '%s\n' "${untracked_files[@]}" | jq -R '.' | jq -s '.')
-  else
-    untracked_json="[]"
-  fi
-
-  # Build final object
-  jq -n \
-    --argjson is_clean "$is_clean" \
-    --argjson staged "$staged_json" \
-    --argjson unstaged "$unstaged_json" \
-    --argjson untracked "$untracked_json" \
-    '{
-      is_clean: $is_clean,
-      staged: $staged,
-      unstaged: $unstaged,
-      untracked: $untracked
-    }'
+# Build arrays with jq (handle empty arrays)
+if [ ${#staged_files[@]} -gt 0 ]; then
+  staged_json=$(printf '%s\n' "${staged_files[@]}" | jq -s '.')
 else
-  # Fallback: basic JSON construction (not recommended for production)
-  echo "{"
-  echo "  \"is_clean\": $is_clean,"
-
-  # Staged
-  echo "  \"staged\": ["
-  for i in "${!staged_files[@]}"; do
-    echo -n "    ${staged_files[$i]}"
-    if [ $i -lt $((${#staged_files[@]} - 1)) ]; then
-      echo ","
-    else
-      echo ""
-    fi
-  done
-  echo "  ],"
-
-  # Unstaged
-  echo "  \"unstaged\": ["
-  for i in "${!unstaged_files[@]}"; do
-    echo -n "    ${unstaged_files[$i]}"
-    if [ $i -lt $((${#unstaged_files[@]} - 1)) ]; then
-      echo ","
-    else
-      echo ""
-    fi
-  done
-  echo "  ],"
-
-  # Untracked
-  echo "  \"untracked\": ["
-  for i in "${!untracked_files[@]}"; do
-    echo -n "    \"${untracked_files[$i]}\""
-    if [ $i -lt $((${#untracked_files[@]} - 1)) ]; then
-      echo ","
-    else
-      echo ""
-    fi
-  done
-  echo "  ]"
-  echo "}"
+  staged_json="[]"
 fi
+
+if [ ${#unstaged_files[@]} -gt 0 ]; then
+  unstaged_json=$(printf '%s\n' "${unstaged_files[@]}" | jq -s '.')
+else
+  unstaged_json="[]"
+fi
+
+if [ ${#untracked_files[@]} -gt 0 ]; then
+  untracked_json=$(printf '%s\n' "${untracked_files[@]}" | jq -R '.' | jq -s '.')
+else
+  untracked_json="[]"
+fi
+
+# Build final object
+jq -n \
+  --argjson is_clean "$is_clean" \
+  --argjson staged "$staged_json" \
+  --argjson unstaged "$unstaged_json" \
+  --argjson untracked "$untracked_json" \
+  '{
+    is_clean: $is_clean,
+    staged: $staged,
+    unstaged: $unstaged,
+    untracked: $untracked
+  }'

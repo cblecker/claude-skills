@@ -36,10 +36,15 @@ Capture: current_branch
 
 **Step 2: Check if on mainline**
 
-Invoke mainline-branch skill:
-  - Request comparison against current branch
-  - Receive structured result with is_mainline flag and mainline_branch name
-  - Store both for later phases
+Detect mainline branch:
+```bash
+"$CLAUDE_PLUGIN_ROOT/scripts/get-mainline-branch.sh" "$current_branch"
+```
+
+Parse JSON response:
+- Extract `mainline_branch` field
+- Extract `is_mainline` flag (true if current branch matches mainline)
+- Store both for later phases
 
 **Step 3: Check working tree status**
 

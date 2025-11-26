@@ -17,10 +17,20 @@ parse_git_status() {
   git status --porcelain | "$SCRIPT_DIR/parse-git-status.sh"
 }
 
-# Function to get recent commits
+# Function to get recent commits (with proper JSON escaping)
 get_recent_commits() {
   local count=${1:-5}
-  git log --format='{"hash": "%H", "subject": "%s"}' -n "$count" 2>/dev/null | jq -s '.'
+  local commits='[]'
+
+  # Use null-delimited format for safe parsing of special characters
+  # Format: HASH\0SUBJECT\0\n per commit, so we read null-delimited and trim newlines
+  while IFS= read -r -d '' hash && IFS= read -r -d '' subject; do
+    # Remove any leading/trailing whitespace from hash (handles newline between records)
+    hash="${hash#"${hash%%[![:space:]]*}"}"
+    commits=$(echo "$commits" | jq --arg h "$hash" --arg s "$subject" '. + [{hash: $h, subject: $s}]')
+  done < <(git log --format='%H%x00%s%x00' -n "$count" 2>/dev/null)
+
+  echo "$commits"
 }
 
 # Function to get diff summary

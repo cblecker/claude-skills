@@ -441,7 +441,7 @@ All scripts have comprehensive test coverage:
 ./tests/integration/test-context-gatherers.sh
 ```
 
-Current test coverage: 37/37 tests passing (100%)
+Current test coverage: All tests passing
 
 ## Dependencies
 
@@ -472,7 +472,7 @@ All planned scripts from the refactor (Phases 1-5) are now complete:
 - ✓ Workflow execution (sync-branch)
 - ✓ Verification utilities (verify-operation)
 
-**Test Coverage:** 43 tests passing (100%)
+**Test Coverage:** All tests passing
 
 ## Future Enhancements
 

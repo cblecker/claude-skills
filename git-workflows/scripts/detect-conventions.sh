@@ -113,27 +113,16 @@ analyze_commit_history() {
 main() {
   # Check if we're in a git repository
   if ! git rev-parse --git-dir &>/dev/null; then
-    if command -v jq &> /dev/null; then
-      jq -n \
-        --arg error_type "not_git_repo" \
-        --arg message "Not in a git repository" \
-        --arg suggested_action "Run this command from within a git repository" \
-        '{
-          success: false,
-          error_type: $error_type,
-          message: $message,
-          suggested_action: $suggested_action
-        }'
-    else
-      cat <<'EOF'
-{
-  "success": false,
-  "error_type": "not_git_repo",
-  "message": "Not in a git repository",
-  "suggested_action": "Run this command from within a git repository"
-}
-EOF
-    fi
+    jq -n \
+      --arg error_type "not_git_repo" \
+      --arg message "Not in a git repository" \
+      --arg suggested_action "Run this command from within a git repository" \
+      '{
+        success: false,
+        error_type: $error_type,
+        message: $message,
+        suggested_action: $suggested_action
+      }'
     exit 1
   fi
 
@@ -173,8 +162,7 @@ EOF
   fi
 
   # Build JSON output
-  if command -v jq &> /dev/null; then
-    if [ "$detection_method" = "commitlint_config" ]; then
+  if [ "$detection_method" = "commitlint_config" ]; then
       jq -n \
         --argjson uses_conventional "$uses_conventional" \
         --arg detection_method "$detection_method" \
@@ -228,52 +216,6 @@ EOF
           confidence: "none"
         }'
     fi
-  else
-    # Fallback without jq
-    if [ "$detection_method" = "commitlint_config" ]; then
-      cat <<EOF
-{
-  "success": true,
-  "uses_conventional_commits": $uses_conventional,
-  "detection_method": "$detection_method",
-  "confidence": "$confidence",
-  "config_file": "$config_file"
-}
-EOF
-    elif [ "$detection_method" = "contributing_md" ]; then
-      cat <<EOF
-{
-  "success": true,
-  "uses_conventional_commits": $uses_conventional,
-  "detection_method": "$detection_method",
-  "confidence": "$confidence",
-  "contributing_file": "$config_file"
-}
-EOF
-    elif [ "$detection_method" = "commit_history" ]; then
-      local match_rate_float
-      match_rate_float=$(jq -n --argjson rate "$pattern_match_rate" '$rate / 100')
-      cat <<EOF
-{
-  "success": true,
-  "uses_conventional_commits": $uses_conventional,
-  "detection_method": "$detection_method",
-  "confidence": "$confidence",
-  "pattern_match_rate": $match_rate_float,
-  "sample_size": $sample_size
-}
-EOF
-    else
-      cat <<'EOF'
-{
-  "success": true,
-  "uses_conventional_commits": false,
-  "detection_method": "none",
-  "confidence": "none"
-}
-EOF
-    fi
-  fi
 }
 
 # Run main function

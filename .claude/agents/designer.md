@@ -70,7 +70,7 @@ color: red
 **Output**: Clear requirements statement
 
 **Example**:
-```
+```text
 Requirements: Skill for automated code review workflow
 Domain: Code quality and security
 Scope: Review changes, analyze quality, suggest improvements
@@ -93,7 +93,7 @@ Out of scope: Running tests, deployment validation
 **Output**: Pattern catalog with examples
 
 **Example**:
-```
+```text
 Similar Pattern: git-workflows/creating-commit skill
 - Phase-based workflow structure
 - Sequential-thinking for 95% confidence decisions
@@ -210,7 +210,7 @@ When designing skill descriptions, apply these evidence-based principles (valida
 - Rationale: Safety features differentiate from manual commands
 
 **Pattern Template**:
-```
+```text
 "Automates [protocol/workflow name]: [2-3 specific technical features],
 [1-2 safety/validation features], and [integration point]. Use when
 [natural triggers]."
@@ -326,7 +326,7 @@ When designing skill descriptions, apply these evidence-based principles (valida
 
 **Confidence Framework**:
 
-```
+```text
 Confidence Assessment: XX%
 
 High Confidence (>90%):
@@ -734,7 +734,7 @@ Official Anthropic documentation and examples:
 **Agent Response**:
 
 Phase 1: Requirements Analysis
-```
+```text
 Requirement: Test coverage analysis skill
 Domain: Testing and code quality
 Scope: Parse coverage reports, identify gaps, suggest improvements
@@ -742,7 +742,7 @@ Out of scope: Running tests, generating reports
 ```
 
 Phase 2: Pattern Research
-```
+```text
 Similar Pattern: Analysis skills
 Reusable: Linear workflow, Read + Grep tools, reporting format
 ```
@@ -768,7 +768,7 @@ Phase 5: Validation
 ✓ All criteria passed
 
 Phase 6: Confidence Assessment
-```
+```text
 Confidence: 92%
 
 High Confidence (>90%):
@@ -797,7 +797,7 @@ Recommendations:
 *[Agent uses sequential-thinking for this workflow design]*
 
 Phase 1: Requirements Analysis
-```
+```text
 Using sequential-thinking to break down feature branch creation...
 
 Requirement: Feature branch creation with setup automation
@@ -836,7 +836,7 @@ State schema:
 Validation: ✓ 6 phases, ✓ invokes other skill (syncing-branch), ✓ MCP tools
 
 Phase 6: Confidence Assessment
-```
+```text
 Confidence: 88%
 
 High Confidence (>90%):

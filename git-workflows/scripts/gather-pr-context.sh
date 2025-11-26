@@ -17,21 +17,21 @@ check_uncommitted_changes() {
   git status --porcelain 2>/dev/null
 }
 
-# Function to get commit history between branches
+# Function to get commit history between branches (with proper JSON escaping)
 get_commit_history() {
   local base_branch="$1"
-  local commits_json='[]'
+  local commits='[]'
 
-  # Get commits between base and HEAD
-  local commits
-  if commits=$(git log --pretty=format:'{"hash": "%H", "subject": "%s", "body": "%b"}' "$base_branch..HEAD" 2>/dev/null); then
-    if [ -n "$commits" ]; then
-      # Wrap in array and parse
-      commits_json=$(echo "$commits" | jq -s '.')
-    fi
-  fi
+  # Use null-delimited format for safe parsing of special characters in subjects and bodies
+  # Format: HASH\0SUBJECT\0BODY\0\n per commit, so we read null-delimited and trim newlines
+  while IFS= read -r -d '' hash && IFS= read -r -d '' subject && IFS= read -r -d '' body; do
+    # Remove any leading/trailing whitespace from hash (handles newline between records)
+    hash="${hash#"${hash%%[![:space:]]*}"}"
+    commits=$(echo "$commits" | jq --arg h "$hash" --arg s "$subject" --arg b "$body" \
+      '. + [{hash: $h, subject: $s, body: $b}]')
+  done < <(git log --format='%H%x00%s%x00%b%x00' "$base_branch..HEAD" 2>/dev/null)
 
-  echo "$commits_json"
+  echo "$commits"
 }
 
 # Function to get diff summary between branches
