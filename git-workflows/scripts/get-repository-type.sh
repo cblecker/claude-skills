@@ -4,6 +4,12 @@
 
 set -euo pipefail
 
+# Check for required dependencies
+if ! command -v jq &> /dev/null; then
+  echo '{"success": false, "error_type": "missing_dependency", "message": "jq is required but not installed"}' >&2
+  exit 1
+fi
+
 # Function to parse GitHub URL and extract owner/repo
 parse_github_url() {
   local url="$1"
@@ -53,106 +59,63 @@ build_remote_json() {
   fi
 
   # Build JSON object
-  if command -v jq &> /dev/null; then
-    jq -n \
-      --arg url "$url" \
-      --arg owner "$owner" \
-      --arg repo "$repo" \
-      '{
-        url: $url,
-        owner: $owner,
-        repo: $repo
-      }'
-  else
-    cat <<EOF
-{
-  "url": "$url",
-  "owner": "$owner",
-  "repo": "$repo"
-}
-EOF
-  fi
+  jq -n \
+    --arg url "$url" \
+    --arg owner "$owner" \
+    --arg repo "$repo" \
+    '{
+      url: $url,
+      owner: $owner,
+      repo: $repo
+    }'
 }
 
 # Main execution
 main() {
   # Check if we're in a git repository
   if ! git rev-parse --git-dir &>/dev/null; then
-    if command -v jq &> /dev/null; then
-      jq -n \
-        --arg error_type "not_git_repo" \
-        --arg message "Not in a git repository" \
-        --arg suggested_action "Run this command from within a git repository" \
-        '{
-          success: false,
-          error_type: $error_type,
-          message: $message,
-          suggested_action: $suggested_action
-        }'
-    else
-      cat <<'EOF'
-{
-  "success": false,
-  "error_type": "not_git_repo",
-  "message": "Not in a git repository",
-  "suggested_action": "Run this command from within a git repository"
-}
-EOF
-    fi
+    jq -n \
+      --arg error_type "not_git_repo" \
+      --arg message "Not in a git repository" \
+      --arg suggested_action "Run this command from within a git repository" \
+      '{
+        success: false,
+        error_type: $error_type,
+        message: $message,
+        suggested_action: $suggested_action
+      }'
     exit 1
   fi
 
   # Get origin remote URL
   local origin_url
   if ! origin_url=$(git remote get-url origin 2>/dev/null); then
-    if command -v jq &> /dev/null; then
-      jq -n \
-        --arg error_type "no_remote" \
-        --arg message "No origin remote found" \
-        --arg suggested_action "Ensure you're in a git repository with a remote configured" \
-        '{
-          success: false,
-          error_type: $error_type,
-          message: $message,
-          suggested_action: $suggested_action
-        }'
-    else
-      cat <<'EOF'
-{
-  "success": false,
-  "error_type": "no_remote",
-  "message": "No origin remote found",
-  "suggested_action": "Ensure you're in a git repository with a remote configured"
-}
-EOF
-    fi
+    jq -n \
+      --arg error_type "no_remote" \
+      --arg message "No origin remote found" \
+      --arg suggested_action "Ensure you're in a git repository with a remote configured" \
+      '{
+        success: false,
+        error_type: $error_type,
+        message: $message,
+        suggested_action: $suggested_action
+      }'
     exit 1
   fi
 
   # Build origin object
   local origin_json
   if ! origin_json=$(build_remote_json "$origin_url"); then
-    if command -v jq &> /dev/null; then
-      jq -n \
-        --arg error_type "invalid_url" \
-        --arg message "Could not parse origin remote URL: $origin_url" \
-        --arg suggested_action "Ensure origin points to a GitHub repository" \
-        '{
-          success: false,
-          error_type: $error_type,
-          message: $message,
-          suggested_action: $suggested_action
-        }'
-    else
-      cat <<EOF
-{
-  "success": false,
-  "error_type": "invalid_url",
-  "message": "Could not parse origin remote URL: $origin_url",
-  "suggested_action": "Ensure origin points to a GitHub repository"
-}
-EOF
-    fi
+    jq -n \
+      --arg error_type "invalid_url" \
+      --arg message "Could not parse origin remote URL: $origin_url" \
+      --arg suggested_action "Ensure origin points to a GitHub repository" \
+      '{
+        success: false,
+        error_type: $error_type,
+        message: $message,
+        suggested_action: $suggested_action
+      }'
     exit 1
   fi
 
@@ -171,38 +134,16 @@ EOF
   fi
 
   # Build final JSON output
-  if command -v jq &> /dev/null; then
-    jq -n \
-      --argjson is_fork "$is_fork" \
-      --argjson origin "$origin_json" \
-      --argjson upstream "$upstream_json" \
-      '{
-        success: true,
-        is_fork: $is_fork,
-        upstream: $upstream,
-        origin: $origin
-      }'
-  else
-    if [ "$is_fork" = "true" ]; then
-      cat <<EOF
-{
-  "success": true,
-  "is_fork": true,
-  "upstream": $upstream_json,
-  "origin": $origin_json
-}
-EOF
-    else
-      cat <<EOF
-{
-  "success": true,
-  "is_fork": false,
-  "upstream": null,
-  "origin": $origin_json
-}
-EOF
-    fi
-  fi
+  jq -n \
+    --argjson is_fork "$is_fork" \
+    --argjson origin "$origin_json" \
+    --argjson upstream "$upstream_json" \
+    '{
+      success: true,
+      is_fork: $is_fork,
+      upstream: $upstream,
+      origin: $origin
+    }'
 }
 
 # Run main function

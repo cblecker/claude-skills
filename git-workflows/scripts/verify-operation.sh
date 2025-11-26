@@ -4,6 +4,12 @@
 
 set -euo pipefail
 
+# Check for required dependencies
+if ! command -v jq &> /dev/null; then
+  echo '{"success": false, "error_type": "missing_dependency", "message": "jq is required but not installed"}' >&2
+  exit 1
+fi
+
 # Operation type
 OPERATION_TYPE="${1:-}"
 
