@@ -21,5 +21,8 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Run shellcheck on all scripts
+        run: find ./git-workflows -name '*.sh' -type f -exec shellcheck --exclude=SC1091 {} +
+
       - name: Run git-workflows tests
         run: ./git-workflows/tests/run-all-tests.sh

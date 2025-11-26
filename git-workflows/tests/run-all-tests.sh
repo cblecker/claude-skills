@@ -18,27 +18,16 @@ for test_file in "$SCRIPT_DIR"/unit/test-*.sh; do
   if [ -f "$test_file" ]; then
     echo "Running $(basename "$test_file")..."
     if output=$("$test_file" 2>&1); then
-      # Strip ANSI escape codes before parsing
-      clean_output=$(echo "$output" | sed 's/\x1b\[[0-9;]*m//g')
-      # Extract pass/fail counts from output
-      if passed=$(echo "$clean_output" | grep "^Passed:" | awk '{print $2}' | cut -d'/' -f1); then
-        if failed=$(echo "$clean_output" | grep "^Failed:" | awk '{print $2}' | cut -d'/' -f1); then
-          total_passed=$((total_passed + passed))
-          total_failed=$((total_failed + failed))
-        fi
-      fi
       echo "✓ $(basename "$test_file") completed"
     else
       echo "✗ $(basename "$test_file") failed"
-      # Strip ANSI escape codes before parsing
-      clean_output=$(echo "$output" | sed 's/\x1b\[[0-9;]*m//g')
-      # Still try to extract counts
-      if passed=$(echo "$clean_output" | grep "^Passed:" | awk '{print $2}' | cut -d'/' -f1 2>/dev/null); then
-        if failed=$(echo "$clean_output" | grep "^Failed:" | awk '{print $2}' | cut -d'/' -f1 2>/dev/null); then
-          total_passed=$((total_passed + passed))
-          total_failed=$((total_failed + failed))
-        fi
-      fi
+    fi
+    # Parse machine-readable summary line (no sed - use awk instead)
+    if summary=$(echo "$output" | grep "^TEST_SUMMARY:"); then
+      passed=$(echo "$summary" | awk -F'[=,]' '{print $2}')
+      failed=$(echo "$summary" | awk -F'[=,]' '{print $4}')
+      total_passed=$((total_passed + passed))
+      total_failed=$((total_failed + failed))
     fi
     echo ""
   fi
@@ -49,27 +38,16 @@ for test_file in "$SCRIPT_DIR"/integration/test-*.sh; do
   if [ -f "$test_file" ]; then
     echo "Running $(basename "$test_file")..."
     if output=$("$test_file" 2>&1); then
-      # Strip ANSI escape codes before parsing
-      clean_output=$(echo "$output" | sed 's/\x1b\[[0-9;]*m//g')
-      # Extract pass/fail counts from output
-      if passed=$(echo "$clean_output" | grep "^Passed:" | awk '{print $2}' | cut -d'/' -f1); then
-        if failed=$(echo "$clean_output" | grep "^Failed:" | awk '{print $2}' | cut -d'/' -f1); then
-          total_passed=$((total_passed + passed))
-          total_failed=$((total_failed + failed))
-        fi
-      fi
       echo "✓ $(basename "$test_file") completed"
     else
       echo "✗ $(basename "$test_file") failed"
-      # Strip ANSI escape codes before parsing
-      clean_output=$(echo "$output" | sed 's/\x1b\[[0-9;]*m//g')
-      # Still try to extract counts
-      if passed=$(echo "$clean_output" | grep "^Passed:" | awk '{print $2}' | cut -d'/' -f1 2>/dev/null); then
-        if failed=$(echo "$clean_output" | grep "^Failed:" | awk '{print $2}' | cut -d'/' -f1 2>/dev/null); then
-          total_passed=$((total_passed + passed))
-          total_failed=$((total_failed + failed))
-        fi
-      fi
+    fi
+    # Parse machine-readable summary line (no sed - use awk instead)
+    if summary=$(echo "$output" | grep "^TEST_SUMMARY:"); then
+      passed=$(echo "$summary" | awk -F'[=,]' '{print $2}')
+      failed=$(echo "$summary" | awk -F'[=,]' '{print $4}')
+      total_passed=$((total_passed + passed))
+      total_failed=$((total_failed + failed))
     fi
     echo ""
   fi

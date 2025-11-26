@@ -43,8 +43,10 @@ build_remote_json() {
   # Read owner and repo from parse result
   local owner
   local repo
-  owner=$(echo "$parse_result" | sed -n '1p')
-  repo=$(echo "$parse_result" | sed -n '2p')
+  {
+    read -r owner
+    read -r repo
+  } <<< "$parse_result"
 
   if [ -z "$owner" ] || [ -z "$repo" ]; then
     return 1

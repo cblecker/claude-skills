@@ -138,22 +138,28 @@ main() {
   # 1. Check for commitlint config (highest confidence)
   if result=$(check_commitlint_config); then
     uses_conventional=true
-    detection_method=$(echo "$result" | sed -n '1p')
-    confidence=$(echo "$result" | sed -n '2p')
-    config_file=$(echo "$result" | sed -n '3p')
+    {
+      read -r detection_method
+      read -r confidence
+      read -r config_file
+    } <<< "$result"
   # 2. Check CONTRIBUTING.md (high confidence)
   elif result=$(check_contributing_md); then
     uses_conventional=true
-    detection_method=$(echo "$result" | sed -n '1p')
-    confidence=$(echo "$result" | sed -n '2p')
-    config_file=$(echo "$result" | sed -n '3p')
+    {
+      read -r detection_method
+      read -r confidence
+      read -r config_file
+    } <<< "$result"
   # 3. Analyze commit history (variable confidence)
   elif result=$(analyze_commit_history); then
     uses_conventional=true
-    detection_method=$(echo "$result" | sed -n '1p')
-    confidence=$(echo "$result" | sed -n '2p')
-    pattern_match_rate=$(echo "$result" | sed -n '3p')
-    sample_size=$(echo "$result" | sed -n '4p')
+    {
+      read -r detection_method
+      read -r confidence
+      read -r pattern_match_rate
+      read -r sample_size
+    } <<< "$result"
   else
     # No detection
     uses_conventional=false

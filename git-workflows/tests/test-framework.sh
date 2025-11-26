@@ -13,7 +13,6 @@ NC='\033[0m' # No Color
 # Test counters
 TESTS_PASSED=0
 TESTS_FAILED=0
-CURRENT_TEST_NAME=""
 
 # Track temp directories for cleanup
 declare -a TEMP_DIRS=()
@@ -115,9 +114,7 @@ assert_json_field() {
 
   # Extract field value using jq
   local actual_value
-  actual_value=$(echo "$json" | jq -r "$field_path")
-
-  if [ $? -ne 0 ]; then
+  if ! actual_value=$(echo "$json" | jq -r "$field_path"); then
     error "  $message"
     error "  Failed to extract field: $field_path"
     return 1
@@ -247,8 +244,8 @@ setup_mock_commits() {
     local msg="${messages[$idx]}"
 
     # Make a change
-    echo "Change $i" >> test-file-$i.txt
-    git add test-file-$i.txt
+    echo "Change $i" >> "test-file-$i.txt"
+    git add "test-file-$i.txt"
     git commit -q -m "$msg"
   done
 
@@ -322,7 +319,6 @@ run_test() {
   local test_name="$1"
   local test_function="$2"
 
-  CURRENT_TEST_NAME="$test_name"
   log "Running test: $test_name"
 
   # Run test function and capture result
@@ -361,6 +357,9 @@ report_test_results() {
     echo "Success Rate: $success_rate%"
   fi
   echo "========================================="
+
+  # Machine-readable summary for test runner parsing
+  echo "TEST_SUMMARY:passed=$TESTS_PASSED,failed=$TESTS_FAILED"
 
   # Return non-zero if any tests failed
   if [ $TESTS_FAILED -gt 0 ]; then

@@ -72,19 +72,11 @@ verify_commit() {
   # Get stats using --shortstat for cleaner parsing
   local shortstat_output
   local files_changed=0
-  local insertions=0
-  local deletions=0
 
   if shortstat_output=$(git show --shortstat --format= --no-color "$commit_hash"); then
     # Parse shortstat line: "N file(s) changed, M insertion(s)(+), P deletion(s)(-)"
     if [[ "$shortstat_output" =~ ([0-9]+)\ file ]]; then
       files_changed="${BASH_REMATCH[1]}"
-    fi
-    if [[ "$shortstat_output" =~ ([0-9]+)\ insertion ]]; then
-      insertions="${BASH_REMATCH[1]}"
-    fi
-    if [[ "$shortstat_output" =~ ([0-9]+)\ deletion ]]; then
-      deletions="${BASH_REMATCH[1]}"
     fi
   else
     echo "Warning: Failed to get commit stats for $commit_hash" >&2
@@ -222,7 +214,7 @@ verify_sync() {
 
   if git_log_output=$(git log --oneline -5 2>/dev/null); then
     recent_commits=$(echo "$git_log_output" | jq -R '.' | jq -s '.')
-    formatted_commits=$(echo "$git_log_output" | sed 's/^/  /')
+    formatted_commits="  ${git_log_output//$'\n'/$'\n'  }"
   else
     recent_commits="[]"
     formatted_commits="  (no commits)"
