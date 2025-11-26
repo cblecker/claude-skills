@@ -128,8 +128,8 @@ main() {
 
   if [ -n "$uncommitted_changes" ]; then
     has_uncommitted_changes=true
-    # Extract file paths
-    uncommitted_files=$(echo "$uncommitted_changes" | awk '{print $2}' | jq -R '.' | jq -s '.')
+    # Extract file paths (use cut -c4- to preserve spaces in filenames)
+    uncommitted_files=$(echo "$uncommitted_changes" | cut -c4- | jq -R '.' | jq -s '.')
   fi
 
   # Get repository type (fork vs origin)

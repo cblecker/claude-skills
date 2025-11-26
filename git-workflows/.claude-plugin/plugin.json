@@ -23,8 +23,8 @@
   ],
   "mcpServers": {
     "git": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-git"]
+      "command": "uvx",
+      "args": ["mcp-server-git"]
     }
   },
   "hooks": {

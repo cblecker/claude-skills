@@ -31,14 +31,14 @@ while IFS= read -r line; do
 
   # Staged files (X is not space or ?)
   if [ "$staged_status" != " " ] && [ "$staged_status" != "?" ]; then
-    # Build JSON object for staged file
-    staged_files+=("{\"status\": \"$staged_status\", \"path\": \"$path\"}")
+    # Build JSON object for staged file using jq for proper escaping
+    staged_files+=("$(jq -n --arg status "$staged_status" --arg path "$path" '{status: $status, path: $path}')")
   fi
 
   # Unstaged files (Y is not space or ?)
   if [ "$unstaged_status" != " " ] && [ "$unstaged_status" != "?" ]; then
-    # Build JSON object for unstaged file
-    unstaged_files+=("{\"status\": \"$unstaged_status\", \"path\": \"$path\"}")
+    # Build JSON object for unstaged file using jq for proper escaping
+    unstaged_files+=("$(jq -n --arg status "$unstaged_status" --arg path "$path" '{status: $status, path: $path}')")
   fi
 done
 

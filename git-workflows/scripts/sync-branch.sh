@@ -111,7 +111,7 @@ sync_fork() {
     # Abort the rebase
     git rebase --abort 2>/dev/null || true
 
-    echo '{"operations": ["fetched_all"], "commits_pulled": 0, "status": "rebase_conflict"}'
+    echo '{"operations": ["fetched_all"], "commits_pulled": 0, "status": "sync_conflict"}'
     return 1
   fi
 }
@@ -159,9 +159,9 @@ main() {
 
   # Check for uncommitted changes
   if check_uncommitted_changes; then
-    # Get list of uncommitted files
+    # Get list of uncommitted files (use cut -c4- to preserve spaces in filenames)
     local uncommitted_files
-    uncommitted_files=$(git status --porcelain | awk '{print $2}' | jq -R '.' | jq -s '.')
+    uncommitted_files=$(git status --porcelain | cut -c4- | jq -R '.' | jq -s '.')
 
     jq -n \
       --arg error_type "uncommitted_changes" \
@@ -205,9 +205,9 @@ main() {
       local status
       status=$(echo "$sync_result" | jq -r '.status')
 
-      if [ "$status" = "rebase_conflict" ]; then
+      if [ "$status" = "sync_conflict" ]; then
         jq -n \
-          --arg error_type "merge_conflict" \
+          --arg error_type "sync_conflict" \
           --arg message "Merge conflict during sync" \
           --arg suggested_action "Resolve conflicts manually and retry sync" \
           --arg branch "$branch" \

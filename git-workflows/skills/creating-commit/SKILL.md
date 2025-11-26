@@ -19,7 +19,7 @@ Extract from user request: commit message format ("use conventional commits" →
 
 ---
 
-## Phase 1-3: Gather Context (Optimized)
+## Phase 1: Gather Context (Optimized)
 
 **Objective**: Collect all commit context in a single atomic operation.
 
@@ -63,7 +63,6 @@ Extract and store context:
   "current_branch": "branch name",
   "mainline_branch": "main",
   "is_mainline": false,
-  "gpg_signing_enabled": true,
   "uses_conventional_commits": true,
   "conventional_commits_confidence": "high",
   "working_tree_status": {...},
@@ -76,10 +75,10 @@ Extract and store context:
 }
 ```
 
-**Validation Gate: Branch Protection**
+### Validation Gate: Branch Protection
 
 IF `is_mainline: false` (on feature branch):
-  Continue to Phase 4
+  Continue to Phase 2
 
 IF `is_mainline: true` (on mainline):
   Check user request and context:
@@ -87,7 +86,7 @@ IF `is_mainline: true` (on mainline):
   IF user explicitly stated commit to mainline is acceptable:
     Examples: CLAUDE.md allows mainline commits, request says "commit to main"
     INFORM: "Proceeding with mainline commit as authorized"
-    Continue to Phase 4
+    Continue to Phase 2
 
   IF no explicit authorization:
     INFORM: "Currently on mainline branch - creating feature branch first"
@@ -96,21 +95,21 @@ IF `is_mainline: true` (on mainline):
 
     IF creating-branch succeeded:
       VERIFY: Now on feature branch (not mainline)
-      RE-RUN Phase 1-3 (gather context again on new branch)
-      Continue to Phase 4
+      RE-RUN Phase 1 (gather context again on new branch)
+      Continue to Phase 2
 
     IF creating-branch failed:
       STOP immediately
       EXPLAIN: "Branch creation failed, cannot proceed with commit"
       EXIT workflow
 
-Phase 1-3 complete. Continue to Phase 4.
+Phase 1 complete. Continue to Phase 2.
 
 ---
 
-## Phase 4: Commit Message Generation
+## Phase 2: Commit Message Generation
 
-**Objective**: Draft a concise, informative commit message using context from Phase 1-3.
+**Objective**: Draft a concise, informative commit message using context from Phase 1.
 
 **THINKING CHECKPOINT**: Use `mcp__sequential-thinking__sequentialthinking` to:
 - Review file categories and diff summary from context
@@ -148,18 +147,18 @@ Phase 1-3 complete. Continue to Phase 4.
 - `uses_conventional_commits`: Whether to use conventional format
 - `staged_files`, `unstaged_files`, `untracked_files`: What's being committed
 
-Continue to Phase 5.
+Continue to Phase 3.
 
 ---
 
-## Phase 5: User Approval
+## Phase 3: User Approval
 
 **Objective**: Present commit details for user review and approval.
 
 **Steps**:
 1. Present commit details:
    - **Files to commit**: List from `staged_files` (or all if staging all)
-   - **Proposed commit message**: Generated in Phase 4
+   - **Proposed commit message**: Generated in Phase 2
    - **Change summary**: From `diff_summary` (files changed, +insertions, -deletions)
 
 2. Handle diff display:
@@ -173,14 +172,14 @@ Continue to Phase 5.
    - Question: "How would you like to proceed with this commit?"
    - Header: "Commit"
    - Options:
-     - **Proceed**: "Create the commit with this message" - Continues to Phase 6
+     - **Proceed**: "Create the commit with this message" - Continues to Phase 4
      - **Edit message**: "Modify the commit message" - Returns to Step 1 with user's custom message
      - **Cancel**: "Don't create this commit" - Stops workflow
 
-**Validation Gate: User Approval**
+### Validation Gate: User Approval
 
 HANDLE user selection:
-- IF "Proceed": Continue to Phase 6
+- IF "Proceed": Continue to Phase 4
 - IF "Edit message":
   - User provides custom message via "Other" option
   - Apply custom message (replace generated message)
@@ -189,7 +188,7 @@ HANDLE user selection:
 
 ---
 
-## Phase 6: Execution (MCP Tools)
+## Phase 4: Execution (MCP Tools)
 
 **Objective**: Stage files and create commit using MCP git tools.
 
@@ -197,12 +196,12 @@ HANDLE user selection:
 
 **MCP Tool Usage**:
 
-This phase uses MCP git tools which run outside the sandbox and handle GPG signing, git hooks, and SSH authentication automatically. No sandbox bypass needed!
+This phase uses MCP git tools which run outside the sandbox and handle git hooks and SSH authentication automatically. No sandbox bypass needed!
 
 **Steps**:
 
 1. Stage files using MCP:
-   ```
+   ```text
    Use mcp__git-workflows_git__git_add tool
    Parameters: {
      "pathspecs": ["."]  // or specific files from context
@@ -210,15 +209,14 @@ This phase uses MCP git tools which run outside the sandbox and handle GPG signi
    ```
 
 2. Create commit using MCP:
-   ```
+   ```text
    Use mcp__git-workflows_git__git_commit tool
    Parameters: {
-     "message": "<approved message from Phase 5>"
+     "message": "<approved message from Phase 3>"
    }
    ```
 
 **Automatic Features via MCP**:
-- ✓ GPG signing (if `gpg_signing_enabled: true` from context) works automatically
 - ✓ Git hooks execute normally
 - ✓ No sandbox bypass required
 - ✓ Secure and reliable
@@ -227,14 +225,14 @@ This phase uses MCP git tools which run outside the sandbox and handle GPG signi
 
 IF MCP tools are unavailable:
 - ABORT immediately with clear error:
-  ```
+  ```text
   Error: Git MCP server unavailable
 
   The git-workflows plugin requires the MCP git server to function.
 
   Please ensure:
-  - npx/npm is installed and available
-  - MCP server can start (check: npx @modelcontextprotocol/server-git)
+  - uvx is installed and available
+  - MCP server can start (check: uvx mcp-server-git)
 
   For assistance, see: https://github.com/modelcontextprotocol/servers
   ```
@@ -243,14 +241,14 @@ IF MCP tools are unavailable:
 IF commit fails:
 - Analyze error output from MCP tool
 - Explain: what failed, why, and potential impact
-- Common issues: pre-commit hooks failed, empty commit, GPG signing issues
+- Common issues: pre-commit hooks failed, empty commit
 - Propose solution and ask user to retry or handle manually
 
-Continue to Phase 7.
+Continue to Phase 5.
 
 ---
 
-## Phase 7: Verification
+## Phase 5: Verification
 
 **Objective**: Confirm commit was created successfully and provide standardized report.
 
@@ -294,7 +292,7 @@ Continue to Phase 7.
    **Author:** <author_name>
    ```
 
-4. Verify: Compare subject to approved message from Phase 5; warn if differs (indicates hook modification)
+4. Verify: Compare subject to approved message from Phase 3; warn if differs (indicates hook modification)
 
 Workflow complete.
 
@@ -307,8 +305,8 @@ Workflow complete.
 This updated skill uses the optimized scripting architecture:
 
 **Tool Call Reduction:**
-- Before: ~17 tool calls (Phases 1-3: ~10, Phase 6: 2-3, Phase 7: 3-4)
-- After: 4-5 tool calls (Phase 1-3: 1, Phase 4: 1 sequential-thinking, Phase 6: 2 MCP, Phase 7: 1)
+- Before: ~17 tool calls across 7 phases
+- After: 4-5 tool calls (Phase 1: 1 gather-context, Phase 2: 1 sequential-thinking, Phase 4: 2 MCP, Phase 5: 1 verify)
 - **Reduction: 75-80%**
 
 **Execution Speed:**
@@ -322,15 +320,13 @@ The skill now uses MCP git tools for commit operations instead of bash commands:
 
 **Why MCP?**
 1. **No sandbox bypass needed**: MCP tools run outside sandbox with proper permissions
-2. **Automatic GPG signing**: Works seamlessly if configured
-3. **Git hooks support**: Pre-commit hooks execute normally
-4. **SSH authentication**: Works for commit signatures if configured
-5. **Structured errors**: Better error handling
-6. **Safer**: No dangerouslyDisableSandbox flag required
+2. **Git hooks support**: Pre-commit hooks execute normally
+3. **SSH authentication**: Works for commit signatures if configured
+4. **Structured errors**: Better error handling
+5. **Safer**: No dangerouslyDisableSandbox flag required
 
 **Previous Approach (Deprecated)**:
 - Used `dangerouslyDisableSandbox: true` for git commands
-- Required manual GPG socket handling
 - Risk of permission issues
 
 **Current Approach**:
@@ -343,7 +339,6 @@ The skill now uses MCP git tools for commit operations instead of bash commands:
 The `gather-commit-context.sh` script provides comprehensive context:
 
 - **Branch info**: Current branch, mainline branch, is_mainline flag
-- **Git config**: GPG signing enabled
 - **Conventions**: Conventional commits usage and confidence level
 - **Working tree**: Staged, unstaged, untracked files
 - **File categorization**: Code, tests, docs, config, other

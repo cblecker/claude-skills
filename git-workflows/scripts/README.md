@@ -148,7 +148,6 @@ Gathers all context needed for commit message generation in a single call.
   "current_branch": "feature/add-logging",
   "mainline_branch": "main",
   "is_mainline": false,
-  "gpg_signing_enabled": true,
   "uses_conventional_commits": true,
   "conventional_commits_confidence": "high",
   "working_tree_status": {
@@ -363,7 +362,7 @@ Use MCP tools directly:
 1. mcp__git-workflows_git__git_add to stage files
 2. mcp__git-workflows_git__git_commit with message
 
-GPG signing and git hooks work automatically via MCP!
+Git hooks work automatically via MCP!
 
 ## Phase 7: Verification
 Use verify-operation.sh to generate standardized report.
@@ -449,7 +448,7 @@ All scripts require:
 - `bash` (POSIX-compliant)
 - `git`
 - `jq` (for JSON processing)
-- Standard Unix utilities (`awk`, `sed`, `grep`)
+- Standard Unix utilities (`sed`, `grep`, `cut`)
 
 These dependencies are typically available in all development environments.
 

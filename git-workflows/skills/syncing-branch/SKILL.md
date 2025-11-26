@@ -110,8 +110,8 @@ Handle error based on `error_type`:
     EXPLAIN: "Cannot sync with uncommitted changes"
     EXIT workflow
 
-- **`merge_conflict`**:
-  - STOP: "Merge conflict during sync"
+- **`sync_conflict`**:
+  - STOP: "Conflict encountered during sync"
   - Display: `message` and `suggested_action` from response
   - EXPLAIN: "Conflicts must be resolved manually"
   - EXIT workflow
@@ -185,7 +185,7 @@ Continue to Phase 3.
    - `no_upstream`: "No upstream tracking branch configured"
    - `upstream_missing_branch`: "Upstream doesn't have this branch"
    - `push_failed`: "Rebased on upstream but push to origin failed"
-   - `rebase_conflict`: "Rebase encountered conflicts during sync"
+   - `sync_conflict`: "Encountered conflicts during sync"
 
 Workflow complete.
 

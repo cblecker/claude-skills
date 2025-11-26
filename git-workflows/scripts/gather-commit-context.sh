@@ -12,16 +12,6 @@ get_current_branch() {
   git branch --show-current 2>/dev/null || echo "HEAD"
 }
 
-# Function to check GPG signing config
-check_gpg_signing() {
-  local gpg_enabled=$(git config --get commit.gpgsign 2>/dev/null || echo "false")
-  if [ "$gpg_enabled" = "true" ]; then
-    echo "true"
-  else
-    echo "false"
-  fi
-}
-
 # Function to parse git status
 parse_git_status() {
   git status --porcelain | "$SCRIPT_DIR/parse-git-status.sh"
@@ -104,10 +94,6 @@ main() {
   local is_mainline
   mainline_branch=$(echo "$mainline_info" | jq -r '.mainline_branch')
   is_mainline=$(echo "$mainline_info" | jq -r '.is_mainline')
-
-  # Check GPG signing
-  local gpg_signing_enabled
-  gpg_signing_enabled=$(check_gpg_signing)
 
   # Detect conventions
   local conventions_info
@@ -204,7 +190,6 @@ main() {
     --arg current_branch "$current_branch" \
     --arg mainline_branch "$mainline_branch" \
     --argjson is_mainline "$is_mainline" \
-    --argjson gpg_signing "$gpg_signing_enabled" \
     --argjson uses_conventional "$uses_conventional_commits" \
     --arg conventional_confidence "$conventional_commits_confidence" \
     --argjson is_clean "$is_clean" \
@@ -222,7 +207,6 @@ main() {
       current_branch: $current_branch,
       mainline_branch: $mainline_branch,
       is_mainline: $is_mainline,
-      gpg_signing_enabled: $gpg_signing,
       uses_conventional_commits: $uses_conventional,
       conventional_commits_confidence: $conventional_confidence,
       working_tree_status: {

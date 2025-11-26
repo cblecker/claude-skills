@@ -19,7 +19,7 @@ Extract from user request: draft status ("draft"/"WIP" → true, default false),
 
 ---
 
-## Phase 1-2: Gather Context (Optimized)
+## Phase 1: Gather Context (Optimized)
 
 **Objective**: Collect all PR context and validate prerequisites in a single atomic operation.
 
@@ -61,8 +61,8 @@ Handle error based on `error_type`:
 
     IF creating-branch succeeded:
       VERIFY: Now on feature branch (not mainline)
-      RE-RUN Phase 1-2 (gather context again on new branch)
-      Continue to Phase 3
+      RE-RUN Phase 1 (gather context again on new branch)
+      Continue to Phase 2
 
     IF creating-branch failed:
       STOP immediately
@@ -116,7 +116,7 @@ Extract and store context:
 }
 ```
 
-**Validation Gate: Uncommitted Changes**
+### Validation Gate: Uncommitted Changes
 
 IF `branch_validation.has_uncommitted_changes: true`:
   EXPLAIN: "You have uncommitted changes that need to be committed before creating a PR"
@@ -129,8 +129,8 @@ IF `branch_validation.has_uncommitted_changes: true`:
     WAIT for creating-commit to complete
 
     IF creating-commit succeeded:
-      RE-RUN Phase 1-2 (gather context again after commit)
-      Continue to Phase 3
+      RE-RUN Phase 1 (gather context again after commit)
+      Continue to Phase 2
 
     IF creating-commit failed:
       STOP immediately
@@ -143,36 +143,36 @@ IF `branch_validation.has_uncommitted_changes: true`:
     EXIT workflow
 
 IF no uncommitted changes:
-  Continue to Phase 3
+  Continue to Phase 2
 
-Phase 1-2 complete. Continue to Phase 3.
+Phase 1 complete. Continue to Phase 2.
 
 ---
 
-## Phase 3: Verify PR Base Branch
+## Phase 2: Verify PR Base Branch
 
 **Objective**: Confirm target branch for pull request.
 
 **Steps**:
 
-1. Use `base_branch` from Phase 1-2 context (already detected mainline)
+1. Use `base_branch` from Phase 1 context (already detected mainline)
 
-2. IF user specified different target branch in Step 1 of Phase 1-2:
+2. IF user specified different target branch in Step 1 of Phase 1:
    - Override with user-specified branch
    - INFORM: "Using <user_branch> as PR base (overriding default <detected_mainline>)"
 
 3. Store `pr_base` for later phases
 
-Phase 3 complete. Continue to Phase 4.
+Phase 2 complete. Continue to Phase 3.
 
 ---
 
-## Phase 4: Generate PR Content
+## Phase 3: Generate PR Content
 
-**Objective**: Create compelling PR title and description using context from Phase 1-2.
+**Objective**: Create compelling PR title and description using context from Phase 1.
 
 **THINKING CHECKPOINT**: Use `mcp__sequential-thinking__sequentialthinking` to:
-- Review commit history and diff summary from Phase 1-2 context
+- Review commit history and diff summary from Phase 1 context
 - Use `commit_history` array (contains hash, subject, body for each commit)
 - Use `diff_summary` object (files_changed, insertions, deletions)
 - Check `uses_conventional_commits` flag for title format
@@ -194,28 +194,29 @@ Phase 3 complete. Continue to Phase 4.
 - `base_branch`: Target branch for PR
 - `current_branch`: Source branch for PR
 
-Continue to Phase 5.
+Continue to Phase 4.
 
 ---
 
-## Phase 5: PR Content Review
+## Phase 4: PR Content Review
 
 **Objective**: Present generated PR content for user review and approval.
 
 **Steps**:
-1. Present: Generated PR title and description from Phase 4
+1. Present: Generated PR title and description from Phase 3
 2. Request approval using AskUserQuestion tool:
    - Question: "How would you like to proceed with this pull request?"
    - Header: "PR Content"
    - Options:
-     - **Proceed**: "Create PR with this title and description" - Continues to Phase 6
+     - **Proceed**: "Create PR with this title and description" - Continues to Phase 5
      - **Edit title**: "Modify the PR title" - Allows title customization
      - **Edit description**: "Modify the PR description" - Allows description customization
      - **Edit both**: "Modify both title and description" - Allows full customization
 
-**Validation Gate: Content Approval**
+### Validation Gate: Content Approval
+
 HANDLE user selection:
-- IF "Proceed": Continue to Phase 6
+- IF "Proceed": Continue to Phase 5
 - IF "Edit title":
   - User provides custom title via "Other" option
   - Validate: Title ≤ 72 chars, non-empty
@@ -231,25 +232,27 @@ HANDLE user selection:
   - Validate both components
   - Update both, return to Step 1 to show updated PR
 
-Continue to Phase 6.
+Continue to Phase 5.
 
 ---
 
-## Phase 6: Push to Remote
+## Phase 5: Push to Remote
 
 **Objective**: Push current branch to remote.
 
 **Plan Mode**: Auto-enforced read-only if active
 
 **Steps**:
-1. Use `current_branch` from Phase 1-2 context (no need to query git)
+1. Use `current_branch` from Phase 1 context (no need to query git)
 
 2. Push branch with upstream tracking:
    ```bash
    git push -u origin <current_branch>
    ```
 
-**Validation Gate**: IF push fails:
+### Validation Gate: Push Failure
+
+IF push fails:
 - Analyze error:
   - "fatal: could not read Username": Authentication required
   - "error: failed to push": Rejected, may need force
@@ -262,22 +265,22 @@ Continue to Phase 6.
   - Network: "Check internet connection and retry"
 - Wait for user to resolve
 
-Continue to Phase 7.
+Continue to Phase 6.
 
 ---
 
-## Phase 7: Create Pull Request
+## Phase 6: Create Pull Request
 
 **Objective**: Create PR on GitHub using MCP.
 
 **Plan Mode**: Auto-enforced read-only if active
 
 **Steps**:
-1. Prepare parameters from Phase 1-2 context:
+1. Prepare parameters from Phase 1 context:
    - owner, repo: From `repository` object
    - head: `current_branch`
-   - base: `pr_base` (from Phase 3)
-   - title/body: Generated in Phase 4, approved in Phase 5
+   - base: `pr_base` (from Phase 2)
+   - title/body: Generated in Phase 3, approved in Phase 4
 
 2. Determine draft: Check user request for "draft", "WIP", "work in progress"
 
@@ -288,16 +291,16 @@ Continue to Phase 7.
 - Explain: Auth, permissions, invalid params, duplicate PR, rate limit, or network
 - Propose solution and wait for retry approval
 
-Continue to Phase 8.
+Continue to Phase 7.
 
 ---
 
-## Phase 8: Return PR URL
+## Phase 7: Return PR URL
 
 **Objective**: Provide PR URL and confirm success with standardized output.
 
 **Steps**:
-1. Extract from Phase 7: PR number, URL, state, title
+1. Extract from Phase 6: PR number, URL, state, title
 
 2. Format output using standardized template:
    ```markdown
@@ -330,8 +333,8 @@ Workflow complete.
 This updated skill uses the optimized scripting architecture:
 
 **Tool Call Reduction:**
-- Before: ~10-12 tool calls (Phases 1-3: ~8-10, Phase 6-7: 2-4)
-- After: 2-3 tool calls (Phase 1-2: 1 gather-pr-context.sh, Phase 7: 1 MCP create PR)
+- Before: ~10-12 tool calls across 8 phases
+- After: 2-3 tool calls (Phase 1: 1 gather-pr-context.sh, Phase 6: 1 MCP create PR)
 - **Reduction: 75-83%**
 
 **Execution Speed:**

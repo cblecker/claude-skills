@@ -202,7 +202,8 @@ EOF
         }'
     elif [ "$detection_method" = "commit_history" ]; then
       # Convert match rate to float for jq
-      local match_rate_float=$(awk "BEGIN {printf \"%.2f\", $pattern_match_rate / 100}")
+      local match_rate_float
+      match_rate_float=$(jq -n --argjson rate "$pattern_match_rate" '$rate / 100')
       jq -n \
         --argjson uses_conventional "$uses_conventional" \
         --arg detection_method "$detection_method" \
@@ -250,7 +251,8 @@ EOF
 }
 EOF
     elif [ "$detection_method" = "commit_history" ]; then
-      local match_rate_float=$(awk "BEGIN {printf \"%.2f\", $pattern_match_rate / 100}")
+      local match_rate_float
+      match_rate_float=$(jq -n --argjson rate "$pattern_match_rate" '$rate / 100')
       cat <<EOF
 {
   "success": true,
