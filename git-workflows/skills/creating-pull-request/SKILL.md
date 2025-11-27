@@ -31,10 +31,7 @@ Extract from user request: draft status ("draft"/"WIP" → true, default false),
    - Common branch names: develop, staging, main, master, release, etc.
    - Store base_branch if found, otherwise let script detect mainline
 
-2. **Execute gather-pr-context script**:
-   ```bash
-   "$CLAUDE_PLUGIN_ROOT/scripts/gather-pr-context.sh" [base_branch]
-   ```
+2. Use the gather-pr-context.sh script (optionally pass base_branch parameter if determined in step 1)
 
 3. **Parse the JSON response and handle results**:
 

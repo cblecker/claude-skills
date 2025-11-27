@@ -24,10 +24,7 @@ Extract from user request: commit message format ("use conventional commits" →
 **Objective**: Collect all commit context in a single atomic operation.
 
 **Steps**:
-1. Execute gather-commit-context script:
-   ```bash
-   "$CLAUDE_PLUGIN_ROOT/scripts/gather-commit-context.sh"
-   ```
+1. Use the gather-commit-context.sh script to collect all commit context
 
 2. Parse the JSON response and handle results:
 
@@ -231,10 +228,7 @@ Continue to Phase 5.
 
 **Steps**:
 
-1. Execute verify-operation script:
-   ```bash
-   "$CLAUDE_PLUGIN_ROOT/scripts/verify-operation.sh" commit
-   ```
+1. Use the verify-operation.sh script with "commit" parameter to verify the operation
 
 2. Parse the JSON response:
    ```json

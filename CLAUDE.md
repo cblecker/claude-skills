@@ -21,10 +21,16 @@ Skills are invoked automatically by Claude when user requests match the skill's 
 ```text
 <plugin-name>/
 ├── plugin.json              # Plugin metadata and configuration
-└── <skill-name>/
-    ├── SKILL.md             # Main skill instructions (required)
-    ├── reference.md         # Additional context (optional)
-    └── scripts/             # Utility scripts (optional)
+├── scripts/                 # Shared utility scripts
+│   ├── gather-commit-context.sh
+│   ├── get-mainline-branch.sh
+│   └── ...
+└── skills/
+    └── <skill-name>/
+        ├── SKILL.md         # Main skill instructions (required)
+        ├── reference.md     # Additional context (optional)
+        └── scripts/         # Symlinks to scripts this skill uses
+            └── script.sh -> ../../../scripts/script.sh
 ```
 
 ### Skill Format
@@ -33,7 +39,7 @@ Skills are directories containing a SKILL.md file with YAML frontmatter:
 - **Required frontmatter**: `name`, `description`
 - **Optional frontmatter**: `allowed-tools` (restricts tool access)
 - **Body**: Skill instructions including workflow phases, validation gates, and examples
-- **Supporting files**: Additional markdown files, scripts, templates in the skill directory
+- **Supporting files**: Additional markdown files, scripts/ directory with symlinks to shared scripts, templates
 
 Example structure:
 ```markdown
