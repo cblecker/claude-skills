@@ -318,15 +318,12 @@ Provides standardized verification and reporting for workflow operations.
 
 ### Basic Pattern
 
-Skills should call scripts directly using the Bash tool and parse the JSON output:
+Skills reference scripts using natural language. Each skill has a `scripts/` directory containing symlinks to the scripts it uses.
 
 ```markdown
 ## Phase 1: Gather Context
 
-Execute gather-commit-context.sh:
-```bash
-"$CLAUDE_PLUGIN_ROOT/scripts/gather-commit-context.sh"
-```
+Use the gather-commit-context.sh script to collect all commit context
 
 Parse the JSON output:
 - Check `.success` field
@@ -455,13 +452,31 @@ These dependencies are typically available in all development environments.
 
 ## Script Paths
 
-When calling scripts from skills, use the `$CLAUDE_PLUGIN_ROOT` environment variable:
+Each skill has its own `scripts/` directory containing symlinks to the scripts it uses:
 
-```bash
-"$CLAUDE_PLUGIN_ROOT/scripts/gather-commit-context.sh"
+```
+git-workflows/
+├── scripts/               # Shared script location
+│   ├── gather-commit-context.sh
+│   ├── gather-pr-context.sh
+│   ├── get-mainline-branch.sh
+│   └── ...
+└── skills/
+    ├── creating-commit/
+    │   └── scripts/       # Symlinks to scripts this skill uses
+    │       ├── gather-commit-context.sh -> ../../../scripts/gather-commit-context.sh
+    │       └── verify-operation.sh  # Moved here (standalone, single skill)
+    ├── creating-pull-request/
+    │   └── scripts/
+    │       └── gather-pr-context.sh -> ../../../scripts/gather-pr-context.sh
+    └── ...
 ```
 
-This ensures scripts work regardless of where the plugin is installed.
+**Benefits:**
+- Skills reference scripts naturally: "Use the gather-commit-context.sh script"
+- Claude can locate scripts relative to the skill directory
+- Symlinks preserve inter-script dependencies via `SCRIPT_DIR` resolution
+- Each skill only has the scripts it needs
 
 ## Completed Implementation
 

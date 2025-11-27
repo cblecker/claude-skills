@@ -60,12 +60,7 @@ Continue to Phase 2.
 
 **Steps**:
 
-1. **Execute sync-branch script**:
-   ```bash
-   "$CLAUDE_PLUGIN_ROOT/scripts/sync-branch.sh" [target-branch]
-   ```
-
-   Note: Pass target-branch only if user specified a branch in Phase 1. Otherwise, omit to sync current branch.
+1. Use the sync-branch.sh script (optionally pass target-branch parameter if user specified a branch in Phase 1, otherwise omit to sync current branch)
 
 2. **Parse the JSON response and handle results**:
 
