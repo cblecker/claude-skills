@@ -86,7 +86,6 @@ IF `is_mainline: true` (on mainline):
     Continue to Phase 2
 
   IF no explicit authorization:
-    INFORM: "Currently on mainline branch - creating feature branch first"
     INVOKE: creating-branch skill
     WAIT for creating-branch skill to complete
 
@@ -158,12 +157,10 @@ Continue to Phase 3.
    - **Proposed commit message**: Generated in Phase 2
    - **Change summary**: From `diff_summary` (files changed, +insertions, -deletions)
 
-2. Handle diff display:
-   ```bash
-   git diff HEAD
-   ```
-   - If < 100 lines: Show full diff
-   - If ≥ 100 lines: Ask user if they want to see it
+2. Display change summary (not full diff):
+   - List of files changed with status (added/modified/deleted)
+   - Insertions/deletions statistics from `diff_summary`
+   - Do NOT show full diff content
 
 3. Request approval using AskUserQuestion tool:
    - Question: "How would you like to proceed with this commit?"

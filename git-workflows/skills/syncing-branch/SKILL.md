@@ -11,8 +11,6 @@ Use this skill for sync requests: "sync my branch", "pull latest", "sync with re
 
 Use other skills for: rebasing (rebasing-branch), creating PRs (creating-pull-request), viewing remotes (git commands).
 
-**Disambiguation**: "update my branch" → ask if sync (fetch+merge) or rebase (rewrite history).
-
 ## Workflow Description
 
 Updates branch with remote changes, auto-detecting fork vs origin scenarios.
@@ -80,29 +78,19 @@ Handle error based on `error_type`:
   - EXIT workflow
 
 - **`uncommitted_changes`**:
-  - STOP: "Cannot sync with uncommitted changes"
   - Display: `message` from response
   - List files from `uncommitted_files` array
-  - EXPLAIN: "Commit or stash your changes before syncing"
-  - ASK: "Would you like me to commit these changes?"
-  - WAIT for user decision
+  - INFORM: "Uncommitted changes detected - creating commit first"
+  - INVOKE: creating-commit skill
+  - WAIT for creating-commit to complete
 
-  IF user approves:
-    INVOKE: creating-commit skill
-    WAIT for creating-commit to complete
+  IF creating-commit succeeded:
+    RE-RUN Phase 2 (sync again after commit)
+    Continue to Phase 3
 
-    IF creating-commit succeeded:
-      RE-RUN Phase 2 (sync again after commit)
-      Continue to Phase 3
-
-    IF creating-commit failed:
-      STOP immediately
-      EXPLAIN: "Cannot sync without committing changes"
-      EXIT workflow
-
-  IF user declines:
+  IF creating-commit failed:
     STOP immediately
-    EXPLAIN: "Cannot sync with uncommitted changes"
+    EXPLAIN: "Cannot sync without committing changes"
     EXIT workflow
 
 - **`sync_conflict`**:

@@ -11,8 +11,6 @@ Use this skill for rebase requests: "rebase my branch", "rebase on main", "rebas
 
 Use other skills for: syncing (syncing-branch for fetch+merge), viewing status (git status directly).
 
-**Disambiguation**: "update my branch" → ask if sync (fetch+merge, preserves history) or rebase (rewrites history).
-
 ## Workflow Description
 
 Rebases feature branch onto updated mainline, rewriting commit history. Handles state preservation, conflict resolution, optional author date reset.
@@ -62,14 +60,18 @@ IF is_mainline = true:
   EXIT workflow
 
 IF is_mainline = false AND working tree not clean (status output not empty):
-  STOP immediately
-  EXPLAIN: "Cannot rebase with uncommitted changes. Rebase rewrites history and requires a clean working tree."
-  PROPOSE: "Choose how to proceed:"
-  SHOW options:
-    1. "Commit changes using creating-commit skill"
-    2. "Stash changes temporarily with `git stash push -u`"
-    3. "Cancel workflow"
-  WAIT for user to resolve uncommitted changes
+  INFORM: "Uncommitted changes detected - creating commit first"
+  INVOKE: creating-commit skill
+  WAIT for creating-commit to complete
+
+  IF creating-commit succeeded:
+    VERIFY: Working tree is now clean
+    PROCEED to Phase 2
+
+  IF creating-commit failed:
+    STOP immediately
+    EXPLAIN: "Cannot rebase without committing changes"
+    EXIT workflow
 
 IF is_mainline = false AND working tree clean:
   PROCEED to Phase 2
