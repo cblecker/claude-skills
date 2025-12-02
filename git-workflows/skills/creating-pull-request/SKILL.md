@@ -45,39 +45,11 @@ Handle error based on `error_type`:
   - EXIT workflow
 
 - **`on_base_branch`**:
-  - STOP: "Cannot create PR from base branch"
+  - STOP: "Cannot create PR from base branch with no new commits"
   - Display: `message` from response
-  - EXPLAIN: "Pull requests should be created from feature branches"
-  - PROPOSE: "Create a feature branch for this PR"
-  - ASK: "Would you like me to create a feature branch now?"
-  - WAIT for user decision
-
-  IF user approves:
-    INVOKE: creating-branch skill
-    WAIT for creating-branch to complete
-
-    IF creating-branch succeeded:
-      VERIFY: Now on feature branch (not mainline)
-      RE-RUN Phase 1 (gather context again on new branch)
-      Continue to Phase 2
-
-    IF creating-branch failed:
-      STOP immediately
-      EXPLAIN: "Branch creation failed, cannot proceed with PR"
-      EXIT workflow
-
-  IF user declines:
-    ASK: "Continue with PR from base branch anyway? (not recommended)"
-    WAIT for explicit confirmation
-
-    IF user confirms:
-      INFORM: "Proceeding with PR from base branch (not recommended)"
-      Continue to Phase 3
-
-    IF user declines:
-      STOP immediately
-      EXPLAIN: "Cannot create PR without feature branch"
-      EXIT workflow
+  - EXPLAIN: "This should rarely occur - if you had uncommitted changes, creating-commit would have been invoked first and handled branch creation"
+  - PROPOSE: "Create a feature branch manually or make changes first"
+  - EXIT workflow
 
 - **`no_commits`**:
   - STOP: "Branch has no commits to include in PR"
@@ -116,27 +88,18 @@ Extract and store context:
 ### Validation Gate: Uncommitted Changes
 
 IF `branch_validation.has_uncommitted_changes: true`:
-  EXPLAIN: "You have uncommitted changes that need to be committed before creating a PR"
   List files from `uncommitted_files` array
-  ASK: "Would you like me to create a commit for these changes?"
-  WAIT for user decision
+  INFORM: "Uncommitted changes detected - creating commit first"
+  INVOKE: creating-commit skill (handles mainline detection internally)
+  WAIT for creating-commit to complete
 
-  IF user approves:
-    INVOKE: creating-commit skill
-    WAIT for creating-commit to complete
+  IF creating-commit succeeded:
+    RE-RUN Phase 1 (gather context again after commit)
+    Continue to Phase 2
 
-    IF creating-commit succeeded:
-      RE-RUN Phase 1 (gather context again after commit)
-      Continue to Phase 2
-
-    IF creating-commit failed:
-      STOP immediately
-      EXPLAIN: "Cannot create PR without committing changes"
-      EXIT workflow
-
-  IF user declines:
+  IF creating-commit failed:
     STOP immediately
-    EXPLAIN: "Cannot create PR with uncommitted changes"
+    EXPLAIN: "Cannot create PR without committing changes"
     EXIT workflow
 
 IF no uncommitted changes:
