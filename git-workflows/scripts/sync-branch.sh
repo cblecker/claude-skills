@@ -10,8 +10,15 @@ if ! command -v jq &> /dev/null; then
   exit 1
 fi
 
-# Get the script directory for calling other scripts
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Get the script directory, resolving symlinks
+_source="${BASH_SOURCE[0]}"
+while [ -L "$_source" ]; do
+  _dir="$(cd -P "$(dirname "$_source")" && pwd)"
+  _source="$(readlink "$_source")"
+  [[ $_source != /* ]] && _source="$_dir/$_source"
+done
+SCRIPT_DIR="$(cd -P "$(dirname "$_source")" && pwd)"
+unset _source _dir
 
 # Function to get current branch
 get_current_branch() {
