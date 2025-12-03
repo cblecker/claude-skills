@@ -255,14 +255,14 @@ Standard template format for user-facing skills:
 ```markdown
 ✓ <Operation> Completed Successfully
 
-**Field Name:** value\
-**Field Name:** value\
+**Field Name:** value \
+**Field Name:** value \
 **Field Name:** value
 
 [Optional: Important notes or next steps]
 ```
 
-Note: Use backslash (`\`) at the end of lines to create hard line breaks in CommonMark without extra vertical spacing. This ensures consistent rendering across different markdown viewers.
+Note: Use backslash (`\`) preceded by a space at the end of lines to create hard line breaks in CommonMark without extra vertical spacing. The space prevents the backslash from being included when copying values (especially important for URLs). This ensures consistent rendering across different markdown viewers.
 
 ## Working with This Repository
 

@@ -175,8 +175,8 @@ Continue to Phase 5.
    ```markdown
    ✓ Branch Created Successfully
 
-   **Branch:** <branch_name>\
-   **Created from:** <base_branch>\
+   **Branch:** <branch_name> \
+   **Created from:** <base_branch> \
    **Uncommitted changes:** <Preserved|None>
    ```
 

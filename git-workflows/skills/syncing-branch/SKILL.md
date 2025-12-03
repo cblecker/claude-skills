@@ -152,10 +152,10 @@ Continue to Phase 3.
    ```markdown
    ✓ Branch Synced Successfully
 
-   **Branch:** <branch>\
-   **Repository Type:** <Fork|Origin-only>\
-   **Commits Pulled:** <commits_pulled>\
-   **Status:** <status description>\
+   **Branch:** <branch> \
+   **Repository Type:** <Fork|Origin-only> \
+   **Commits Pulled:** <commits_pulled> \
+   **Status:** <status description> \
    **Operations:** <operations_performed as list>
    ```
 
