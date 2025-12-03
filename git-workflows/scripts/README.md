@@ -454,7 +454,7 @@ These dependencies are typically available in all development environments.
 
 Skills reference shared scripts using explicit relative paths from the skill directory:
 
-```
+```text
 git-workflows/
 ├── scripts/               # Shared script location
 │   ├── gather-commit-context.sh

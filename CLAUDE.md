@@ -334,3 +334,14 @@ Follow semantic versioning in plugin.json:
 - **Major**: Breaking changes to skill interfaces or behavior
 - **Minor**: New skills or backward-compatible enhancements
 - **Patch**: Bug fixes and documentation updates
+
+### Markdown Style Guidelines
+
+All markdown files must comply with standard linting rules:
+
+- **MD040 - Fenced code blocks require language identifiers**: Every fenced code block must specify a language. Use appropriate identifiers:
+  - `bash` - Shell commands and scripts
+  - `json` - JSON data structures
+  - `yaml` - YAML configuration
+  - `markdown` - Markdown examples
+  - `text` - Plain text, user prompts, or generic content
