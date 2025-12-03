@@ -298,9 +298,9 @@ Continue to Phase 8.
    ```markdown
    ✓ Branch Rebased Successfully
 
-   **Branch:** <saved_branch>\
-   **Rebased onto:** <rebase_base>\
-   **Author dates:** <Reset|Preserved>\
+   **Branch:** <saved_branch> \
+   **Rebased onto:** <rebase_base> \
+   **Author dates:** <Reset|Preserved> \
    **Working tree:** <Clean|Dirty>
 
    **⚠ Important:** Force push required

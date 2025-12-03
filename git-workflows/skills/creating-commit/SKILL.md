@@ -258,9 +258,9 @@ Continue to Phase 5.
    ```markdown
    ✓ Commit Completed Successfully
 
-   **Commit:** <short_hash>\
-   **Branch:** <branch_name>\
-   **Subject:** <subject>\
+   **Commit:** <short_hash> \
+   **Branch:** <branch_name> \
+   **Subject:** <subject> \
    **Files Changed:** <file_count>
    ```
 

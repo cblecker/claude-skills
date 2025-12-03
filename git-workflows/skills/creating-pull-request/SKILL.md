@@ -279,11 +279,11 @@ Continue to Phase 7.
    ```markdown
    ✓ Pull Request Created Successfully
 
-   **PR Number:** #<number>\
-   **Title:** <title>\
-   **URL:** <pr_url>\
-   **Status:** <Open|Draft>\
-   **Base Branch:** <base_branch>\
+   **PR Number:** #<number> \
+   **Title:** <title> \
+   **URL:** <pr_url> \
+   **Status:** <Open|Draft> \
+   **Base Branch:** <base_branch> \
    **Head Branch:** <head_branch>
 
    [If draft: **Notes:** Mark as 'Ready for review' when ready]
