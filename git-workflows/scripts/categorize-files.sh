@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Categorize files by type (code, tests, docs, config, other)
 # Usage: echo -e "file1\nfile2" | ./categorize-files.sh
+#
+# Exit codes:
+#   0 - Success
+#   1 - Actual errors (missing_dependency)
 
 set -euo pipefail
 
@@ -89,7 +93,7 @@ done
 
 # Build JSON output (jq is required)
 if ! command -v jq &> /dev/null; then
-  echo '{"error": "jq is required but not installed"}' >&2
+  echo '{"success": false, "error_type": "missing_dependency", "message": "jq is required but not installed"}' >&2
   exit 1
 fi
 

@@ -1,1 +1,0 @@
-../../../scripts/get-mainline-branch.sh

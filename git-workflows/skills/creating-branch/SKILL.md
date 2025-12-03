@@ -57,7 +57,7 @@ IF base branch specified in user request:
   Continue to Phase 3
 
 IF no base branch mentioned:
-  Use the get-mainline-branch.sh script to detect mainline branch
+  Run `../../scripts/get-mainline-branch.sh` to detect mainline branch
   Parse JSON response and extract `mainline_branch` field
   Use detected mainline as base
   Continue to Phase 3
@@ -86,7 +86,7 @@ Phase 2 complete. Continue to Phase 3.
    - Look for phrases: "called <name>", "named <name>", "create branch <name>"
    - IF explicit name found: Use it, skip to uniqueness check (Step 5)
 
-2. IF no explicit name: Use the detect-conventions.sh script to detect commit conventions
+2. IF no explicit name: Run `../../scripts/detect-conventions.sh` to detect commit conventions
    Parse JSON response and extract `uses_conventional_commits` flag
 
 3. Extract description from user request:

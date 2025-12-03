@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Gather all context needed for PR title/description generation
 # Usage: ./gather-pr-context.sh <base_branch>
+#
+# Exit codes:
+#   0 - Success, or expected conditions (on_base_branch, no_commits)
+#   1 - Actual errors (missing_dependency, not_git_repo)
 
 set -euo pipefail
 
@@ -115,7 +119,7 @@ main() {
     fi
   fi
 
-  # Check if current branch is the base branch (error condition)
+  # Check if current branch is the base branch (expected condition - not an error)
   if [ "$current_branch" = "$base_branch" ]; then
     jq -n \
       --arg error_type "on_base_branch" \
@@ -129,7 +133,7 @@ main() {
         suggested_action: $suggested_action,
         current_branch: $base_branch
       }'
-    exit 1
+    exit 0
   fi
 
   # Check for uncommitted changes
@@ -217,6 +221,7 @@ main() {
   local commit_count
   commit_count=$(echo "$commit_history" | jq 'length')
 
+  # No commits is an expected condition, not an error
   if [ "$commit_count" -eq 0 ]; then
     jq -n \
       --arg error_type "no_commits" \
@@ -232,7 +237,7 @@ main() {
         base_branch: $base_branch,
         current_branch: $current_branch
       }'
-    exit 1
+    exit 0
   fi
 
   # Get diff summary

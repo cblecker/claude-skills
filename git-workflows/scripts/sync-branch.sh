@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Execute fork-aware branch synchronization
 # Usage: ./sync-branch.sh [branch_name]
+#
+# Exit codes:
+#   0 - Success, or expected conditions (uncommitted_changes)
+#   1 - Actual errors (missing_dependency, not_git_repo, branch_not_found, repo_type_detection_failed, sync_conflict, sync_failed, branch_diverged)
 
 set -euo pipefail
 
@@ -170,7 +174,7 @@ main() {
     exit 1
   fi
 
-  # Check for uncommitted changes
+  # Check for uncommitted changes (expected condition - not an error)
   if check_uncommitted_changes; then
     # Get list of uncommitted files (use cut -c4- to preserve spaces in filenames)
     local uncommitted_files
@@ -188,7 +192,7 @@ main() {
         suggested_action: $suggested_action,
         uncommitted_files: $uncommitted_files
       }'
-    exit 1
+    exit 0
   fi
 
   # Get repository type

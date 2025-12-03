@@ -34,7 +34,7 @@ Capture: current_branch
 
 **Step 2: Check if on mainline**
 
-Use the get-mainline-branch.sh script with the current branch as parameter
+Run `../../scripts/get-mainline-branch.sh` with the current branch as parameter
 
 Parse JSON response:
 - Extract `mainline_branch` field

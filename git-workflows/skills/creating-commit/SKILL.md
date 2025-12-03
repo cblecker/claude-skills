@@ -24,7 +24,7 @@ Extract from user request: commit message format ("use conventional commits" →
 **Objective**: Collect all commit context in a single atomic operation.
 
 **Steps**:
-1. Use the gather-commit-context.sh script to collect all commit context
+1. Run `../../scripts/gather-commit-context.sh` to collect all commit context
 
 2. Parse the JSON response and handle results:
 
@@ -225,37 +225,30 @@ Continue to Phase 5.
 
 **Steps**:
 
-1. Use the verify-operation.sh script with "commit" parameter to verify the operation
-
-2. Parse the JSON response:
-   ```json
-   {
-     "success": true,
-     "operation": "commit",
-     "details": {
-       "commit_hash": "abc123...",
-       "short_hash": "abc123d",
-       "branch": "feature-branch",
-       "subject": "feat: add logging",
-       "author": "User Name",
-       "date": "2025-11-25 10:30:00 -0800",
-       "files_changed": 3
-     },
-     "formatted_report": "✓ Commit Completed Successfully\n\n..."
-   }
+1. Parse the git commit output from Phase 4, which has the format:
+   ```
+   [branch-name abc1234] Commit subject
+    N files changed, M insertions(+), P deletions(-)
    ```
 
-3. Display the `formatted_report` to user:
+2. Extract commit details:
+   - Branch name: From first line (between `[` and first space after `)`)
+   - Short hash: From first line (between branch name and `]`)
+   - Subject: From first line (after `]`)
+   - File stats: From second line
+
+3. Display standardized report to user:
    ```markdown
    ✓ Commit Completed Successfully
 
    **Commit:** <short_hash>\
-   **Subject:** <subject>\
    **Branch:** <branch_name>\
-   **Files Changed:** <file_count>\
-   **Author:** <author_name>
+   **Subject:** <subject>\
+   **Files Changed:** <file_count>
    ```
 
 4. Verify: Compare subject to approved message from Phase 3; warn if differs (indicates hook modification)
+
+5. Run `git status` to confirm working tree is clean
 
 Workflow complete.

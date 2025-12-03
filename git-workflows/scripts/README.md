@@ -452,9 +452,9 @@ These dependencies are typically available in all development environments.
 
 ## Script Paths
 
-Each skill has its own `scripts/` directory containing symlinks to the scripts it uses:
+Skills reference shared scripts using explicit relative paths from the skill directory:
 
-```
+```text
 git-workflows/
 ├── scripts/               # Shared script location
 │   ├── gather-commit-context.sh
@@ -463,20 +463,45 @@ git-workflows/
 │   └── ...
 └── skills/
     ├── creating-commit/
-    │   └── scripts/       # Symlinks to scripts this skill uses
-    │       ├── gather-commit-context.sh -> ../../../scripts/gather-commit-context.sh
-    │       └── verify-operation.sh  # Moved here (standalone, single skill)
+    │   └── SKILL.md       # References: ../../scripts/gather-commit-context.sh
     ├── creating-pull-request/
-    │   └── scripts/
-    │       └── gather-pr-context.sh -> ../../../scripts/gather-pr-context.sh
+    │   └── SKILL.md       # References: ../../scripts/gather-pr-context.sh
     └── ...
 ```
 
+**Pattern:**
+Skills use `../../scripts/<script-name>.sh` to reference shared scripts directly.
+
 **Benefits:**
-- Skills reference scripts naturally: "Use the gather-commit-context.sh script"
-- Claude can locate scripts relative to the skill directory
-- Symlinks preserve inter-script dependencies via `SCRIPT_DIR` resolution
-- Each skill only has the scripts it needs
+- No symlink indirection - scripts are called from their actual location
+- Explicit paths that Claude interprets unambiguously
+- Simpler directory structure
+- Inter-script dependencies work via `SCRIPT_DIR` resolution
+
+## Exit Code Semantics
+
+Scripts use exit codes to distinguish between actual errors and expected conditions:
+
+**Exit 1 (Actual Errors):**
+- `missing_dependency` - Required tool (jq, git) not installed
+- `not_git_repo` - Not in a git repository
+- `remote_head_not_found` - Cannot detect remote HEAD
+- `git_status_failed` - Git command failed
+- `sync_conflict` - Merge conflict during sync
+- `sync_failed` - Sync operation failed
+- `branch_diverged` - Branch has diverged from remote
+- `branch_not_found` - Specified branch does not exist
+- `repo_type_detection_failed` - Could not detect repository type
+- `no_remote` - No origin remote configured
+- `invalid_url` - Could not parse remote URL
+
+**Exit 0 (Expected Conditions):**
+- `on_base_branch` - User is on the base/mainline branch
+- `no_commits` - No commits between branches
+- `clean_working_tree` - No changes to commit
+- `uncommitted_changes` - Working directory has uncommitted changes
+
+This allows Claude Code to show error indicators only for actual script failures, not for expected state validations.
 
 ## Completed Implementation
 

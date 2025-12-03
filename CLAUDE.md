@@ -28,9 +28,12 @@ Skills are invoked automatically by Claude when user requests match the skill's 
 └── skills/
     └── <skill-name>/
         ├── SKILL.md         # Main skill instructions (required)
-        ├── reference.md     # Additional context (optional)
-        └── scripts/         # Symlinks to scripts this skill uses
-            └── script.sh -> ../../../scripts/script.sh
+        └── reference.md     # Additional context (optional)
+```
+
+Skills reference shared scripts using explicit relative paths in SKILL.md:
+```markdown
+Run `../../scripts/scriptname.sh` [args]
 ```
 
 ### Skill Format
@@ -39,7 +42,7 @@ Skills are directories containing a SKILL.md file with YAML frontmatter:
 - **Required frontmatter**: `name`, `description`
 - **Optional frontmatter**: `allowed-tools` (restricts tool access)
 - **Body**: Skill instructions including workflow phases, validation gates, and examples
-- **Supporting files**: Additional markdown files, scripts/ directory with symlinks to shared scripts, templates
+- **Supporting files**: Additional markdown files, templates
 
 Example structure:
 ```markdown
@@ -269,9 +272,10 @@ Note: Use backslash (`\`) at the end of lines to create hard line breaks in Comm
 2. Add `plugin.json` with metadata (name, version, description)
 3. Create skill directory: `<plugin-name>/<skill-name>/`
 4. Add `SKILL.md` with YAML frontmatter and instructions
-5. Add supporting files as needed (reference.md, scripts/, templates/)
-6. Configure MCP servers in plugin.json if required
-7. Update marketplace.json to register the plugin
+5. Add supporting files as needed (reference.md, templates/)
+6. If scripts needed, add to `<plugin-name>/scripts/` (shared) or skill directory (standalone)
+7. Configure MCP servers in plugin.json if required
+8. Update marketplace.json to register the plugin
 
 ### Testing Skills Locally
 
@@ -330,3 +334,14 @@ Follow semantic versioning in plugin.json:
 - **Major**: Breaking changes to skill interfaces or behavior
 - **Minor**: New skills or backward-compatible enhancements
 - **Patch**: Bug fixes and documentation updates
+
+### Markdown Style Guidelines
+
+All markdown files must comply with standard linting rules:
+
+- **MD040 - Fenced code blocks require language identifiers**: Every fenced code block must specify a language. Use appropriate identifiers:
+  - `bash` - Shell commands and scripts
+  - `json` - JSON data structures
+  - `yaml` - YAML configuration
+  - `markdown` - Markdown examples
+  - `text` - Plain text, user prompts, or generic content
