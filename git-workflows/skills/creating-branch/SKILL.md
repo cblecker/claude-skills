@@ -24,12 +24,15 @@ Extract from user request: purpose/description, explicit name (if provided), bas
 **Objective**: Check current branch state.
 
 **Steps**:
+
 1. Get current branch:
+
    ```bash
    git branch --show-current
    ```
 
 2. Check working tree status:
+
    ```bash
    git status --porcelain
    ```
@@ -49,6 +52,7 @@ Continue to Phase 2.
 **Step 1: Check user request for base branch**
 
 Analyze user's request for base branch specification:
+
 - Look for phrases like: "from <branch>", "based on <branch>", "branch off <branch>"
 - Common branch names: develop, staging, main, master, release, etc.
 
@@ -82,6 +86,7 @@ Phase 2 complete. Continue to Phase 3.
 **Objective**: Generate or use branch name following conventions.
 
 **Steps**:
+
 1. Check if user provided explicit branch name:
    - Look for phrases: "called <name>", "named <name>", "create branch <name>"
    - IF explicit name found: Use it, skip to uniqueness check (Step 5)
@@ -108,9 +113,11 @@ Phase 2 complete. Continue to Phase 3.
    - Truncate to 47 chars if > 50, append "..."
 
 5. Check uniqueness:
+
    ```bash
    git rev-parse --verify <branch-name> 2>/dev/null
    ```
+
    - Exit 0: Branch exists
    - Exit 128: Branch does not exist (good)
 
@@ -140,7 +147,9 @@ Phase 3 complete. Continue to Phase 4.
 **Plan Mode**: Auto-enforced read-only if active
 
 **Steps**:
+
 1. Create and checkout branch:
+
    ```bash
    git checkout -b <branch-name>
    ```
@@ -149,6 +158,7 @@ Phase 3 complete. Continue to Phase 4.
    Uncommitted changes automatically carry forward.
 
 **Error Handling**: IF failure:
+
 - Explain error:
   - "fatal: A branch named '...' already exists": Branch exists (shouldn't happen after uniqueness check)
   - "error: pathspec '...' did not match": Invalid branch name characters
@@ -164,7 +174,9 @@ Continue to Phase 5.
 **Objective**: Confirm new branch was created and checked out.
 
 **Steps**:
+
 1. Verify current branch:
+
    ```bash
    git branch --show-current
    ```
@@ -172,6 +184,7 @@ Continue to Phase 5.
 2. Compare to expected branch name from Phase 3
 
 3. Report using template:
+
    ```markdown
    ✓ Branch Created Successfully
 
@@ -181,6 +194,7 @@ Continue to Phase 5.
    ```
 
 **Validation Gate**: IF current branch does not match expected:
+
 - STOP: "Branch creation verification failed"
 - SHOW: Expected vs actual branch
 - PROPOSE: "Manually checkout branch with: `git checkout <expected-branch>`"

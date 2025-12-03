@@ -7,6 +7,7 @@ Comprehensive Git and GitHub automation for Claude Code. This plugin provides de
 The git-workflows plugin automates your entire Git and GitHub workflow, from code review through pull request creation. It provides deterministic, phase-based workflows with built-in safety, validation, and intelligent decision-making.
 
 **Key Features:**
+
 - **Automated code review** with security and quality checks
 - **Intelligent commit message generation** with Conventional Commits support
 - **Smart branch management** with automatic mainline detection
@@ -38,48 +39,58 @@ The plugin provides five core workflow skills and three utility skills that are 
 ### Workflow Skills
 
 ### `creating-commit`
+
 Creates atomic commits with optional code review, intelligent message generation, and validation gates. Automatically detects Conventional Commits usage and generates appropriate messages.
 
 **Triggered by:** "commit these changes", "create a commit", "make a commit"
 
 **Natural Language Options:**
+
 - Skip review - Say "without review" or "skip review" in your request
 - Force Conventional Commits - Say "use conventional commits" in your request
 
 ### `syncing-branch`
+
 Syncs branch with remote, auto-detecting fork vs origin scenarios. Uses appropriate sync strategy based on repository structure.
 
 **Triggered by:** "sync my branch", "pull latest changes", "sync with remote"
 
 **Natural Language Options:**
+
 - Sync specific branch - Say "sync [branch-name]" or "sync the [branch-name] branch"
 
 ### `creating-pull-request`
+
 Creates GitHub pull requests with AI-generated title and description. Automatically handles uncommitted changes (invokes creating-commit), pushes branch, and handles fork vs origin PR creation.
 
 **Triggered by:** "create a PR", "make a pull request", "open a PR"
 
 **Natural Language Options:**
+
 - Draft PR - Say "draft PR" or mention "WIP" in your request
 - Custom title - Say "create PR titled '[your title]'" or "with title '[your title]'"
 - Custom description - Say "with description '[your description]'"
 - Target branch - Say "create PR to [branch]" or "base on [branch]" (defaults to mainline)
 
 ### `creating-branch`
+
 Creates feature branches from current state with smart naming. Automatically detects Conventional Commits usage to generate type-prefixed branch names (feat/, fix/, etc.). Preserves uncommitted changes when creating the new branch.
 
 **Triggered by:** "create a branch", "make a new branch", "create a feature branch"
 
 **Natural Language Options:**
+
 - Create from specific branch - Say "from [branch]" or "based on [branch]" (defaults to mainline)
 - Explicit branch name - Say "called [name]" or "named [name]"
 
 ### `rebasing-branch`
+
 Rebases current branch onto updated mainline with conflict handling and optional author date reset. Syncs base branch first (invokes syncing-branch) and handles fork and origin scenarios automatically.
 
 **Triggered by:** "rebase my branch", "rebase on main", "update my branch with main"
 
 **Natural Language Options:**
+
 - Rebase onto specific branch - Say "rebase onto [branch]" (defaults to mainline)
 - Skip author date reset - Say "skip author date reset" or "keep author dates"
 
@@ -88,12 +99,15 @@ Rebases current branch onto updated mainline with conflict handling and optional
 The following utility skills are automatically invoked by the main workflow skills to encapsulate common operations. You don't need to invoke these directly.
 
 #### `mainline-branch`
+
 Detects the repository's mainline/default branch by querying remote HEAD configuration. Compares current or specified branch against mainline to enforce branch protection. Invoked by commit, PR, branch, and rebase skills.
 
 #### `repository-type`
+
 Detects fork vs origin repository structure by analyzing git remote configuration. Extracts owner and repository names from remote URLs for GitHub operations. Invoked by PR and sync skills.
 
 #### `detect-conventional-commits`
+
 Detects whether the repository follows Conventional Commits convention through configuration analysis and commit history pattern matching. Invoked by commit and branch skills to determine message/name format.
 
 ## Usage
@@ -139,16 +153,19 @@ This ensures workflows are complete and atomic without requiring multiple user c
 The plugin follows consistent reporting standards based on skill type:
 
 **Utility Skills** (mainline-branch, repository-type, detect-conventional-commits):
+
 - Return structured JSON output for programmatic consumption by other skills
 - Include all required data for downstream decision-making
 - Example formats provided in each skill's final phase
 
 **User-Facing Workflow Skills** (creating-commit, creating-branch, creating-pull-request, syncing-branch, rebasing-branch):
+
 - Use standardized reporting templates for consistency
 - Include success indicator (✓), operation name, key information, and next steps when applicable
 - Provide consistent user experience across all git operations
 
 Example template format:
+
 ```text
 ✓ <Operation> Completed Successfully
 

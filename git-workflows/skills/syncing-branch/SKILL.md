@@ -31,11 +31,13 @@ Extract from user request: target branch (if specified, else current)
    - IF not specified: get current branch to use as default
 
 2. **Checkout target branch** if specified and different from current:
+
    ```bash
    git checkout <target-branch>
    ```
 
 **Validation Gate**: IF checkout fails:
+
 - Analyze error:
   - "error: pathspec '...' did not match": Branch doesn't exist
   - "error: Your local changes": Dirty working tree (will be caught by Phase 2)
@@ -118,6 +120,7 @@ Handle error based on `error_type`:
 **IF `success: true`**:
 
 Extract sync results:
+
 ```json
 {
   "success": true,
@@ -149,6 +152,7 @@ Continue to Phase 3.
    - List operations from `operations_performed` array
 
 2. **Report using standardized template**:
+
    ```markdown
    ✓ Branch Synced Successfully
 

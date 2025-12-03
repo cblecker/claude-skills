@@ -24,6 +24,7 @@ Extract from user request: commit message format ("use conventional commits" →
 **Objective**: Collect all commit context in a single atomic operation.
 
 **Steps**:
+
 1. Run `../../scripts/gather-commit-context.sh` to collect all commit context
 
 2. Parse the JSON response and handle results:
@@ -55,6 +56,7 @@ Handle error based on `error_type`:
 **IF `success: true`**:
 
 Extract and store context:
+
 ```json
 {
   "current_branch": "branch name",
@@ -74,6 +76,7 @@ Extract and store context:
 
 ### Validation Gate: Branch Protection
 
+```text
 IF `is_mainline: false` (on feature branch):
   Continue to Phase 2
 
@@ -98,6 +101,7 @@ IF `is_mainline: true` (on mainline):
       STOP immediately
       EXPLAIN: "Branch creation failed, cannot proceed with commit"
       EXIT workflow
+```
 
 Phase 1 complete. Continue to Phase 2.
 
@@ -108,6 +112,7 @@ Phase 1 complete. Continue to Phase 2.
 **Objective**: Draft a concise, informative commit message using context from Phase 1.
 
 **THINKING CHECKPOINT**: Use `mcp__sequential-thinking__sequentialthinking` to:
+
 - Review file categories and diff summary from context
 - Identify core purpose of changes
 - Determine commit type if `uses_conventional_commits: true`
@@ -117,6 +122,7 @@ Phase 1 complete. Continue to Phase 2.
 - Validate accuracy and completeness
 
 **Commit Message Format**:
+
 - **Conventional Commits** (if `uses_conventional_commits: true`):
   - `<type>[scope]: <description>`
   - Example: `feat(auth): add JWT token refresh`
@@ -132,11 +138,13 @@ Phase 1 complete. Continue to Phase 2.
   - Explain why not how
 
 **Co-Authored-By**:
+
 - Respect the `includeCoAuthoredBy` setting in Claude Code configuration
 - IF enabled: Append trailer with Claude attribution
 - Finalize: Subject + body (if any) + co-authored-by (if configured)
 
 **Context Available** for message generation:
+
 - `file_categories`: Types of files changed (code, tests, docs, config)
 - `diff_summary`: Scale of changes (files, insertions, deletions)
 - `recent_commits`: Recent commit messages for style matching
@@ -152,6 +160,7 @@ Continue to Phase 3.
 **Objective**: Present commit details for user review and approval.
 
 **Steps**:
+
 1. Present commit details:
    - **Files to commit**: List from `staged_files` (or all if staging all)
    - **Proposed commit message**: Generated in Phase 2
@@ -173,6 +182,7 @@ Continue to Phase 3.
 ### Validation Gate: User Approval
 
 HANDLE user selection:
+
 - IF "Proceed": Continue to Phase 4
 - IF "Edit message":
   - User provides custom message via "Other" option
@@ -191,23 +201,28 @@ HANDLE user selection:
 **Steps**:
 
 1. Stage files:
+
    ```bash
    git add .
    ```
+
    Or stage specific files from context if user requested selective staging.
 
 2. Create commit with approved message:
+
    ```bash
    git commit -m "<approved message from Phase 3>"
    ```
 
 **Pre-commit Hooks**:
+
 - Git hooks execute normally
 - If hooks modify files, the commit may need to be amended
 
 **Error Handling**:
 
 IF commit fails:
+
 - Analyze error output
 - Common issues:
   - **Pre-commit hook failed**: Review hook output for required changes
@@ -226,7 +241,8 @@ Continue to Phase 5.
 **Steps**:
 
 1. Parse the git commit output from Phase 4, which has the format:
-   ```
+
+   ```text
    [branch-name abc1234] Commit subject
     N files changed, M insertions(+), P deletions(-)
    ```
@@ -238,6 +254,7 @@ Continue to Phase 5.
    - File stats: From second line
 
 3. Display standardized report to user:
+
    ```markdown
    ✓ Commit Completed Successfully
 

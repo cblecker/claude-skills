@@ -9,6 +9,7 @@ This is a personal collection of Claude Code skills that extend Claude Code's ca
 ## Skills Overview
 
 Skills are specialized capabilities that Claude automatically invokes based on task context. Each skill defines:
+
 - **Name and description**: How Claude identifies when to use the skill
 - **Instructions**: Step-by-step workflow with phases and validation gates
 - **Tool restrictions**: Optional allowed-tools list to limit tool access
@@ -32,6 +33,7 @@ Skills are invoked automatically by Claude when user requests match the skill's 
 ```
 
 Skills reference shared scripts using explicit relative paths in SKILL.md:
+
 ```markdown
 Run `../../scripts/scriptname.sh` [args]
 ```
@@ -39,12 +41,14 @@ Run `../../scripts/scriptname.sh` [args]
 ### Skill Format
 
 Skills are directories containing a SKILL.md file with YAML frontmatter:
+
 - **Required frontmatter**: `name`, `description`
 - **Optional frontmatter**: `allowed-tools` (restricts tool access)
 - **Body**: Skill instructions including workflow phases, validation gates, and examples
 - **Supporting files**: Additional markdown files, templates
 
 Example structure:
+
 ```markdown
 ---
 name: example-skill
@@ -65,6 +69,7 @@ allowed-tools:
 Skill descriptions are critical for discoverability and invocation. Follow these guidelines to ensure skills are invoked appropriately by Claude.
 
 **Framework Requirements** (non-negotiable):
+
 - **Third-person voice**: No "you", "your", or second-person language
 - **Descriptive verb-led sentences**: Start with action verbs describing what the skill does
 - **Target 45-52 words**: Scannable yet detailed enough for pattern matching
@@ -88,17 +93,20 @@ Skill descriptions are critical for discoverability and invocation. Follow these
    - Use when: Skill assists with tasks but isn't the primary workflow
 
 **Positioning Signals** (combine with authority patterns above):
+
 - **Primacy indicators**: "Primary", "Standard", "Default" → Establishes as THE workflow (not A workflow)
 - **Trigger framing**: "Standard procedure:", "Use when:", "Use for:" → Clear invocation conditions
 - **System integration**: Reference system concepts like "Git Safety Protocol", "Conventional Commits"
 - **Orchestration**: Mention skill composition: "auto-invokes creating-commit if needed"
 
 **Prohibited Patterns** (violate framework requirements):
+
 - Second-person imperatives: "you MUST invoke", "you should use"
 - Command-style language: "ALWAYS invoke for", "NEVER use bash"
 - Direct prohibitions: "DO NOT use other tools"
 
 **Why These Patterns Are Prohibited:**
+
 - **Scalability**: Multiple skills using imperatives creates conflicting absolutes ("ALWAYS use X" vs. "NEVER use Y")
 - **Semantic Discovery**: Skills should be discovered by capability matching, not rigid routing rules
 - **Contextual Decision-Making**: Descriptive language allows agents to make informed contextual choices
@@ -108,12 +116,14 @@ Skill descriptions are critical for discoverability and invocation. Follow these
 **System-Level Instruction Coordination:**
 
 Skills face asymmetric competition with system prompts:
+
 - **Skill descriptions**: Located in metadata, evaluated when considering which skills to invoke
 - **Tool instructions**: Embedded in Bash/tool descriptions, visible on every tool invocation, often using imperative language
 
 This creates a visibility and authority imbalance where tool-embedded workflows compete directly with skills but have structural advantages.
 
 **Strategies to overcome this:**
+
 1. **Explicit competitor naming**: Mention "bash-based workflows" or "manual git commands" in descriptions to create direct displacement
 2. **Front-load triggers**: Place user request patterns in the first sentence for maximum visibility
 3. **Strong positioning**: Use "Standard workflow for ALL [operations]" and "Canonical implementation" signals
@@ -141,6 +151,7 @@ When skills aren't being invoked as expected:
 4. **Test with explicit requests**: Use trigger phrases from description to verify invocation
 
 **Role-Based Guidance**:
+
 - **User-facing workflows** (commit, PR, branch creation): Use Replacive + positioning signals
 - **Utility skills** (fork detection, branch detection): Use Collaborative framing
 - **Supporting skills** (invoked by other skills): Focus on technical accuracy, use Collaborative
@@ -148,6 +159,7 @@ When skills aren't being invoked as expected:
 **Template Examples**:
 
 *Replacive (user-facing workflow):*
+
 ```text
 Primary [operation] workflow replacing manual [commands]: [implements/orchestrates]
 [protocol/system concept] with [key features]. Standard procedure for [operation
@@ -155,6 +167,7 @@ category]: '[trigger 1]', '[trigger 2]', '[trigger 3]'.
 ```
 
 *Integrative (protocol implementation):*
+
 ```text
 Implements [system protocol] for [operation]: [key feature 1], [key feature 2]
 ([technical detail]), [key feature 3]. Use when [scenario] or saying '[trigger 1]',
@@ -162,6 +175,7 @@ Implements [system protocol] for [operation]: [key feature 1], [key feature 2]
 ```
 
 *Collaborative (utility skill):*
+
 ```text
 Automates [specific task]: [how it works], [what it provides]. [When invoked or
 use case]. Use when [scenario].
@@ -170,6 +184,7 @@ use case]. Use when [scenario].
 ### Optional Components
 
 While this repository currently contains only skills, plugins can optionally include other components:
+
 - **Subagents**: Markdown files with YAML frontmatter defining specialized agents
 - **Slash Commands**: User-invokable commands (different from skills - slash commands require explicit `/command` invocation, while skills are automatically invoked by Claude based on context)
 - **Hooks**: Configuration for lifecycle event handlers
@@ -184,6 +199,7 @@ These components may be added in future iterations as needed.
 The primary plugin in this collection. Provides comprehensive git and GitHub automation through skills-based workflows.
 
 **Skills:**
+
 - `creating-commit` - Atomic commit with code review, analysis, and validation
 - `syncing-branch` - Branch sync with remote (fork vs origin aware)
 - `creating-pull-request` - Pull request creation (can invoke creating-commit if needed)
@@ -191,10 +207,12 @@ The primary plugin in this collection. Provides comprehensive git and GitHub aut
 - `rebasing-branch` - Rebase workflow with conflict handling (invokes syncing-branch for base sync)
 
 **MCP Servers Used:**
+
 - `github` (GitHub Copilot API): GitHub operations via MCP
 - `sequential-thinking`: Structured reasoning for complex decisions
 
 **Architecture Philosophy:**
+
 - **Bash for git, MCP for GitHub**: Uses bash commands for local git operations and MCP tools for GitHub API operations
 - **Skills-based**: Main context directly invokes skills based on user intent (no orchestrator agent)
 - **Phase-based**: Deterministic workflows with validation gates and structured state tracking
@@ -207,6 +225,7 @@ The primary plugin in this collection. Provides comprehensive git and GitHub aut
 - **Plan mode aware**: Skills automatically limited to read-only operations in plan mode
 
 **Skill Description Approach:**
+
 - **User-facing workflows** (creating-commit, creating-branch, creating-pull-request, syncing-branch, rebasing-branch): Use **Replacive authority pattern** (80-85%) with "Primary [operation] workflow replacing manual git commands" framing to establish precedence over bash-based workflows
 - **Utility functions** are implemented as bash scripts (not skills) for efficiency: `get-mainline-branch.sh`, `get-repository-type.sh`, `detect-conventions.sh`
 - All skill descriptions follow framework requirements: third-person voice, 45-52 words, explicit trigger phrases, system protocol integration
@@ -229,6 +248,7 @@ Each phase outputs structured JSON state that passes to the next phase.
 ### Validation Gates
 
 Workflows have mandatory STOP conditions:
+
 - On mainline branch without approval
 - Critical issues in code review
 - Test failures
@@ -242,16 +262,19 @@ When STOP triggered: halt immediately, explain why, propose solution, wait for u
 Skills follow different reporting formats based on their invocation pattern:
 
 **Utility Scripts** (invoked by skills):
+
 - Return structured JSON output for programmatic consumption
 - Include success/failure indicators and all required data
 - Examples: `get-mainline-branch.sh`, `get-repository-type.sh`, `detect-conventions.sh`
 
 **User-Facing Workflow Skills** (invoked by users):
+
 - Use standardized reporting templates for consistency
 - Include success indicator (✓), operation name, key information, and next steps
 - Examples: creating-commit, creating-branch, creating-pull-request, syncing-branch, rebasing-branch
 
 Standard template format for user-facing skills:
+
 ```markdown
 ✓ <Operation> Completed Successfully
 
@@ -280,6 +303,7 @@ Note: Use backslash (`\`) at the end of lines to create hard line breaks in Comm
 ### Testing Skills Locally
 
 Skills are loaded from the local filesystem during development:
+
 ```bash
 /plugin install ./git-workflows
 ```
@@ -289,11 +313,13 @@ This installs the plugin and makes all skills available to Claude.
 ### Validating Skill Configuration
 
 Validate plugin and skill configuration before installing or publishing:
+
 ```bash
 claude plugin validate <path>
 ```
 
 This command checks:
+
 - Plugin metadata and structure
 - Skill definitions and frontmatter
 - YAML syntax and required fields
@@ -301,6 +327,7 @@ This command checks:
 - MCP server configurations
 
 Run validation on any path that contains a `.claude-plugin` directory:
+
 - Repository root: Validates the marketplace configuration
 - Individual plugin directories (e.g., `git-workflows/`): Validates the specific plugin
 
@@ -313,6 +340,7 @@ Evaluate the skill description in git-workflows/skills/creating-commit/SKILL.md
 ```
 
 This skill provides:
+
 - Multi-dimensional analysis (User Request Matching, Authority Level, Semantic Clarity)
 - Model-specific invocation likelihood ratings (Sonnet 4.5 and Haiku)
 - Comparison against competing system instructions (optional)
@@ -324,6 +352,7 @@ The evaluator uses the authority spectrum and best practices defined in this doc
 ### Skills Documentation
 
 For comprehensive guidance on creating effective skills, refer to:
+
 - [How to create custom skills](https://support.claude.com/en/articles/12512198-how-to-create-custom-skills) - Tutorial and quick start
 - [Agent skills best practices](https://docs.claude.com/en/docs/agents-and-tools/agent-skills/best-practices) - Design patterns and recommendations
 - [Skills reference](https://docs.claude.com/en/docs/claude-code/plugins-reference#skills) - Technical specification and API reference
@@ -331,13 +360,22 @@ For comprehensive guidance on creating effective skills, refer to:
 ### Plugin Versioning
 
 Follow semantic versioning in plugin.json:
+
 - **Major**: Breaking changes to skill interfaces or behavior
 - **Minor**: New skills or backward-compatible enhancements
 - **Patch**: Bug fixes and documentation updates
 
 ### Markdown Style Guidelines
 
-All markdown files must comply with standard linting rules:
+All markdown files must comply with standard linting rules enforced by markdownlint-cli2.
+
+**Linting Configuration:**
+
+- Configuration file: `.markdownlint.json` at repository root
+- Linter runs automatically in CI via `.github/workflows/lint.yml`
+- To run locally: `npx markdownlint-cli2 "**/*.md"`
+
+**Enforced Rules:**
 
 - **MD040 - Fenced code blocks require language identifiers**: Every fenced code block must specify a language. Use appropriate identifiers:
   - `bash` - Shell commands and scripts
@@ -345,3 +383,9 @@ All markdown files must comply with standard linting rules:
   - `yaml` - YAML configuration
   - `markdown` - Markdown examples
   - `text` - Plain text, user prompts, or generic content
+
+**Disabled Rules:**
+
+- **MD013** (line-length): Disabled to allow long lines in skill instructions
+- **MD033** (no-inline-html): Disabled to allow HTML when needed
+- **MD036** (no-emphasis-as-heading): Disabled to allow bold labels like "Step 1:" and "Validation Gate:" in skill instructions

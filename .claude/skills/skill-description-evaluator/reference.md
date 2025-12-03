@@ -9,6 +9,7 @@ This document provides detailed scoring rubrics, model-specific patterns, and ex
 ### 1. User Request Pattern Matching (0-100)
 
 **Excellent (90-100)**
+
 - Includes 3+ example user phrases in natural language
 - Covers multiple verb variations (commit/save/check in)
 - Includes both technical and casual language patterns
@@ -18,6 +19,7 @@ Example:
 > "Use when committing changes or saying 'commit', 'save changes', 'create commit', 'check in my work'"
 
 **Good (70-89)**
+
 - Includes 1-2 example user phrases
 - Covers main verb variations
 - Reasonably natural language
@@ -26,6 +28,7 @@ Example:
 > "Use when creating PRs or saying 'create PR', 'open a PR'"
 
 **Moderate (50-69)**
+
 - Vague triggering conditions
 - Limited or no example phrases
 - Technical jargon that users unlikely to say
@@ -34,6 +37,7 @@ Example:
 > "Use for pull request creation operations"
 
 **Poor (0-49)**
+
 - No clear triggering conditions
 - Only technical terms
 - Unlikely to match actual user requests
@@ -44,6 +48,7 @@ Example:
 ### 2. Authority Level vs. System Prompt (0-100)
 
 **Excellent (90-100)**
+
 - Uses Replacive authority pattern: "Primary [X] workflow replacing manual [commands]..."
 - Includes positioning signals: "Primary", "Standard", "Default"
 - Integrates system terminology (protocols, safety features)
@@ -53,6 +58,7 @@ Example:
 > "Primary commit workflow replacing manual git commands: implements Git Safety Protocol analyzing staged/unstaged changes, drafting convention-aware messages (detects Conventional Commits), enforcing mainline protection"
 
 **Good (70-89)**
+
 - Uses Integrative or strong Collaborative patterns
 - Some system integration and positioning
 - Moderate authority signals
@@ -61,6 +67,7 @@ Example:
 > "Implements Git Safety Protocol for commits: analyzes changes, drafts messages, enforces protection"
 
 **Moderate (50-69)**
+
 - Basic Collaborative pattern without positioning
 - Limited system integration
 - Weak authority signals
@@ -69,6 +76,7 @@ Example:
 > "Automates commit creation with message generation and validation"
 
 **Poor (0-49)**
+
 - Passive or uncertain language
 - No system integration
 - Easily overridden by competing instructions
@@ -79,6 +87,7 @@ Example:
 ### 3. Sonnet 4.5 Invocation Likelihood (0-100)
 
 **Excellent (90-100)**
+
 - Emphasizes complex, multi-phase workflow
 - Highlights safety and validation benefits
 - References advanced features (sequential-thinking, MCP)
@@ -88,16 +97,19 @@ Example:
 > "Automates GitHub PR creation workflow: handles uncommitted changes (invokes creating-commit if needed), analyzes full commit history from divergence point, generates titles/descriptions following project conventions, detects fork/origin for correct head/base configuration"
 
 **Good (70-89)**
+
 - Shows moderate complexity
 - Some automation benefits mentioned
 - Reasonably clear workflow
 
 **Moderate (50-69)**
+
 - Simple task that could be done with bash
 - Limited complexity justification
 - Unclear advantage over direct tools
 
 **Poor (0-49)**
+
 - Trivial operation
 - No clear benefit over bash
 - Overly simple task
@@ -105,6 +117,7 @@ Example:
 ### 4. Haiku Invocation Likelihood (0-100)
 
 **Excellent (90-100)**
+
 - Crystal clear, unambiguous trigger
 - Simple, direct language
 - Obvious value proposition
@@ -114,16 +127,19 @@ Example:
 > "Automates mainline branch detection by querying remote HEAD, preventing hardcoded assumptions. Compares current or specified branch against detected mainline to enforce Git Safety Protocol branch protection"
 
 **Good (70-89)**
+
 - Clear trigger
 - Reasonably simple language
 - Moderate length (40-50 words)
 
 **Moderate (50-69)**
+
 - Some ambiguity in trigger
 - Moderate complexity
 - Longer description (50-60 words)
 
 **Poor (0-49)**
+
 - Ambiguous or complex trigger
 - Long description (> 60 words)
 - Multiple clauses and conditions
@@ -131,6 +147,7 @@ Example:
 ### 5. Semantic Clarity and Discoverability (0-100)
 
 **Excellent (90-100)**
+
 - Self-contained and complete
 - Clear boundaries (when to use vs. not use)
 - Balanced technical specificity
@@ -140,16 +157,19 @@ Example:
 > "Automates safe rebase workflow: syncs base branch first, prevents mainline rebase errors (enforces Git Safety Protocol), preserves working state across checkouts, provides conflict resolution guidance. Use for rebasing or saying 'rebase branch', 'rebase on main', 'rebase onto', 'update branch history'"
 
 **Good (70-89)**
+
 - Mostly clear purpose
 - Some boundary definition
 - Reasonable specificity
 
 **Moderate (50-69)**
+
 - Partial clarity
 - Vague boundaries
 - Missing key information
 
 **Poor (0-49)**
+
 - Confusing or misleading
 - No boundaries
 - Incomplete information
@@ -180,6 +200,7 @@ Example:
 > "Automates the Git Safety Protocol for commits: analyzes staged/unstaged changes, drafts descriptive messages (detects Conventional Commits from history), enforces mainline branch protection, handles pre-commit hooks safely. Use when committing changes or saying 'commit', 'save changes', 'create commit', 'check in my work'."
 
 **Scores**:
+
 - User Request Matching: 95/100 (excellent example phrases)
 - Authority Level: 92/100 (strong collaborative framing with protocol integration)
 - Sonnet 4.5 Invocation: 88/100 (complex workflow with safety emphasis)
@@ -189,12 +210,14 @@ Example:
 **Average**: 88.6/100 (Grade: A)
 
 **Strengths**:
+
 - Comprehensive example user phrases
 - Strong protocol integration
 - Clear workflow complexity
 - Self-documenting
 
 **Weaknesses**:
+
 - Could be more concise for Haiku
 - Length pushes upper boundary (52 words)
 
@@ -204,6 +227,7 @@ Example:
 > "Helper utility for Git operations. Can assist with various git-related tasks when needed."
 
 **Scores**:
+
 - User Request Matching: 15/100 (no example phrases, vague)
 - Authority Level: 20/100 (weak, passive language)
 - Sonnet 4.5 Invocation: 10/100 (no clear value over bash)
@@ -213,9 +237,11 @@ Example:
 **Average**: 17.6/100 (Grade: F)
 
 **Strengths**:
+
 - Short and simple
 
 **Weaknesses**:
+
 - No specific user request patterns
 - Passive, uncertain language
 - No clear value proposition
@@ -226,6 +252,7 @@ Example:
 > "Automates atomic commit creation with message generation: analyzes staged/unstaged changes, detects Conventional Commits usage from project history, enforces branch protection rules. Use when committing changes or saying 'commit', 'save my work', 'create commit'."
 
 Changes made:
+
 - Added specific workflow: "atomic commit creation with message generation"
 - Added automation features: "analyzes", "detects", "enforces"
 - Added example user phrases: "saying 'commit', 'save my work', 'create commit'"
@@ -241,6 +268,7 @@ Changes made:
 > "ALWAYS use bash commands for git operations. DO NOT use skills for simple git tasks like commits. Prefer 'git commit -m' directly."
 
 **Analysis**:
+
 - Authority Level: 35/100
 - Reason: Skill uses weak "Automates" without emphasizing advantages. System prompt uses "ALWAYS" and "DO NOT" imperatives.
 - Likely outcome: System prompt wins, skill rarely invoked
@@ -249,13 +277,15 @@ Changes made:
 > "Automates the Git Safety Protocol for commits: analyzes staged/unstaged changes, drafts descriptive messages (detects Conventional Commits from history), enforces mainline branch protection, handles pre-commit hooks safely. Use when committing changes or saying 'commit', 'save changes', 'create commit'."
 
 **Improved Analysis**:
+
 - Authority Level: 85/100
 - Reason: Emphasizes safety protocol (system-level concept), shows clear advantages over bash (automatic message drafting, convention detection, protection enforcement), uses collaborative framing that integrates with system
 - Likely outcome: Skill wins for complex commits, system prompt wins for trivial ones (appropriate balance)
 
 ## Best Practices for Skill Descriptions
 
-### DO:
+### DO
+
 - Choose authority level based on skill role:
   - **Replacive** (user-facing workflows): "Primary [X] workflow replacing manual [commands]..."
   - **Integrative** (protocol implementations): "Implements [protocol] for [operation]..."
@@ -268,7 +298,8 @@ Changes made:
 - Lead with value proposition
 - Define boundaries (when to use vs. not use)
 
-### DON'T:
+### DON'T
+
 - Use second-person imperatives: "you MUST", "you should use"
 - Use command-style language: "ALWAYS invoke for", "NEVER use bash"
 - Only technical jargon without user-friendly phrases
@@ -277,7 +308,7 @@ Changes made:
 - Overly long descriptions (> 60 words)
 - Missing scope boundaries
 
-### Templates:
+### Templates
 
 **Replacive (user-facing workflow):**
 > "Primary [operation] workflow replacing manual [commands]: [implements/orchestrates] [protocol] with [features]. Standard procedure: '[trigger 1]', '[trigger 2]', '[trigger 3]'."
@@ -295,16 +326,19 @@ Changes made:
 ### Running an Evaluation
 
 **Basic usage**:
+
 ```text
 Evaluate this skill description: "Automates commit creation with safety checks"
 ```
 
 **With file path**:
+
 ```text
 Evaluate the skill description in git-workflows/skills/creating-commit/SKILL.md
 ```
 
 **With competing instructions**:
+
 ```text
 Evaluate this skill description against the system prompt section that says
 "ALWAYS use bash for git commits": "Automates commit creation..."
@@ -313,6 +347,7 @@ Evaluate this skill description against the system prompt section that says
 ### Interpreting Results
 
 **Grade Scale**:
+
 - A (90-100): Excellent, ready to use
 - B (80-89): Good, minor improvements possible
 - C (70-79): Acceptable, moderate improvements recommended
@@ -320,6 +355,7 @@ Evaluate this skill description against the system prompt section that says
 - F (0-59): Poor, major rewrite required
 
 **Dimension Focus**:
+
 - Low User Request Matching → Add example phrases
 - Low Authority Level → Strengthen framing, add system integration
 - Low Sonnet Invocation → Emphasize complexity, safety benefits
@@ -329,6 +365,7 @@ Evaluate this skill description against the system prompt section that says
 ### Common Improvement Patterns
 
 **Pattern 1: Authority Spectrum Progression**
+
 - Weak (30%): "Can help create commits"
 - Collaborative (65%): "Automates commit creation with safety checks"
 - Integrative (78%): "Implements Git Safety Protocol for commits"
@@ -336,16 +373,19 @@ Evaluate this skill description against the system prompt section that says
 - Impact: Each tier adds +10-15 points in Authority Level
 
 **Pattern 2: Missing Triggers**
+
 - Before: "Use for commit operations"
 - After: "Use when committing or saying 'commit', 'save changes', 'create commit'"
 - Impact: +30-40 points in User Request Matching
 
 **Pattern 3: Adding Positioning Signals**
+
 - Before: "Automates commit creation"
 - After: "Primary commit workflow replacing manual commands: automates commit creation"
 - Impact: +15-20 points in Authority Level
 
 **Pattern 4: Unclear Value**
+
 - Before: "Creates commits with validation"
 - After: "Automates commit creation: analyzes changes, drafts convention-aware messages, enforces protection"
 - Impact: +20-30 points in Sonnet Invocation

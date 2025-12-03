@@ -16,14 +16,17 @@ The scripts are organized into categories based on their purpose:
 ### 1. Helper Scripts
 
 #### parse-git-status.sh
+
 Parses `git status --porcelain` output into structured JSON.
 
 **Usage:**
+
 ```bash
 git status --porcelain | ./parse-git-status.sh
 ```
 
 **Output:**
+
 ```json
 {
   "is_clean": false,
@@ -36,14 +39,17 @@ git status --porcelain | ./parse-git-status.sh
 ```
 
 #### categorize-files.sh
+
 Categorizes files by type (code, tests, docs, config, other).
 
 **Usage:**
+
 ```bash
 echo -e "src/main.ts\nREADME.md" | ./categorize-files.sh
 ```
 
 **Output:**
+
 ```json
 {
   "code": ["src/main.ts"],
@@ -57,14 +63,17 @@ echo -e "src/main.ts\nREADME.md" | ./categorize-files.sh
 ### 2. Utility Scripts
 
 #### get-repository-type.sh
+
 Detects fork vs origin repository and extracts owner/repo metadata.
 
 **Usage:**
+
 ```bash
 ./get-repository-type.sh
 ```
 
 **Output (Fork):**
+
 ```json
 {
   "success": true,
@@ -83,14 +92,17 @@ Detects fork vs origin repository and extracts owner/repo metadata.
 ```
 
 #### get-mainline-branch.sh
+
 Detects mainline branch and optionally compares against a specified branch.
 
 **Usage:**
+
 ```bash
 ./get-mainline-branch.sh [branch_name]
 ```
 
 **Output:**
+
 ```json
 {
   "success": true,
@@ -101,14 +113,17 @@ Detects mainline branch and optionally compares against a specified branch.
 ```
 
 #### detect-conventions.sh
+
 Detects if repository uses Conventional Commits.
 
 **Usage:**
+
 ```bash
 ./detect-conventions.sh
 ```
 
 **Output (With commitlint config):**
+
 ```json
 {
   "success": true,
@@ -120,6 +135,7 @@ Detects if repository uses Conventional Commits.
 ```
 
 **Output (From commit history):**
+
 ```json
 {
   "success": true,
@@ -134,14 +150,17 @@ Detects if repository uses Conventional Commits.
 ### 3. Context Gatherers
 
 #### gather-commit-context.sh
+
 Gathers all context needed for commit message generation in a single call.
 
 **Usage:**
+
 ```bash
 ./gather-commit-context.sh
 ```
 
 **Output:**
+
 ```json
 {
   "success": true,
@@ -183,14 +202,17 @@ Gathers all context needed for commit message generation in a single call.
 **Replaces:** 10-12 separate tool calls in `creating-commit` skill
 
 #### gather-pr-context.sh
+
 Gathers all context needed for PR title/description generation.
 
 **Usage:**
+
 ```bash
 ./gather-pr-context.sh [base_branch]
 ```
 
 **Output:**
+
 ```json
 {
   "success": true,
@@ -229,14 +251,17 @@ Gathers all context needed for PR title/description generation.
 ### 4. Workflow Execution Scripts
 
 #### sync-branch.sh
+
 Executes fork-aware branch synchronization with automatic remote detection.
 
 **Usage:**
+
 ```bash
 ./sync-branch.sh [branch_name]
 ```
 
 **Output (Fork - Success):**
+
 ```json
 {
   "success": true,
@@ -253,6 +278,7 @@ Executes fork-aware branch synchronization with automatic remote detection.
 ```
 
 **Output (Origin - Success):**
+
 ```json
 {
   "success": true,
@@ -268,6 +294,7 @@ Executes fork-aware branch synchronization with automatic remote detection.
 ```
 
 **Error (Uncommitted Changes):**
+
 ```json
 {
   "success": false,
@@ -283,20 +310,24 @@ Executes fork-aware branch synchronization with automatic remote detection.
 ### 5. Verification Scripts
 
 #### verify-operation.sh
+
 Provides standardized verification and reporting for workflow operations.
 
 **Usage:**
+
 ```bash
 ./verify-operation.sh <operation_type> [args...]
 ```
 
 **Operation Types:**
+
 - `commit`: Verify last commit
 - `branch <branch_name> [base_branch]`: Verify branch creation
 - `sync <branch_name>`: Verify sync operation
 - `pr <pr_url>`: Verify PR creation
 
 **Output (Commit):**
+
 ```json
 {
   "success": true,
@@ -371,16 +402,19 @@ Use verify-operation.sh to generate standardized report.
 ### Tool Call Reduction
 
 **creating-commit skill:**
+
 - Before: ~12-15 tool calls
 - After: 3 tool calls (gather-context, git_add, git_commit)
 - **Reduction: 75-80%**
 
 **creating-pull-request skill:**
+
 - Before: ~10-12 tool calls
 - After: 2-3 tool calls (gather-context, create PR)
 - **Reduction: 75-83%**
 
 **Utility operations:**
+
 - Repository type detection: 4-5 calls → 1 call (80% reduction)
 - Mainline branch detection: 2-3 calls → 1 call (67% reduction)
 - Convention detection: Multiple glob/read operations → 1 call (90% reduction)
@@ -388,6 +422,7 @@ Use verify-operation.sh to generate standardized report.
 ### Execution Speed
 
 Scripts execute deterministic operations 3-5x faster than step-by-step tool calls due to:
+
 - Single process execution
 - No tool call overhead
 - Atomic operations
@@ -398,6 +433,7 @@ Scripts execute deterministic operations 3-5x faster than step-by-step tool call
 All scripts return JSON with a `success` field:
 
 ### Success Response
+
 ```json
 {
   "success": true,
@@ -406,6 +442,7 @@ All scripts return JSON with a `success` field:
 ```
 
 ### Error Response
+
 ```json
 {
   "success": false,
@@ -416,6 +453,7 @@ All scripts return JSON with a `success` field:
 ```
 
 ### Common Error Types
+
 - `not_git_repo`: Not in a git repository
 - `no_remote`: No remote configured
 - `clean_working_tree`: No changes to commit
@@ -443,6 +481,7 @@ Current test coverage: All tests passing
 ## Dependencies
 
 All scripts require:
+
 - `bash` (POSIX-compliant)
 - `git`
 - `jq` (for JSON processing)
@@ -473,6 +512,7 @@ git-workflows/
 Skills use `../../scripts/<script-name>.sh` to reference shared scripts directly.
 
 **Benefits:**
+
 - No symlink indirection - scripts are called from their actual location
 - Explicit paths that Claude interprets unambiguously
 - Simpler directory structure
@@ -483,6 +523,7 @@ Skills use `../../scripts/<script-name>.sh` to reference shared scripts directly
 Scripts use exit codes to distinguish between actual errors and expected conditions:
 
 **Exit 1 (Actual Errors):**
+
 - `missing_dependency` - Required tool (jq, git) not installed
 - `not_git_repo` - Not in a git repository
 - `remote_head_not_found` - Cannot detect remote HEAD
@@ -496,6 +537,7 @@ Scripts use exit codes to distinguish between actual errors and expected conditi
 - `invalid_url` - Could not parse remote URL
 
 **Exit 0 (Expected Conditions):**
+
 - `on_base_branch` - User is on the base/mainline branch
 - `no_commits` - No commits between branches
 - `clean_working_tree` - No changes to commit
@@ -506,6 +548,7 @@ This allows Claude Code to show error indicators only for actual script failures
 ## Completed Implementation
 
 All planned scripts from the refactor (Phases 1-5) are now complete:
+
 - ✓ Helper scripts (parse-git-status, categorize-files)
 - ✓ Utility scripts (get-repository-type, get-mainline-branch, detect-conventions)
 - ✓ Context gatherers (gather-commit-context, gather-pr-context)
@@ -517,6 +560,7 @@ All planned scripts from the refactor (Phases 1-5) are now complete:
 ## Future Enhancements
 
 Potential future additions:
+
 - Performance monitoring and metrics collection
 - Additional workflow automation scripts
 - Enhanced conflict resolution guidance
@@ -525,5 +569,6 @@ Potential future additions:
 ## Support
 
 For issues or questions:
+
 - Check test files for usage examples
 - See skill implementations for integration patterns
