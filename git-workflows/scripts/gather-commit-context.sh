@@ -154,7 +154,7 @@ main() {
   local is_clean
   is_clean=$(echo "$status_info" | jq -r '.is_clean')
 
-  # Check if working tree is clean (error condition for commit)
+  # Check if working tree is clean (expected condition - not an error)
   if [ "$is_clean" = "true" ]; then
     jq -n \
       --arg error_type "clean_working_tree" \
@@ -166,7 +166,7 @@ main() {
         message: $message,
         suggested_action: $suggested_action
       }'
-    exit 1
+    exit 0
   fi
 
   # Extract file lists from status

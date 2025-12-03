@@ -170,7 +170,7 @@ main() {
     exit 1
   fi
 
-  # Check for uncommitted changes
+  # Check for uncommitted changes (expected condition - not an error)
   if check_uncommitted_changes; then
     # Get list of uncommitted files (use cut -c4- to preserve spaces in filenames)
     local uncommitted_files
@@ -188,7 +188,7 @@ main() {
         suggested_action: $suggested_action,
         uncommitted_files: $uncommitted_files
       }'
-    exit 1
+    exit 0
   fi
 
   # Get repository type

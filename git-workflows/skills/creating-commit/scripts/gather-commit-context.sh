@@ -1,1 +1,0 @@
-../../../scripts/gather-commit-context.sh

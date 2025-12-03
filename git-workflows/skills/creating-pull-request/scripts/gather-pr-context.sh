@@ -1,1 +1,0 @@
-../../../scripts/gather-pr-context.sh
