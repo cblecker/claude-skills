@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Parse git status --porcelain output into structured JSON
 # Usage: git status --porcelain | ./parse-git-status.sh
+#
+# Exit codes:
+#   0 - Success
+#   1 - Actual errors (missing_dependency)
 
 set -euo pipefail
 

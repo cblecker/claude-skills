@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Detect if repository uses Conventional Commits
 # Usage: ./detect-conventions.sh
+#
+# Exit codes:
+#   0 - Success
+#   1 - Actual errors (missing_dependency, not_git_repo)
 
 set -euo pipefail
 

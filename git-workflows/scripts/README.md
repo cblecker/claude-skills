@@ -490,6 +490,10 @@ Scripts use exit codes to distinguish between actual errors and expected conditi
 - `sync_conflict` - Merge conflict during sync
 - `sync_failed` - Sync operation failed
 - `branch_diverged` - Branch has diverged from remote
+- `branch_not_found` - Specified branch does not exist
+- `repo_type_detection_failed` - Could not detect repository type
+- `no_remote` - No origin remote configured
+- `invalid_url` - Could not parse remote URL
 
 **Exit 0 (Expected Conditions):**
 - `on_base_branch` - User is on the base/mainline branch

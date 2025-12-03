@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Detect fork vs origin repository and extract owner/repo metadata
 # Usage: ./get-repository-type.sh
+#
+# Exit codes:
+#   0 - Success
+#   1 - Actual errors (missing_dependency, not_git_repo, no_remote, invalid_url)
 
 set -euo pipefail
 

@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Gather all context needed for commit message generation
 # Usage: ./gather-commit-context.sh
+#
+# Exit codes:
+#   0 - Success, or expected conditions (clean_working_tree)
+#   1 - Actual errors (missing_dependency, not_git_repo, git_status_failed)
 
 set -euo pipefail
 

@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Gather all context needed for PR title/description generation
 # Usage: ./gather-pr-context.sh <base_branch>
+#
+# Exit codes:
+#   0 - Success, or expected conditions (on_base_branch, no_commits)
+#   1 - Actual errors (missing_dependency, not_git_repo)
 
 set -euo pipefail
 

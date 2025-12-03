@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Detect mainline branch and optionally compare against a specified branch
 # Usage: ./get-mainline-branch.sh [branch_name]
+#
+# Exit codes:
+#   0 - Success
+#   1 - Actual errors (missing_dependency, not_git_repo, remote_head_not_found)
 
 set -euo pipefail
 
