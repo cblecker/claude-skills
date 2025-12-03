@@ -63,6 +63,7 @@ Handle error based on `error_type`:
 **IF `success: true`**:
 
 Extract and store context:
+
 ```json
 {
   "current_branch": "feature-branch",
@@ -132,6 +133,7 @@ Phase 2 complete. Continue to Phase 3.
 **Objective**: Create compelling PR title and description using context from Phase 1.
 
 **THINKING CHECKPOINT**: Use `mcp__sequential-thinking__sequentialthinking` to:
+
 - Review commit history and diff summary from Phase 1 context
 - Use `commit_history` array (contains hash, subject, body for each commit)
 - Use `diff_summary` object (files_changed, insertions, deletions)
@@ -141,6 +143,7 @@ Phase 2 complete. Continue to Phase 3.
 - Validate quality and completeness
 
 **Steps**:
+
 1. Check user request for explicit title/description; use if provided
 2. If not provided:
    - Title: Use Conventional Commits format if `uses_conventional_commits: true` from context
@@ -148,6 +151,7 @@ Phase 2 complete. Continue to Phase 3.
 3. Populate from `commit_history` and `diff_summary` in context
 
 **Context Available** for PR content generation:
+
 - `commit_history`: Array of commits with hash, subject, body
 - `diff_summary`: Files changed, insertions, deletions
 - `uses_conventional_commits`: Whether to use conventional format for title
@@ -163,6 +167,7 @@ Continue to Phase 4.
 **Objective**: Present generated PR content for user review and approval.
 
 **Steps**:
+
 1. Present: Generated PR title and description from Phase 3
 2. Request approval using AskUserQuestion tool:
    - Question: "How would you like to proceed with this pull request?"
@@ -176,6 +181,7 @@ Continue to Phase 4.
 ### Validation Gate: Content Approval
 
 HANDLE user selection:
+
 - IF "Proceed": Continue to Phase 5
 - IF "Edit title":
   - User provides custom title via "Other" option
@@ -203,9 +209,11 @@ Continue to Phase 5.
 **Plan Mode**: Auto-enforced read-only if active
 
 **Steps**:
+
 1. Use `current_branch` from Phase 1 context (no need to query git)
 
 2. Push branch with upstream tracking:
+
    ```bash
    git push -u origin <current_branch>
    ```
@@ -213,6 +221,7 @@ Continue to Phase 5.
 ### Validation Gate: Push Failure
 
 IF push fails:
+
 - Analyze error:
   - "fatal: could not read Username": Authentication required
   - "error: failed to push": Rejected, may need force
@@ -236,6 +245,7 @@ Continue to Phase 6.
 **Plan Mode**: Auto-enforced read-only if active
 
 **Steps**:
+
 1. Prepare parameters from Phase 1 context:
    - owner, repo: From `repository` object
    - head: `current_branch`
@@ -247,6 +257,7 @@ Continue to Phase 6.
 3. Create: `mcp__github__create_pull_request` with all parameters
 
 **Error Handling**: IF failure:
+
 - Use `mcp__sequential-thinking__sequentialthinking` to analyze
 - Explain: Auth, permissions, invalid params, duplicate PR, rate limit, or network
 - Propose solution and wait for retry approval
@@ -260,9 +271,11 @@ Continue to Phase 7.
 **Objective**: Provide PR URL and confirm success with standardized output.
 
 **Steps**:
+
 1. Extract from Phase 6: PR number, URL, state, title
 
 2. Format output using standardized template:
+
    ```markdown
    ✓ Pull Request Created Successfully
 

@@ -26,6 +26,7 @@ Extract from user request: target branch (if specified, else mainline), author d
 **Step 1: Get current branch**
 
 Get current branch:
+
 ```bash
 git branch --show-current
 ```
@@ -37,6 +38,7 @@ Capture: current_branch
 Run `../../scripts/get-mainline-branch.sh` with the current branch as parameter
 
 Parse JSON response:
+
 - Extract `mainline_branch` field
 - Extract `is_mainline` flag (true if current branch matches mainline)
 - Store both for later phases
@@ -44,6 +46,7 @@ Parse JSON response:
 **Step 3: Check working tree status**
 
 Check status:
+
 ```bash
 git status --porcelain
 ```
@@ -89,6 +92,7 @@ Phase 1 complete. Continue to Phase 2.
 **Step 1: Check user request for rebase target**
 
 Analyze user's request for target branch specification:
+
 - Look for phrases like: "rebase onto <branch>", "rebase on <branch>", "rebase against <branch>"
 - Common branch names: main, master, develop, staging, release, etc.
 
@@ -111,6 +115,7 @@ Phase 2 complete. Continue to Phase 3.
 **Step 1: Checkout base branch**
 
 Checkout rebase base:
+
 ```bash
 git checkout <rebase_base from Phase 2>
 ```
@@ -124,13 +129,15 @@ IF checkout fails:
   STOP immediately
 
   Analyze and explain error:
-  - "error: pathspec '...' did not match": Base branch doesn't exist locally
-  - "error: Your local changes": Working tree not clean (shouldn't happen after Phase 1)
-  - Other: Permission issues
+
+- "error: pathspec '...' did not match": Base branch doesn't exist locally
+- "error: Your local changes": Working tree not clean (shouldn't happen after Phase 1)
+- Other: Permission issues
 
   Propose solution:
-  - Doesn't exist: "Verify branch name with `git branch --all` or create it"
-  - Permission: "Check repository access and file permissions"
+
+- Doesn't exist: "Verify branch name with `git branch --all` or create it"
+- Permission: "Check repository access and file permissions"
 
   WAIT for user decision
 
@@ -145,6 +152,7 @@ Phase 3 complete. Continue to Phase 4.
 **Plan Mode Handling**
 
 Plan mode is automatically enforced by the system. IF currently in plan mode:
+
 - Sync operation will be read-only
 - Skills invoked will operate in read-only mode
 - Continue through workflow for demonstration purposes
@@ -185,6 +193,7 @@ Retrieve saved_branch from Phase 1 (NOT current branch - we're on base branch no
 **Step 1: Checkout feature branch**
 
 Checkout saved branch:
+
 ```bash
 git checkout <saved_branch from Phase 1>
 ```
@@ -215,10 +224,12 @@ Phase 5 complete. Continue to Phase 6.
 **Plan Mode**: Auto-enforced read-only if active
 
 **Steps**:
+
 1. Execute: `git rebase <rebase-base>` (from Phase 2)
 2. Check exit code
 
 **Validation Gate**:
+
 - IF success (exit 0): Continue to Phase 7
 - IF conflicts: PAUSE workflow (normal, not failure)
   - Guide: Edit files, remove markers, `git add`, `git rebase --continue` or `--abort`
@@ -240,11 +251,13 @@ Continue to Phase 7.
 **Plan Mode**: Auto-enforced read-only if active
 
 **Steps**:
+
 1. Find fork point: `git merge-base --fork-point <rebase-base>` (from Phase 2)
 2. Reset dates: `git rebase <fork-point> --reset-author-date`
 3. Check exit code
 
 **Validation Gate**: IF reset fails:
+
 - Warn: Rebase succeeded but date reset failed
 - Ask to continue without reset or abort
 
@@ -257,7 +270,9 @@ Continue to Phase 8.
 **Objective**: Confirm rebase completed successfully.
 
 **Steps**:
+
 1. Verify current branch:
+
    ```bash
    git branch --show-current
    ```
@@ -265,17 +280,21 @@ Continue to Phase 8.
 2. Compare to saved_branch from Phase 1
 
 3. Check status:
+
    ```bash
    git status --porcelain
    ```
+
    Verify clean (empty output)
 
 4. Get recent commits:
+
    ```bash
    git log --oneline -5
    ```
 
 5. Report using template:
+
    ```markdown
    ✓ Branch Rebased Successfully
 
@@ -290,6 +309,7 @@ Continue to Phase 8.
    ```
 
 **Validation Gate**: IF current branch ≠ saved_branch:
+
 - STOP: "Branch state inconsistent after rebase"
 - SHOW: Expected (<saved_branch>) vs Actual
 - PROPOSE: "Manually checkout with: `git checkout <saved_branch>`"

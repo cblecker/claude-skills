@@ -35,6 +35,7 @@ Extract from user request: skill description (inline text or file path), competi
    - Prompt: Ask user if neither provided
 
 2. IF file path provided:
+
    ```text
    Use Read tool to read file at specified path
    Extract description from YAML frontmatter if SKILL.md format
@@ -111,18 +112,21 @@ Phase 2 complete. Continue to Phase 3.
 Analyze the skill description across these dimensions, scoring each 0-100:
 
 **1. User Request Pattern Matching (0-100)**
+
 - How well does the description match common user request patterns?
 - Does it include example phrases users might say?
 - Are the verbs and actions natural language triggers?
 - Does it cover variations of the same intent?
 
 Consider:
+
 - Presence of example user phrases ("saying 'X', 'Y', 'Z'")
 - Verb diversity (multiple ways to express same intent)
 - Natural language patterns vs. technical jargon
 - Breadth of triggering scenarios
 
 Score interpretation:
+
 - 90-100: Excellent coverage with multiple natural variants
 - 70-89: Good coverage with some variants
 - 50-69: Moderate coverage, missing common variants
@@ -130,12 +134,14 @@ Score interpretation:
 - 0-29: Poor coverage, unlikely to match user requests
 
 **2. Authority Level vs. System Prompt (0-100)**
+
 - How authoritative is the description compared to competing instructions?
 - Which authority level does it use: Replacive (80-85%), Integrative (75-80%), or Collaborative (60-70%)?
 - Will it overcome competing system instructions?
 - Does it integrate system terminology to appear native?
 
 Consider:
+
 - IF competing_instructions provided: Compare authority levels directly
 - IF competing_instructions = null: Assess absolute authority level
 - Language patterns: Replacive ("Primary [X] replacing..."), Integrative ("Implements [protocol]..."), Collaborative ("Automates...")
@@ -143,6 +149,7 @@ Consider:
 - Trust signals: Automation benefits, workflow clarity, positioning indicators ("Primary", "Standard")
 
 Score interpretation:
+
 - 90-100: Strong authority, likely to override competing instructions
 - 70-89: Good authority, competitive with most instructions
 - 50-69: Moderate authority, may lose to strong imperatives
@@ -150,18 +157,21 @@ Score interpretation:
 - 0-29: Very weak, will almost never compete successfully
 
 **3. Sonnet 4.5 Invocation Likelihood (0-100)**
+
 - How likely is Sonnet 4.5 to invoke this skill vs. bash workflows?
 - Does it emphasize automation and safety benefits?
 - Is the value proposition clear for complex workflows?
 - Does it integrate advanced features (sequential-thinking, MCP tools)?
 
 Consider:
+
 - Sonnet 4.5 characteristics: Strong reasoning, prefers structured workflows, values safety
 - Competing with bash: Does description highlight advantages over manual commands?
 - Complexity threshold: Is the task complex enough to warrant skill invocation?
 - Safety emphasis: Does it reference protocols, validation gates, error handling?
 
 Score interpretation:
+
 - 90-100: Highly likely to invoke, clear complexity and safety benefits
 - 70-89: Likely to invoke for appropriate tasks
 - 50-69: May invoke, depends on task complexity
@@ -169,18 +179,21 @@ Score interpretation:
 - 0-29: Very unlikely, would prefer bash/direct tools
 
 **4. Haiku Invocation Likelihood (0-100)**
+
 - How likely is Haiku to invoke this skill vs. bash workflows?
 - Is the description simple and direct enough for Haiku's faster reasoning?
 - Does it have clear, unambiguous triggering conditions?
 - Is the value proposition immediately obvious?
 
 Consider:
+
 - Haiku characteristics: Faster reasoning, prefers clear directives, less exploratory
 - Simplicity: Is the trigger condition obvious and unambiguous?
 - Length: Shorter descriptions may work better for Haiku
 - Competing with bash: Haiku more likely to default to bash without strong cues
 
 Score interpretation:
+
 - 90-100: Highly likely to invoke, crystal clear triggers
 - 70-89: Likely to invoke with clear user intent
 - 50-69: May invoke, could go either way
@@ -188,27 +201,31 @@ Score interpretation:
 - 0-29: Very unlikely, too complex or ambiguous
 
 **5. Semantic Clarity and Discoverability (0-100)**
+
 - Is the description self-contained and understandable?
 - Does it clearly articulate when to use vs. not use the skill?
 - Is the scope well-defined without ambiguity?
 - Can Claude understand the skill purpose from description alone?
 
 Consider:
+
 - Self-documentation: Does description explain full purpose?
 - Boundary clarity: When to use vs. when to use other skills?
 - Technical specificity: Balance between detailed and concise
 - Scannable structure: Can be quickly understood at a glance
 
 Score interpretation:
+
 - 90-100: Excellent clarity, completely self-documenting
 - 70-89: Good clarity, minor ambiguities
 - 50-69: Moderate clarity, some confusion possible
 - 30-49: Poor clarity, significant ambiguity
 - 0-29: Very poor, confusing or misleading
 
-### Analysis Process
+### Evaluation Process
 
 For each dimension:
+
 1. State the evaluation criterion
 2. Analyze the skill description against the criterion
 3. Compare with competing_instructions if provided (for dimension 2)
@@ -216,7 +233,7 @@ For each dimension:
 5. Assign score (0-100) with justification
 6. Note specific strengths and weaknesses
 
-### Output Structure
+### Evaluation Output
 
 Generate structured analysis in JSON format:
 
@@ -275,7 +292,7 @@ Phase 3 complete. Continue to Phase 4.
 
 **THINKING CHECKPOINT**: Use `mcp__sequential-thinking__sequentialthinking` to:
 
-### Analysis Process
+### Recommendation Analysis
 
 1. Review all weaknesses from Phase 3 evaluations
 2. Prioritize by impact: Which improvements would yield highest score gains?
@@ -286,24 +303,27 @@ Phase 3 complete. Continue to Phase 4.
 ### Recommendation Categories
 
 **High Priority** (score impact: +10 to +20 points):
+
 - Missing user request patterns → Add example phrases
 - Weak authority language → Strengthen using authority spectrum (Replacive/Integrative/Collaborative)
 - Unclear scope boundaries → Add "Use when" vs. "Use other skills for" clarity
 - Missing value proposition → Add automation/safety benefits
 
 **Medium Priority** (score impact: +5 to +10 points):
+
 - Technical jargon → Simplify for better matching
 - Ambiguous triggers → Make conditions more explicit
 - Length issues → Optimize for target word count (45-52)
 - Missing system integration → Add protocol/safety references
 
 **Low Priority** (score impact: +1 to +5 points):
+
 - Minor wording improvements
 - Additional example phrases
 - Formatting consistency
 - Tone adjustments
 
-### Output Structure
+### Recommendation Output
 
 Generate recommendations in structured format:
 
@@ -367,9 +387,9 @@ DETAILED ANALYSIS:
 <full JSON output from Phase 3 for reference>
 ```
 
-3. Present report to user
+1. Present report to user
 
-4. Optionally ask: "Would you like me to save this evaluation report to a file?"
+2. Optionally ask: "Would you like me to save this evaluation report to a file?"
    - IF yes: Use Write tool to save as markdown file
    - IF no: Complete workflow
 
@@ -382,6 +402,7 @@ Phase 5 complete. Workflow complete.
 ### Model-Specific Considerations
 
 **Sonnet 4.5**:
+
 - Strong reasoning capabilities favor complex, multi-phase workflows
 - Values safety protocols and validation gates
 - More likely to invoke skills that emphasize automation benefits
@@ -389,6 +410,7 @@ Phase 5 complete. Workflow complete.
 - Looks for integration with advanced features (sequential-thinking, MCP)
 
 **Haiku**:
+
 - Faster reasoning prefers clear, simple triggers
 - More likely to default to bash for straightforward tasks
 - Shorter descriptions may perform better
@@ -398,6 +420,7 @@ Phase 5 complete. Workflow complete.
 ### Evaluation Framework
 
 Refer to reference.md for:
+
 - Detailed scoring rubrics
 - Model invocation pattern analysis
 - Example evaluations with before/after
