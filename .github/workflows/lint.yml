@@ -23,3 +23,15 @@ jobs:
 
       - name: Run claudelint
         run: uvx --from 'claudelint>=0.3.3' claudelint --strict
+
+  markdown-lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Run markdownlint
+        run: npx markdownlint-cli2 "**/*.md"
