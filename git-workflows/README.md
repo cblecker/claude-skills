@@ -13,7 +13,7 @@ The git-workflows plugin automates your entire Git and GitHub workflow, from cod
 - **Smart branch management** with automatic mainline detection
 - **Fork-aware operations** for both origin and upstream workflows
 - **Validation gates** that prevent common mistakes
-- **95%+ confidence decisions** using structured reasoning
+- **95%+ confidence decisions** through validation gates and explicit checks
 - **Direct git CLI commands** for transparent operations
 
 ## Installation
@@ -201,7 +201,6 @@ Add this to your Claude Code `settings.json`:
       "mcp__github__list_commits",
       "mcp__github__get_file_contents",
       "mcp__github__get_me",
-      "mcp__sequential-thinking",
       "Bash(git config --get:*)",
       "Bash(git branch --show-current)",
       "Bash(git status:*)",
@@ -221,10 +220,9 @@ Add this to your Claude Code `settings.json`:
 
 ### MCP Servers
 
-The following MCP servers are recommended for enhanced functionality:
+The following MCP server is recommended for enhanced functionality:
 
 - **GitHub Copilot API** - GitHub operations via MCP (HTTP connection)
-- **@modelcontextprotocol/server-sequential-thinking** - Structured reasoning (installed via `npx`)
 
 The plugin uses direct git CLI commands for all git operations, eliminating the need for git MCP servers.
 
@@ -232,6 +230,5 @@ The plugin uses direct git CLI commands for all git operations, eliminating the 
 
 - **Git** - Git CLI must be available in PATH
 - **jq** - JSON processor required for UserPromptSubmit hook functionality (hook will show a warning if not installed)
-- **Node.js** (for `npx` command, if using sequential-thinking MCP)
 - **GITHUB_TOKEN** environment variable must be set for GitHub operations
-- Claude Code with MCP support (optional - for GitHub MCP and sequential-thinking)
+- Claude Code with MCP support (optional - for GitHub MCP)

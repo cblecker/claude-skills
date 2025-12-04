@@ -209,7 +209,6 @@ The primary plugin in this collection. Provides comprehensive git and GitHub aut
 **MCP Servers Used:**
 
 - `github` (GitHub Copilot API): GitHub operations via MCP
-- `sequential-thinking`: Structured reasoning for complex decisions
 
 **Architecture Philosophy:**
 
@@ -220,7 +219,7 @@ The primary plugin in this collection. Provides comprehensive git and GitHub aut
   - Claude autonomously detects when a skill needs another skill and invokes it
   - No explicit skill references in allowed-tools (removed in v3.0.0)
   - Skill invocation is based on task context and skill descriptions
-- **95%+ confidence**: Uses sequential-thinking tool to achieve high confidence in decisions
+- **95%+ confidence**: Achieves high confidence through validation gates and explicit checks
 - **Prescriptive**: Exact tool specifications per step (e.g., `git status --porcelain` for status checks)
 - **Plan mode aware**: Skills automatically limited to read-only operations in plan mode
 
@@ -238,7 +237,7 @@ All workflows follow strict phase-based execution with JSON state tracking:
 
 1. Pre-flight checks and validation
 2. Data gathering (status, diffs, logs)
-3. Analysis and decision-making (using sequential-thinking when needed)
+3. Analysis and decision-making
 4. User approval for critical operations
 5. Execution (bash for git, MCP for GitHub)
 6. Verification and reporting

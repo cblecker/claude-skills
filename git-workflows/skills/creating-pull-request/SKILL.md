@@ -132,15 +132,15 @@ Phase 2 complete. Continue to Phase 3.
 
 **Objective**: Create compelling PR title and description using context from Phase 1.
 
-**THINKING CHECKPOINT**: Use `mcp__sequential-thinking__sequentialthinking` to:
+**Generate PR content considering:**
 
-- Review commit history and diff summary from Phase 1 context
-- Use `commit_history` array (contains hash, subject, body for each commit)
-- Use `diff_summary` object (files_changed, insertions, deletions)
-- Check `uses_conventional_commits` flag for title format
-- Analyze purpose, scope, key changes, breaking changes
-- Draft title (<72 chars, imperative) and description
-- Validate quality and completeness
+- Commit history and diff summary from Phase 1 context
+- `commit_history` array (contains hash, subject, body for each commit)
+- `diff_summary` object (files_changed, insertions, deletions)
+- `uses_conventional_commits` flag for title format
+- Purpose, scope, key changes, breaking changes
+- Title (<72 chars, imperative) and description
+- Quality and completeness
 
 **Steps**:
 
@@ -258,8 +258,8 @@ Continue to Phase 6.
 
 **Error Handling**: IF failure:
 
-- Use `mcp__sequential-thinking__sequentialthinking` to analyze
-- Explain: Auth, permissions, invalid params, duplicate PR, rate limit, or network
+- Analyze error to determine cause: auth, permissions, invalid params, duplicate PR, rate limit, or network
+- Explain clearly to user
 - Propose solution and wait for retry approval
 
 Continue to Phase 7.
