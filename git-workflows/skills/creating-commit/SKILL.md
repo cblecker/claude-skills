@@ -111,15 +111,15 @@ Phase 1 complete. Continue to Phase 2.
 
 **Objective**: Draft a concise, informative commit message using context from Phase 1.
 
-**THINKING CHECKPOINT**: Use `mcp__sequential-thinking__sequentialthinking` to:
+**Generate commit message considering:**
 
-- Review file categories and diff summary from context
-- Identify core purpose of changes
-- Determine commit type if `uses_conventional_commits: true`
-- Review recent commits for style consistency
-- Draft subject (<50 chars, imperative mood) and optional body
-- Review the message for conciseness and clarity
-- Validate accuracy and completeness
+- File categories and diff summary from context
+- Core purpose of changes
+- Commit type if `uses_conventional_commits: true`
+- Recent commits for style consistency
+- Subject (<50 chars, imperative mood) and optional body
+- Conciseness and clarity
+- Accuracy and completeness
 
 **Commit Message Format**:
 
