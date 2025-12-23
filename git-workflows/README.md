@@ -94,21 +94,21 @@ Rebases current branch onto updated mainline with conflict handling and optional
 - Rebase onto specific branch - Say "rebase onto [branch]" (defaults to mainline)
 - Skip author date reset - Say "skip author date reset" or "keep author dates"
 
-### Utility Skills (Automatically Invoked)
+### Utility Scripts (Invoked by Skills)
 
-The following utility skills are automatically invoked by the main workflow skills to encapsulate common operations. You don't need to invoke these directly.
+The following bash scripts in `scripts/` are automatically invoked by the main workflow skills to encapsulate common operations. You don't need to invoke these directly.
 
-#### `mainline-branch`
+#### `get-mainline-branch.sh`
 
-Detects the repository's mainline/default branch by querying remote HEAD configuration. Compares current or specified branch against mainline to enforce branch protection. Invoked by commit, PR, branch, and rebase skills.
+Detects the repository's mainline/default branch by querying remote HEAD configuration. Compares current or specified branch against mainline to enforce branch protection. Invoked by commit, PR, branch, and rebase skills. Returns structured JSON output.
 
-#### `repository-type`
+#### `get-repository-type.sh`
 
-Detects fork vs origin repository structure by analyzing git remote configuration. Extracts owner and repository names from remote URLs for GitHub operations. Invoked by PR and sync skills.
+Detects fork vs origin repository structure by analyzing git remote configuration. Extracts owner and repository names from remote URLs for GitHub operations. Invoked by PR and sync skills. Returns structured JSON output.
 
-#### `detect-conventional-commits`
+#### `detect-conventions.sh`
 
-Detects whether the repository follows Conventional Commits convention through configuration analysis and commit history pattern matching. Invoked by commit and branch skills to determine message/name format.
+Detects whether the repository follows Conventional Commits convention through configuration analysis and commit history pattern matching. Invoked by commit and branch skills to determine message/name format. Returns structured JSON output.
 
 ## Usage
 
