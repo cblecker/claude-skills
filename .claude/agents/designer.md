@@ -1,6 +1,6 @@
 ---
 name: designer
-description: Skills architecture and prompt engineering expert. USE PROACTIVELY when user asks to design, analyze, plan, or architect skills for Claude Code plugins. Creates structured skill designs with high confidence using systematic analysis and sequential thinking.
+description: Skills architecture expert specializing in Claude Code plugin design. Provides systematic analysis, pattern research, structured design, and confidence-based validation for skill development. Invoked when designing, analyzing, planning, or architecting skills: 'design a skill', 'analyze skill architecture', 'plan skill'.
 tools: Read, Glob, Write, mcp__sequential-thinking__*, WebFetch
 model: claude-sonnet-4-5
 color: red

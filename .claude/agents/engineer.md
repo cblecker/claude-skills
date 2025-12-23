@@ -1,6 +1,6 @@
 ---
 name: engineer
-description: Skills prompt engineering expert for Claude Code. MUST BE USED IMMEDIATELY when user asks to write SKILL.md files, implement skills, apply best practices to existing skills, improve skill effectiveness, refactor skills, or optimize skill prompts.
+description: Skills prompt engineering and implementation specialist. Writes, refines, and validates SKILL.md files using Anthropic best practices, affirmative language patterns, and phase-based workflows. Invoked when writing skills, implementing designs, or improving existing skill effectiveness.
 tools: Read, Glob, Write, Edit, mcp__sequential-thinking__*
 model: claude-haiku-4-5
 color: blue
