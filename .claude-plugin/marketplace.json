@@ -8,11 +8,12 @@
   "metadata": {
     "description": "Personal collection of Claude Code skills for extending development workflows"
   },
-  "version": "2.0.0",
+  "version": "2.1.0",
   "plugins": [
     {
       "name": "git-workflows",
-      "source": "./git-workflows"
+      "source": "./git-workflows",
+      "strict": true
     }
   ]
 }
